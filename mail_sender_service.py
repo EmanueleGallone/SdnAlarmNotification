@@ -5,10 +5,13 @@ Author Emanuele Gallone
 
 import smtplib
 import json
+import logging
 from email.message import EmailMessage
 from config_manager import ConfigManager
 
 # todo: I know. it all needs a refactor.
+
+logging.basicConfig(filename="log.log", level=logging.ERROR)
 
 
 def send_mail(msg_body, msg_subject='SDN Alarm notification'):
@@ -17,9 +20,9 @@ def send_mail(msg_body, msg_subject='SDN Alarm notification'):
     if msg_body is None:
         raise Exception("you need to specify the the email body!")
 
-    DEBUG_MODE = config_manager.get_debug_mode()
+    debug_mode = config_manager.get_debug_mode()
 
-    if DEBUG_MODE:  # use my personal credentials
+    if debug_mode:  # use my personal credentials
         try:
             with open("personal_credentials.json") as json_data_file:
                 data = json.load(json_data_file)
@@ -44,7 +47,7 @@ def send_mail(msg_body, msg_subject='SDN Alarm notification'):
             print("something went wrong reading config.json file! ->" + str(e))
 
 
-    #########################################################
+    ################### implementation #######################
 
     with smtplib.SMTP(smtp_server, smtp_port) as smtp:
         smtp.ehlo()
@@ -63,7 +66,7 @@ def send_mail(msg_body, msg_subject='SDN Alarm notification'):
         try:
             smtp.send_message(msg)
         except Exception as e:
-            print("Failed to send email")
+            logging.log(logging.WARNING, "Failed to send email!" + str(e))
 
         smtp.close()
 
@@ -87,6 +90,6 @@ def send_mail(msg_body, msg_subject='SDN Alarm notification'):
 
 if __name__ == "__main__":
     try:
-        send_mail()
+        send_mail('debug from test')
     except Exception as ex:
         print("Error: " + str(ex))
