@@ -143,5 +143,6 @@ cython_debug/
 /policonf
 personal_credentials.json
 /test
+local.db
 #tele*
 

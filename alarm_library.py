@@ -47,7 +47,7 @@ def _worker(_delay, task, *args):
     next_time = time.time() + _delay
     while True:
         time.sleep(max(0, next_time - time.time()))
-        logging.info("inside thread")
+
         try:
             task(*args)
         except Exception:
@@ -59,23 +59,36 @@ def _worker(_delay, task, *args):
 
 
 def _detail_dummy_data_fetch() -> str:
+    """
+    I created this method to have a dummy data in case a device goes down
+    NB: for testing purpose only!!!
+    @return: xml in string format
+    """
     string_result = ''
     with open('detail_dummy_data.xml', 'r') as file:
-        for line in file:
+        for _line in file:
             # if "<?xml " in line:  # remove the xml prolog
             #     continue
 
-            string_result += (line.rstrip())
+            string_result += (_line.rstrip())
 
     return string_result
 
 
 def _thread_get_alarms(host, port, user, password):
-    # get_alarms to really fetch data from SDN devices
-
+    """
+    this method is runned by the various threads, it is the core concept of the alarm library
+    @param host: device IP
+    @param port: netconf port
+    @param user: username credential for netconf
+    @param password: passowrd for netconf
+    @return: void
+    """
     try:
         temp = _get_alarms_xml(host, port, user, password)
+
     except Exception as e:
+
         logging.log(logging.ERROR, "Could not retrieve data from netconf! switching to dummy data\n" + str(e))
         temp = _detail_dummy_data_fetch()
 
@@ -200,6 +213,12 @@ def _parse_all_alarms_xml(_root) -> List:
 
 
 def start_threads() -> List:
+    """
+    method available on the outside. it start all the magic to retrive the alarms on the devices
+    listed inside the config.json
+
+    @return: List of threads that need to be joined outside
+    """
     _threads = []
 
     for device in devices:

@@ -56,6 +56,9 @@ class ConfigManager(object):
     def get_severity_levels(self) -> Dict:
         return self.data['Severity_levels']
 
+    def get_severity_notification_threshold(self) -> int:
+        return self.data['Severity_notification_threshold']
+
 
 if __name__ == '__main__':
     # debug

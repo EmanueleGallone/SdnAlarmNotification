@@ -20,6 +20,8 @@ class DBHandler(object):
         self._connection = None
         self._cursor = None
 
+        self.create_alarm_table()  # just to be sure...
+
     def open_connection(self):
         if self._cursor is None:
             self._connection = sqlite3.connect(self._db_url)
@@ -31,7 +33,8 @@ class DBHandler(object):
         # from here on, thread-safe environment!
         try:
             self._cursor.execute('''CREATE TABLE IF NOT EXISTS alarm
-                         (ID INTEGER PRIMARY KEY ,deviceIP text , severity text, description text, time timestamp, notified integer)''')
+                         (ID INTEGER PRIMARY KEY ,deviceIP text , severity text,
+                          description text, time timestamp, notified integer)''')
 
         except Exception as e:
             print("something wrong creating alarm table" + str(e))

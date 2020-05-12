@@ -7,9 +7,9 @@
     "Receiver_Email": "",
     "SMTP_SERVER": "smtp.office365.com",
     "SMTP_PORT": "587",
-    "Send_email": "True",
+    "Send_email": "False",
     "Send_message": "True",
-    "Severity_notification_threshold": 2
+    "Severity_notification_threshold": 3
 
   },
 
@@ -17,7 +17,7 @@
     "critical": 3,
     "major": 2,
     "minor": 1,
-    "not_reported": 0
+    "not-reported": 0
   },
 
   "network_params": {
