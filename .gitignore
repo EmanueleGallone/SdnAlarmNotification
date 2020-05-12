@@ -89,9 +89,9 @@ ipython_config.py
 
 # pipenv
 #   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies.txt or dependencies.txt
-#   having no cross-platform support, pipenv may install dependencies.txt that don't work, or not
-#   install all needed dependencies.txt.
+#   However, in case of collaboration, if having platform-specific requirements.txt or requirements.txt
+#   having no cross-platform support, pipenv may install requirements.txt that don't work, or not
+#   install all needed requirements.txt.
 #Pipfile.lock
 
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow
