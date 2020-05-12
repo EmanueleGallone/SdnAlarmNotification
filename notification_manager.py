@@ -1,3 +1,8 @@
+"""
+Copyright (c) Emanuele Gallone 05-2020.
+Author Emanuele Gallone
+"""
+
 import mail_sender_service
 import telegram_bot_service
 from config_manager import ConfigManager

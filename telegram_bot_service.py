@@ -37,10 +37,6 @@ def start(update, context):
                               ' e.g. notifications. We may add something along these lines in the future. (...)\n\n'
                               'Enroll to the private group instead tg://join?invite=HJpFahAwxvQ1qOtRWXXw9g where I notify the alarms to all members!')
 
-    chat_id = str(update.message.chat_id)
-
-    logger.info("chat_id : " + chat_id)
-
 
 # custom method
 def send_single_message(chat_id, content='Alarm Notification : {info}'):
@@ -68,8 +64,8 @@ From Official API FAQ:
 """
 
 
-def send_to_bot_group(msg_content='DEBUG ALARM'):  # IMPORTANT!
-    '''with this code you can broadcast to all sdn followers the alarm inside the group'''
+def send_to_bot_group(msg_content='DEBUG ALARM'):
+    """with this code you can broadcast to all sdn followers the alarm inside the private group"""
 
     url = f'https://api.telegram.org/bot{TOKEN}/sendMessage'
 
@@ -84,17 +80,14 @@ def help(update, context):
     update.message.reply_text('This bot is designed to send alert retrieved from SDNs\' devices.\n'
                               ' By clicking on \'start\' you subscribed to the automated alarm relay system.\n'
                               ' Of course this is a testing bot, but further commands'
-                              ' can be developed in future such as \'unsubscribe\' method or \'seeHistory\' ')
-
-
-def echo(update, context):
-    """Echo the user message."""
-    update.message.reply_text("[debug echo mode on] your message is: " + update.message.text)
-
+                              ' can be developed in future such as \'unsubscribe\' method or \'seeHistory\' '
+                              'Commands Available:\n\n'
+                              '/status -> It prints the status of the bot')
 
 def status(update, context):
     """Echo the user the bot status."""
-    update.message.reply_text("I'm Up and Running!")
+    sunglasses_emoji = '\U0001F60E'
+    update.message.reply_text("I'm Up and Running! " + sunglasses_emoji)
 
 
 def error(update, context):
@@ -116,9 +109,6 @@ def main():
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("status", status))
-
-    # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(MessageHandler(Filters.text, echo))
 
     # log all errors
     dp.add_error_handler(error)

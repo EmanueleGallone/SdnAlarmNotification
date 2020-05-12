@@ -13,7 +13,7 @@ from datetime import datetime
 lock = threading.Lock()  # creating a global lock mechanism
 
 
-class DBHandler:
+class DBHandler(object):
 
     def __init__(self, db_url='local.db'):
         self._db_url = db_url
@@ -28,7 +28,7 @@ class DBHandler:
 
     def create_alarm_table(self):
         lock.acquire()
-
+        # from here on, thread-safe environment!
         try:
             self._cursor.execute('''CREATE TABLE IF NOT EXISTS alarm
                          (ID INTEGER PRIMARY KEY ,deviceIP text , severity text, time timestamp, description text, notified integer)''')
@@ -47,11 +47,19 @@ class DBHandler:
     def select_alarm_by_ID(self, ID='0'):
         lock.acquire()
 
-        t = (ID,)
-        self._cursor.execute('SELECT * FROM alarm WHERE ID=?', t)
-        result = self._cursor.fetchone()
+        result = ''
 
-        lock.release()
+        try:
+            t = (ID,)
+            self._cursor.execute('SELECT * FROM alarm WHERE ID=?', t)
+            result = self._cursor.fetchone()
+
+        except Exception as e:
+            logging.log(logging.ERROR,"something wrong selecting alarm by ID" + str(e))
+
+        finally:
+            lock.release()  # avoiding deadlock
+
         return result
 
     def select_alarm_by_severity_unnotified(self, severity):
@@ -80,8 +88,6 @@ class DBHandler:
 
         return result
 
-
-
     def insert_row_alarm(self, device_ip='0.0.0.0', severity='0', description='debug', notified=0):
         lock.acquire()
         # Insert a row of data
@@ -107,14 +113,8 @@ class DBHandler:
 import threading, time, traceback, logging, json
 logging.basicConfig(filename="log.log", level=logging.ERROR)
 
-def worker(delay, task, *args):
-    """worker definition for thread task
+def __worker(delay, task, *args):
 
-    @param delay: it specifies the delay in which the task will be performed
-    @param task: pointer to the function that will be executed by the thread
-    @param args: list of arguments that will be passed to the task's parameters
-    @return: void
-    """
     next_time = time.time() + delay
     while True:
         time.sleep(max(0, next_time - time.time()))
@@ -140,10 +140,10 @@ def start_threads() -> []:
     delay = 5
     threads = []
 
-    worker1 = threading.Thread(target=lambda: worker(delay, insert_row_thread, '10.11.12.19', '830'))
+    worker1 = threading.Thread(target=lambda: __worker(delay, insert_row_thread, '10.11.12.19', '830'))
     threads.append(worker1)
 
-    worker2 = threading.Thread(target=lambda: worker(delay, insert_row_thread, '10.11.12.24', '10'))
+    worker2 = threading.Thread(target=lambda: __worker(delay, insert_row_thread, '10.11.12.24', '10'))
     threads.append(worker2)
 
     worker1.start()  # starts the thread

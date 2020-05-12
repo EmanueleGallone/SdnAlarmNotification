@@ -12,6 +12,7 @@ from typing import Dict, List
 
 logging.basicConfig(filename="log.log", level=logging.ERROR)
 
+# todo refactor in a way to read the file only once!
 
 def _read_config_file() -> Dict:  # creating static method to read config file
     try:
