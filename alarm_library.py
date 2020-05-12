@@ -10,7 +10,6 @@ import threading, time, traceback, logging
 import database_handler
 from config_manager import ConfigManager
 
-
 from ncclient import manager
 from io import BytesIO
 from typing import List
@@ -33,18 +32,19 @@ netconf_password = config_m.get_netconf_password()
 
 lock = threading.Lock()
 
+
 #########################################
 
 
 def _worker(_delay, task, *args):
-    '''
+    """
     worker definition for thread task
 
     @param _delay: it specifies the delay in which the task will be performed
     @param task: pointer to the function that will be executed by the thread
     @param args: list of arguments that will be passed to the task's parameters
     @return: void
-    '''
+    """
     next_time = time.time() + _delay
     while True:
         time.sleep(max(0, next_time - time.time()))
@@ -71,8 +71,7 @@ def _dummy_data_fetch() -> str:
     return string_result
 
 
-def repeated_get_alarms(host, port, user, password):
-
+def _thread_get_alarms(host, port, user, password):
     # change to get_alarms to really fetch data from SDN devices
     try:
         temp = get_alarms_xml(host, port, user, password)
@@ -92,10 +91,10 @@ def repeated_get_alarms(host, port, user, password):
 
 
 def __remove_namespaces(_root):
-    '''
+    """
     It does exactly what the name's specifies
     @param _root: root of xml tree lxml.ElementTree format
-    '''
+    """
 
     for _elem in _root.getiterator():
         if not hasattr(_elem.tag, 'find'):
@@ -108,15 +107,15 @@ def __remove_namespaces(_root):
     return _root
 
 
-def _parse_severity(root) -> List:
+def _parse_severity(_root) -> List:
     alarms = []
 
-    if root is None:
+    if _root is None:
         raise Exception("Root not set!")
 
     # I'm lazy, I don't know how to reach the tags using XPATH
-    # (potentially O(n) -> not good)
-    for element in root.iter("*"):
+    # ( ~ O(n) -> not good)
+    for element in _root.iter("*"):
         if element.text is not None:
             try:
                 severity = {  # ideally it works as a switch-case (not present in python, of course...)
@@ -138,7 +137,6 @@ def _parse_severity(root) -> List:
 
 
 def _parse_to_ElementTree(xml='') -> ET:
-
     xml_string = BytesIO(bytes(xml, encoding='utf-8'))
     tree = ET.parse(xml_string)
     _root = tree.getroot()
@@ -148,12 +146,11 @@ def _parse_to_ElementTree(xml='') -> ET:
 
 def get_alarms_xml(host, port, user, password) -> str:
     with manager.connect(host=host,
-                           port=port,
-                           username=user,
-                           password=password,
-                           timeout=10,
-                           hostkey_verify=False) as conn:
-
+                         port=port,
+                         username=user,
+                         password=password,
+                         timeout=10,
+                         hostkey_verify=False) as conn:
         criteria = """
         <managed-element xmlns="http://www.advaoptical.com/aos/netconf/aos-core-managed-element">
             <alm-summary />
@@ -171,11 +168,12 @@ def get_alarms_xml(host, port, user, password) -> str:
 
 
 def start_threads() -> List:
-
     _threads = []
 
     for device in devices:
-        _t = threading.Thread(target=lambda: _worker(netconf_fetch_rate, repeated_get_alarms, device, netconf_port, netconf_user, netconf_password))
+        _t = threading.Thread(
+            target=lambda: _worker(netconf_fetch_rate, _thread_get_alarms, device, netconf_port, netconf_user,
+                                   netconf_password))
         _t.start()
         _threads.append(_t)
 
