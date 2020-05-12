@@ -53,6 +53,9 @@ class ConfigManager(object):
     def get_debug_mode(self) -> str:
         return self.data['Debug_Mode']
 
+    def get_severity_levels(self) -> Dict:
+        return self.data['Severity_levels']
+
 
 if __name__ == '__main__':
     # debug
@@ -63,3 +66,4 @@ if __name__ == '__main__':
     print(c.get_all_devices_ip()[0])
     print(c.get_netconf_user() , c.get_netconf_password())
     print(c.get_debug_mode())
+    print(c.get_severity_levels())

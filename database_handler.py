@@ -31,7 +31,7 @@ class DBHandler(object):
         # from here on, thread-safe environment!
         try:
             self._cursor.execute('''CREATE TABLE IF NOT EXISTS alarm
-                         (ID INTEGER PRIMARY KEY ,deviceIP text , severity text, time timestamp, description text, notified integer)''')
+                         (ID INTEGER PRIMARY KEY ,deviceIP text , severity text, description text, time timestamp, notified integer)''')
 
         except Exception as e:
             print("something wrong creating alarm table" + str(e))
@@ -40,9 +40,13 @@ class DBHandler(object):
             lock.release()  # avoiding deadlock
 
     def close_connection(self):
+        lock.acquire()
+
         if self._connection is not None:
             self._connection.commit()  # save all changes
             self._connection.close()
+
+        lock.release()
 
     def select_alarm_by_ID(self, ID='0'):
         lock.acquire()
@@ -88,14 +92,16 @@ class DBHandler(object):
 
         return result
 
-    def insert_row_alarm(self, device_ip='0.0.0.0', severity='0', description='debug', notified=0):
+    def insert_row_alarm(self, device_ip='0.0.0.0', severity='0', description='debug', _time=None, notified=0):
         lock.acquire()
-        # Insert a row of data
-        time = datetime.now()
-        t = (device_ip, severity, time, description, notified, )
+
+        if _time is None:
+            _time = datetime.now()
+
+        t = (device_ip, severity, description, _time, notified,)
 
         self._cursor.execute('''INSERT INTO alarm 
-            (deviceIP, severity, time, description, notified) VALUES (?, ?, ?, ?, ?)''', t)
+            (deviceIP, severity, description, time, notified) VALUES (?, ?, ?, ?, ?)''', t)
 
         lock.release()
 

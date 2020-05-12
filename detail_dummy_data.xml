@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rpc-reply xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" message-id="urn:uuid:e0478581-9c50-4bbd-8129-5d96dbb9cd6b">
+  <data>
+    <managed-element xmlns="http://www.advaoptical.com/aos/netconf/aos-core-managed-element" xmlns:f8-ne="http://www.advaoptical.com/aos/netconf/adva-f8-ne">
+      <alarm xmlns:acor-tmdtt="http://www.advaoptical.com/aos/netconf/aos-core-time-date-types" xmlns:acor-fmt="http://www.advaoptical.com/aos/netconf/aos-core-fm-types">
+        <condition>acor-tmdtt:ntp-server-unavailable</condition>
+        <condition-description>NTP server unavailable</condition-description>
+        <direction>acor-fmt:bi-direction</direction>
+        <location>acor-fmt:near-end</location>
+        <ne-condition-timestamp>2018-03-28T21:41:35.2749Z</ne-condition-timestamp>
+        <entity-display-name>node 1 date-time time ntp</entity-display-name>
+        <service-affecting>acor-fmt:nsa</service-affecting>
+        <notification-code>acor-fmt:minor</notification-code>
+        <ne-notification-timestamp>2018-03-28T21:41:35.2769Z</ne-notification-timestamp>
+      </alarm>
+      <alarm xmlns:acor-factt="http://www.advaoptical.com/aos/netconf/aos-core-facility-types" xmlns:acor-fmt="http://www.advaoptical.com/aos/netconf/aos-core-fm-types">
+        <condition>acor-factt:server-signal-fail</condition>
+        <condition-description>Server Signal Fail</condition-description>
+        <direction>acor-fmt:receive</direction>
+        <location>acor-fmt:near-end</location>
+        <ne-condition-timestamp>2019-10-11T07:00:56.7695Z</ne-condition-timestamp>
+        <entity-display-name>node 1 interface 1/2/n1/ot100/odu4 odu4</entity-display-name>
+        <service-affecting>acor-fmt:nsa</service-affecting>
+        <notification-code>acor-fmt:not-reported</notification-code>
+        <ne-notification-timestamp>2018-03-28T21:42:35.0274Z</ne-notification-timestamp>
+      </alarm>
+      <alarm xmlns:acor-factt="http://www.advaoptical.com/aos/netconf/aos-core-facility-types" xmlns:acor-fmt="http://www.advaoptical.com/aos/netconf/aos-core-fm-types">
+        <condition>acor-factt:tca-unavailable-seconds-hi</condition>
+        <condition-description>TCA unavailable seconds high</condition-description>
+        <direction>acor-fmt:no-direction</direction>
+        <location>acor-fmt:near-end</location>
+        <ne-condition-timestamp>2019-10-11T07:01:07.7734Z</ne-condition-timestamp>
+        <entity-display-name>node 1 interface 1/2/n1/ot100/odu4 odu4</entity-display-name>
+        <service-affecting>acor-fmt:nsa</service-affecting>
+        <notification-code>acor-fmt:not-reported</notification-code>
+        <ne-notification-timestamp>2018-03-28T21:42:43.7912Z</ne-notification-timestamp>
+      </alarm>
+      <alarm xmlns:acor-factt="http://www.advaoptical.com/aos/netconf/aos-core-facility-types" xmlns:acor-fmt="http://www.advaoptical.com/aos/netconf/aos-core-fm-types">
+        <condition>acor-factt:server-signal-fail-payload</condition>
+        <condition-description>Server Signal Fail payload</condition-description>
+        <direction>acor-fmt:receive</direction>
+        <location>acor-fmt:near-end</location>
+        <ne-condition-timestamp>2019-10-11T07:00:57.7571Z</ne-condition-timestamp>
+        <entity-display-name>node 1 interface 1/2/n1/ot100 och</entity-display-name>
+        <service-affecting>acor-fmt:nsa</service-affecting>
+        <notification-code>acor-fmt:not-reported</notification-code>
+        <ne-notification-timestamp>2018-03-28T21:42:36.0284Z</ne-notification-timestamp>
+      </alarm>
+      <alarm xmlns:acor-factt="http://www.advaoptical.com/aos/netconf/aos-core-facility-types" xmlns:acor-fmt="http://www.advaoptical.com/aos/netconf/aos-core-fm-types">
+        <condition>acor-factt:server-signal-fail</condition>
+        <condition-description>Server Signal Fail</condition-description>
+        <direction>acor-fmt:receive</direction>
+        <location>acor-fmt:near-end</location>
+        <ne-condition-timestamp>2019-10-11T07:00:56.7699Z</ne-condition-timestamp>
+        <entity-display-name>node 1 interface 1/2/n1/ot100 otu4</entity-display-name>
+        <service-affecting>acor-fmt:nsa</service-affecting>
+        <notification-code>acor-fmt:not-reported</notification-code>
+        <ne-notification-timestamp>2018-03-28T21:42:35.0328Z</ne-notification-timestamp>
+      </alarm>
+      <alarm xmlns:acor-factt="http://www.advaoptical.com/aos/netconf/aos-core-facility-types" xmlns:acor-fmt="http://www.advaoptical.com/aos/netconf/aos-core-fm-types">
+        <condition>acor-factt:tca-unavailable-seconds-hi</condition>
+        <condition-description>TCA unavailable seconds high</condition-description>
+        <direction>acor-fmt:no-direction</direction>
+        <location>acor-fmt:near-end</location>
+        <ne-condition-timestamp>2019-10-11T07:01:07.7736Z</ne-condition-timestamp>
+        <entity-display-name>node 1 interface 1/2/n1/ot100 otu4</entity-display-name>
+        <service-affecting>acor-fmt:nsa</service-affecting>
+        <notification-code>acor-fmt:not-reported</notification-code>
+        <ne-notification-timestamp>2018-03-28T21:42:43.7986Z</ne-notification-timestamp>
+      </alarm>
+      <alarm xmlns:acor-factt="http://www.advaoptical.com/aos/netconf/aos-core-facility-types" xmlns:acor-fmt="http://www.advaoptical.com/aos/netconf/aos-core-fm-types">
+        <condition>acor-factt:loss-of-signal</condition>
+        <condition-description>Loss of Signal</condition-description>
+        <direction>acor-fmt:receive</direction>
+        <location>acor-fmt:near-end</location>
+        <ne-condition-timestamp>2019-10-11T07:00:56.7981Z</ne-condition-timestamp>
+        <entity-display-name>node 1 interface 1/2/n1 opt-phy</entity-display-name>
+        <service-affecting>acor-fmt:sa</service-affecting>
+        <notification-code>acor-fmt:critical</notification-code>
+        <ne-notification-timestamp>2018-03-28T21:42:35.0362Z</ne-notification-timestamp>
+      </alarm>
+      <alarm xmlns:acor-factt="http://www.advaoptical.com/aos/netconf/aos-core-facility-types" xmlns:acor-fmt="http://www.advaoptical.com/aos/netconf/aos-core-fm-types">
+        <condition>acor-factt:laser-on-delay</condition>
+        <condition-description>Laser on delay</condition-description>
+        <direction>acor-fmt:transmit</direction>
+        <location>acor-fmt:near-end</location>
+        <ne-condition-timestamp>2019-10-11T06:59:14.8101Z</ne-condition-timestamp>
+        <entity-display-name>node 1 interface 1/2/n2 opt-phy</entity-display-name>
+        <service-affecting>acor-fmt:nsa</service-affecting>
+        <notification-code>acor-fmt:not-reported</notification-code>
+        <ne-notification-timestamp>2018-03-29T05:40:25.0935Z</ne-notification-timestamp>
+      </alarm>
+      <alarm xmlns:acor-etht="http://www.advaoptical.com/aos/netconf/aos-core-ethernet-types" xmlns:acor-fmt="http://www.advaoptical.com/aos/netconf/aos-core-fm-types">
+        <condition>acor-etht:link-fail</condition>
+        <condition-description>Ethernet link failure</condition-description>
+        <direction>acor-fmt:bi-direction</direction>
+        <location>acor-fmt:near-end</location>
+        <ne-condition-timestamp>2018-03-28T21:41:03.051Z</ne-condition-timestamp>
+        <entity-display-name>node 1 interface 1/cem/m1/eth ety</entity-display-name>
+        <service-affecting>acor-fmt:sa</service-affecting>
+        <notification-code>acor-fmt:minor</notification-code>
+        <ne-notification-timestamp>2018-03-28T21:41:05.5041Z</ne-notification-timestamp>
+      </alarm>
+      <alarm xmlns:acor-etht="http://www.advaoptical.com/aos/netconf/aos-core-ethernet-types" xmlns:acor-fmt="http://www.advaoptical.com/aos/netconf/aos-core-fm-types">
+        <condition>acor-etht:link-fail</condition>
+        <condition-description>Ethernet link failure</condition-description>
+        <direction>acor-fmt:bi-direction</direction>
+        <location>acor-fmt:near-end</location>
+        <ne-condition-timestamp>2018-03-28T21:41:03.0512Z</ne-condition-timestamp>
+        <entity-display-name>node 1 interface 1/cem/m2/eth ety</entity-display-name>
+        <service-affecting>acor-fmt:sa</service-affecting>
+        <notification-code>acor-fmt:minor</notification-code>
+        <ne-notification-timestamp>2018-03-28T21:41:05.5085Z</ne-notification-timestamp>
+      </alarm>
+      <alarm xmlns:acor-etht="http://www.advaoptical.com/aos/netconf/aos-core-ethernet-types" xmlns:acor-fmt="http://www.advaoptical.com/aos/netconf/aos-core-fm-types">
+        <condition>acor-etht:link-fail</condition>
+        <condition-description>Ethernet link failure</condition-description>
+        <direction>acor-fmt:bi-direction</direction>
+        <location>acor-fmt:near-end</location>
+        <ne-condition-timestamp>2018-03-28T21:41:03.0515Z</ne-condition-timestamp>
+        <entity-display-name>node 1 interface 1/ecm-1/m2/eth ety</entity-display-name>
+        <service-affecting>acor-fmt:sa</service-affecting>
+        <notification-code>acor-fmt:minor</notification-code>
+        <ne-notification-timestamp>2018-03-28T21:41:05.5129Z</ne-notification-timestamp>
+      </alarm>
+    </managed-element>
+  </data>
+</rpc-reply>

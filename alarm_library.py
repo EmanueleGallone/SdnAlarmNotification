@@ -7,7 +7,7 @@ a bunch of useful methods retrieving alarms from SDN devices using NETCONF
 
 import threading, time, traceback, logging
 
-import database_handler
+from database_handler import DBHandler
 from config_manager import ConfigManager
 
 from ncclient import manager
@@ -20,7 +20,6 @@ from lxml import etree as ET, objectify
 logging.basicConfig(filename="log.log", level=logging.ERROR)
 
 device_port = 830
-db = database_handler.DBHandler()  # setting up the db connection
 
 config_m = ConfigManager()
 
@@ -59,9 +58,9 @@ def _worker(_delay, task, *args):
         next_time += (time.time() - next_time) // _delay * _delay + _delay
 
 
-def _dummy_data_fetch() -> str:
+def _detail_dummy_data_fetch() -> str:
     string_result = ''
-    with open('dummy_data.txt', 'r') as file:
+    with open('detail_dummy_data.xml', 'r') as file:
         for line in file:
             # if "<?xml " in line:  # remove the xml prolog
             #     continue
@@ -72,28 +71,62 @@ def _dummy_data_fetch() -> str:
 
 
 def _thread_get_alarms(host, port, user, password):
-    # change to get_alarms to really fetch data from SDN devices
+    # get_alarms to really fetch data from SDN devices
+
     try:
-        temp = get_alarms_xml(host, port, user, password)
+        temp = _get_alarms_xml(host, port, user, password)
     except Exception as e:
         logging.log(logging.ERROR, "Could not retrieve data from netconf! switching to dummy data\n" + str(e))
-        temp = _dummy_data_fetch()
+        temp = _detail_dummy_data_fetch()
 
-    result = _parse_to_ElementTree(temp)
+    _root = _parse_to_ElementTree(temp)  # first, let's convert the xml to ElementTree
 
-    # result = parse_to_ElementTree(_dummy_data_fetch())
+    alarms_metadata = _parse_all_alarms_xml(_root)  # then we parse the xml to retrieve all the metadata that we need
 
-    for element in result.iter("*"):
-        if element.text is not None:
-            lock.acquire()
-            print(element.tag, element.text)
-            lock.release()
+    _thread_save_to_db(host, alarms_metadata)  # finally save the information in DB
+
+    return
 
 
-def __remove_namespaces(_root):
+def _thread_save_to_db(host, parsed_metadata):
+    """
+    method used by the various threads to save inside the local.db all the metadata that we need
+    here the things gets a little tricky:
+    basically, parsed_metadata is a list of dictionaries. Each dictionary is an alarm.
+    If you want to know how this dictionary is formed look at _parse_all_alarms_xml(_root)
+
+    @param host: specifies the host IP
+    @param parsed_metadata: is a list of dictionaries that is coming from the method '_parse_all_alarms_xml(_root)'
+    @return: void
+    """
+
+    for alarm_dict in parsed_metadata:
+
+        severity_levels = config_m.get_severity_levels()
+        severity = severity_levels[alarm_dict['notification-code']]
+        description = alarm_dict['condition-description']
+        timestamp = alarm_dict['ne-condition-timestamp']
+
+        lock.acquire()
+        db_handler = DBHandler()
+
+        db_handler.open_connection()
+        db_handler.insert_row_alarm(device_ip=host,
+                                    severity=severity,
+                                    description=description,
+                                    _time=timestamp,
+                                    notified=0)
+        db_handler.close_connection()
+
+        lock.release()
+
+
+def __remove_namespaces(_root) -> ET:
     """
     It does exactly what the name's specifies
+
     @param _root: root of xml tree lxml.ElementTree format
+    @return: lxml.ElementTree object
     """
 
     for _elem in _root.getiterator():
@@ -107,35 +140,6 @@ def __remove_namespaces(_root):
     return _root
 
 
-def _parse_severity(_root) -> List:
-    alarms = []
-
-    if _root is None:
-        raise Exception("Root not set!")
-
-    # I'm lazy, I don't know how to reach the tags using XPATH
-    # ( ~ O(n) -> not good)
-    for element in _root.iter("*"):
-        if element.text is not None:
-            try:
-                severity = {  # ideally it works as a switch-case (not present in python, of course...)
-                    'critical-alm-count': 5,
-                    'major-alm-count': 4,
-                    'minor-alm-count': 3,
-                    'warn-alm-count': 2,
-                    'na-alm-count': 1,
-                    'nr-alm-count': 0
-                }[element.tag]
-            except KeyError as k:
-                severity = -1
-
-            if severity != -1:
-                quantity = element.text  # the element text shows the number of alarms
-                alarms.append((severity, quantity))
-
-    return alarms
-
-
 def _parse_to_ElementTree(xml='') -> ET:
     xml_string = BytesIO(bytes(xml, encoding='utf-8'))
     tree = ET.parse(xml_string)
@@ -144,27 +148,55 @@ def _parse_to_ElementTree(xml='') -> ET:
     return __remove_namespaces(_root)
 
 
-def get_alarms_xml(host, port, user, password) -> str:
+def _get_alarms_xml(host, port, user, password) -> str:
     with manager.connect(host=host,
                          port=port,
                          username=user,
                          password=password,
                          timeout=10,
                          hostkey_verify=False) as conn:
-        criteria = """
-        <managed-element xmlns="http://www.advaoptical.com/aos/netconf/aos-core-managed-element">
-            <alm-summary />
-        </managed-element>
+
+        retrieve_all_alarms_criteria = """
+        <managed-element xmlns:acor-me="http://www.advaoptical.com/aos/netconf/aos-core-managed-element"> 
+        <alarm/> </managed-element>
         """
 
-        criteria2 = """
-        <managed-element xmlns="http://www.advaoptical.com/aos/netconf/aos-core-managed-element"> <entity-name>1</entity-name> <interface xmlns="http://www.advaoptical.com/aos/netconf/aos-core-facility"> <name>1/1/ot100</name> <floating-interface/> </interface> </managed-element>
-        """
-
-        filter = ("subtree", criteria)
+        filter = ("subtree", retrieve_all_alarms_criteria)
         result = conn.get(filter).xml
 
     return result
+
+
+def _parse_all_alarms_xml(_root) -> List:
+    """
+    method that parse and filters all the xml that we're interested in
+
+    @param _root: is the lxml.ElementTree of the xml we need to parse
+    @return: List of Dictionaries containing alarms metadata [{alarm_ID: {element.tag: element.text}}]
+    """
+    # todo refactor this immediately. it is unreadable
+
+    data = []
+    tags_interested_in = ['condition-description', 'ne-condition-timestamp', 'notification-code']
+
+    for index, alarm in enumerate(_root.findall('*/managed-element/'), start=0):
+        my_dict = {}
+
+        for child in alarm:
+            if child.tag in tags_interested_in:
+
+                if child.tag == tags_interested_in[2]:  # replacing useless namespace
+                    child.text = str(child.text).replace('acor-fmt:', '')
+
+                if child.tag == tags_interested_in[1]:  # formatting the datetime
+                    child.text = str(child.text).replace('T', ' ')
+                    child.text = str(child.text).replace('Z', '')
+
+                my_dict[child.tag] = child.text
+
+        data.append(my_dict)
+
+    return data
 
 
 def start_threads() -> List:
@@ -189,6 +221,10 @@ if __name__ == "__main__":
     for thread in threads:
         thread.join()
 
-    root = _parse_to_ElementTree(_dummy_data_fetch())
+    result = ''
+    with open('detail_dummy_data.xml', 'r') as file:
+        for line in file:
+            result += line.rstrip()
 
-    _parse_severity(root)
+    print(result)
+    root = _parse_to_ElementTree(result)
