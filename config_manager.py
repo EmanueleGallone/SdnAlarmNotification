@@ -12,8 +12,6 @@ from typing import Dict, List
 
 logging.basicConfig(filename="log.log", level=logging.ERROR)
 
-# todo: refactor in a way that your read the file only once!
-
 
 def _read_config_file() -> Dict:  # creating static method to read config file
     try:
@@ -26,42 +24,33 @@ def _read_config_file() -> Dict:  # creating static method to read config file
         return data
 
 
-class ConfigManager:
+class ConfigManager(object):
     def __init__(self):
-        self.data = ''
+        self.data = _read_config_file()
 
     def read_network_params(self) -> Dict:
-
-        self.data = _read_config_file()['network_params']
-        return self.data
+        return self.data['network_params']
 
     def get_notification_params(self) -> Dict:
-        self.data = _read_config_file()['notification_config']
-        return self.data
+        return self.data['notification_config']
 
     def get_all_devices_ip(self) -> List:
-        self.data = _read_config_file()['network_params']['devices_ip']
-        return self.data
+        return self.data['network_params']['devices_ip']
 
     def get_netconf_port(self) -> List:
-        self.data = _read_config_file()['network_params']['netconf_port']
-        return self.data
+        return self.data['network_params']['netconf_port']
 
     def get_netconf_user(self) -> str:
-        self.data = _read_config_file()['network_params']['netconf_credentials']['user']
-        return self.data
+        return self.data['network_params']['netconf_credentials']['user']
 
     def get_netconf_password(self) -> str:
-        self.data = _read_config_file()['network_params']['netconf_credentials']['password']
-        return self.data
+        return self.data['network_params']['netconf_credentials']['password']
 
     def get_netconf_fetch_rate(self) -> str:
-        self.data = _read_config_file()['network_params']['netconf_fetch_rate_in_sec']
-        return self.data
+        return self.data['network_params']['netconf_fetch_rate_in_sec']
 
     def get_debug_mode(self) -> str:
-        self.data = _read_config_file()['Debug_Mode']
-        return self.data
+        return self.data['Debug_Mode']
 
 
 if __name__ == '__main__':
