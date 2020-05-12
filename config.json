@@ -1,0 +1,27 @@
+{
+  "Debug_Mode": "True",
+
+  "notification_config": {
+    "Sender_email": "",
+    "Sender_email_password": "",
+    "Receiver_Email": "",
+    "SMTP_SERVER": "smtp.office365.com",
+    "SMTP_PORT": "587",
+    "Send_email": "True",
+    "Send_message": "True",
+    "severity_notification_threshold": "4"
+  },
+
+  "network_params": {
+    "devices_ip": ["10.11.12.25", "10.11.12.26", "10.11.12.27"],
+    "netconf_fetch_rate_in_sec": 5,
+    "netconf_port": 830,
+
+    "netconf_credentials": {
+      "user": "admin",
+      "password": "CHGME.1a"
+    }
+
+  }
+
+}
