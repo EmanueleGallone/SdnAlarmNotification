@@ -50,14 +50,19 @@ class ConfigManager(object):
     def get_netconf_fetch_rate(self) -> str:
         return self.data['network_params']['netconf_fetch_rate_in_sec']
 
-    def get_debug_mode(self) -> str:
-        return self.data['Debug_Mode']
+    def get_debug_mode(self) -> bool:
+        _result = True if self.data['Debug_Mode'] == "True" else False
+        return _result
 
     def get_severity_levels(self) -> Dict:
         return self.data['Severity_levels']
 
     def get_severity_notification_threshold(self) -> int:
         return self.data['Severity_notification_threshold']
+
+    def get_alarm_dummy_data_flag(self) -> bool:
+        _result = True if self.data['Alarm_dummy_data'] == "True" else False
+        return _result
 
 
 if __name__ == '__main__':

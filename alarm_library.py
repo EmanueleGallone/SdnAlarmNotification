@@ -98,6 +98,8 @@ def _thread_get_alarms(host, port, user, password):
 
     alarms_metadata = _parse_all_alarms_xml(_root)  # then we parse the xml to retrieve all the metadata that we need
 
+    _check_if_alarm_has_ceased(host, alarms_metadata)
+
     _thread_save_to_db(host, alarms_metadata)  # finally save the information in DB
 
     return
@@ -115,6 +117,12 @@ def _thread_save_to_db(host, parsed_metadata):
     @return: void
     """
 
+    _config_manager = ConfigManager()
+    do_not_filter_flag = _config_manager.get_alarm_dummy_data_flag()
+
+    if do_not_filter_flag == False:  # we do not want to save again the same alarms
+        parsed_metadata = __filter_if_alarm_exists_in_db(host, parsed_metadata)
+
     for alarm_dict in parsed_metadata:
 
         severity_levels = config_m.get_severity_levels()
@@ -127,7 +135,6 @@ def _thread_save_to_db(host, parsed_metadata):
 
         db_handler.open_connection()
 
-        # todo verify if alarm already inserted
         db_handler.insert_row_alarm(device_ip=host,
                                     severity=severity,
                                     description=description,
@@ -136,6 +143,55 @@ def _thread_save_to_db(host, parsed_metadata):
         db_handler.close_connection()
 
         lock.release()
+
+
+def _check_if_alarm_has_ceased(host, alarms):
+    """
+    if some alarm from the same device does not show up in the new netconf data fetch,
+    it means that it has ceased and we set the table attribute 'ceased' to 1
+    so that we can notify that the specific alarm has ceased
+    @param host: device ip
+    @param alarms: list of dict where each dict is an alarm
+    @return: void
+    """
+    _db_handler = DBHandler()
+
+    _db_handler.open_connection()
+
+    for alarm_dict in alarms:
+        print()
+
+    raise NotImplementedError
+
+
+def __filter_if_alarm_exists_in_db(host, array) -> List:
+    """
+    helper method to avoid the repetition of inserting existing alarms in db, not having the
+    possibility to create alarms ourselves
+    @param array: list of dict where each dict is an alarm
+    @return: list of dict alarms, where these alarms are not present in db
+    """
+
+    _filtered_alarms = []
+
+    _db_handler = DBHandler()  # retrieving all alarms from db
+    _db_handler.open_connection()
+
+
+    _severity_levels = config_m.get_severity_levels()
+
+    for _dict in array:  # element of array is a dict, each dict is an alarm
+        severity = _severity_levels[_dict['notification-code']]
+        timestamp = _dict['ne-condition-timestamp']
+
+        result = _db_handler.select_alarm_by_host_time_severity(host, timestamp, severity)
+
+        if len(result) == 0:
+            _filtered_alarms.append(_dict)
+
+    _db_handler.close_connection()
+
+    return _filtered_alarms
 
 
 def __remove_namespaces(_root) -> ET:
@@ -209,28 +265,28 @@ def _parse_all_alarms_xml(_root) -> List:
     """
     # todo refactor this immediately. it's unreadable
 
-    data = []
-    tags_interested_in = ['condition-description', 'ne-condition-timestamp', 'notification-code']
+    _data = []
+    _tags_interested_in = ['condition-description', 'ne-condition-timestamp', 'notification-code']
 
     for alarm in _root.findall('*/managed-element/'):
         my_dict = {}
 
         for child in alarm:
-            if child.tag in tags_interested_in:
+            if child.tag in _tags_interested_in:
 
-                if child.tag == tags_interested_in[2]:  # (notification-code) replacing useless namespace
+                if child.tag == _tags_interested_in[2]:  # (notification-code) replacing useless namespace
                     child.text = str(child.text).replace('acor-fmt:', '')
 
-                if child.tag == tags_interested_in[1]:  # (timestamp) formatting the datetime
+                if child.tag == _tags_interested_in[1]:  # (timestamp) formatting the datetime
                     child.text = str(child.text).replace('T', ' ')
                     child.text = str(child.text).replace('Z', '')
 
                 # all the tags that don't need editing go directly inside the dictionary (e.g. condition-description)
                 my_dict[child.tag] = child.text
 
-        data.append(my_dict)
+        _data.append(my_dict)
 
-    return data
+    return _data
 
 
 def start_threads() -> List:
@@ -256,13 +312,15 @@ if __name__ == "__main__":
 
     threads = start_threads()
 
-    for thread in threads:
-        thread.join()
+    for t in threads:
+        t.join()
+
 
     result = ''
     with open('detail_dummy_data.xml', 'r') as file:
         for line in file:
             result += line.rstrip()
 
-    print(result)
     root = _parse_to_ElementTree(result)
+    temp = _parse_all_alarms_xml(root)
+    listed = __filter_if_alarm_exists_in_db('10.11.12.21', temp)
