@@ -1,6 +1,6 @@
 {
   "Debug_Mode": "True",
-  "Alarm_dummy_data" : "False",
+  "Alarm_dummy_data" : "True",
 
   "notification_config": {
     "Sender_email": "",

@@ -107,10 +107,10 @@ def _thread_get_alarms(host, port, user, password):
 
 def _thread_save_to_db(host, parsed_metadata):
     """
-    method used by the various threads to save inside the local.db all the metadata that we need
-    here the things gets a little tricky:
+    method used by the various threads to save inside the local.db all the metadata that we need.
+    Here the things gets a little tricky:
     basically, parsed_metadata is a list of dictionaries. Each dictionary is an alarm.
-    If you want to know how this dictionary is built look at _parse_all_alarms_xml(_root)
+    If you want to know how the dictionary is built look at _parse_all_alarms_xml(_root)
 
     @param host: specifies the host IP
     @param parsed_metadata: is a list of dictionaries that is coming from the method '_parse_all_alarms_xml(_root)'
@@ -118,9 +118,9 @@ def _thread_save_to_db(host, parsed_metadata):
     """
 
     _config_manager = ConfigManager()
-    do_not_filter_flag = _config_manager.get_alarm_dummy_data_flag()
+    use_dummy_data_flag = _config_manager.get_alarm_dummy_data_flag()
 
-    if do_not_filter_flag == False:  # we do not want to save again the same alarms
+    if use_dummy_data_flag == False:  # we do not want to save again the same alarms
         parsed_metadata = __filter_if_alarm_exists_in_db(host, parsed_metadata)
 
     for alarm_dict in parsed_metadata:
@@ -138,8 +138,7 @@ def _thread_save_to_db(host, parsed_metadata):
         db_handler.insert_row_alarm(device_ip=host,
                                     severity=severity,
                                     description=description,
-                                    _time=timestamp,
-                                    notified=0)
+                                    _time=timestamp)
         db_handler.close_connection()
 
         lock.release()
@@ -159,7 +158,7 @@ def _check_if_alarm_has_ceased(host, alarms):
     _db_handler.open_connection()
 
     for alarm_dict in alarms:
-        print()
+        continue
 
     raise NotImplementedError
 
@@ -177,16 +176,15 @@ def __filter_if_alarm_exists_in_db(host, array) -> List:
     _db_handler = DBHandler()  # retrieving all alarms from db
     _db_handler.open_connection()
 
-
-    _severity_levels = config_m.get_severity_levels()
+    _severity_levels = config_m.get_severity_levels()  # needed for parsing the alarm notification code from text to int
 
     for _dict in array:  # element of array is a dict, each dict is an alarm
         severity = _severity_levels[_dict['notification-code']]
         timestamp = _dict['ne-condition-timestamp']
 
-        result = _db_handler.select_alarm_by_host_time_severity(host, timestamp, severity)
+        _result = _db_handler.select_alarm_by_host_time_severity(host, timestamp, severity)
 
-        if len(result) == 0:
+        if len(_result) == 0:
             _filtered_alarms.append(_dict)
 
     _db_handler.close_connection()

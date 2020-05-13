@@ -127,16 +127,16 @@ class DBHandler(object):
 
         return result
 
-    def insert_row_alarm(self, device_ip='0.0.0.0', severity='0', description='debug', _time=None, notified=0):
+    def insert_row_alarm(self, device_ip='0.0.0.0', severity='0', description='debug', _time=None, notified=0, ceased=0):
         lock.acquire()
 
         if _time is None:
             _time = datetime.now()
 
-        t = (device_ip, severity, description, _time, notified,)
+        t = (device_ip, severity, description, _time, notified, ceased)
 
         self._cursor.execute('''INSERT INTO alarm 
-            (deviceIP, severity, description, time, notified) VALUES (?, ?, ?, ?, ?)''', t)
+            (deviceIP, severity, description, time, notified, ceased) VALUES (?, ?, ?, ?, ?, ?)''', t)
 
         lock.release()
 
