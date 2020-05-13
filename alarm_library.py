@@ -2,7 +2,8 @@
 Copyright (c) Emanuele Gallone 05-2020.
 Author Emanuele Gallone
 
-a bunch of useful methods retrieving alarms from SDN devices using NETCONF
+a bunch of useful methods retrieving alarms from SDN devices using NETCONF.
+
 """
 
 import threading, time, traceback, logging
@@ -36,6 +37,7 @@ lock = threading.Lock()
 
 
 def _worker(_delay, task, *args):
+    # todo specify thread's stop condition?
     """
     worker definition for thread task
 
@@ -46,7 +48,7 @@ def _worker(_delay, task, *args):
     """
     next_time = time.time() + _delay
     while True:
-        time.sleep(max(0, next_time - time.time()))
+        time.sleep(max(0, next_time - time.time()))  # making the threads not wasting CPU cycles
 
         try:
             task(*args)
@@ -60,13 +62,13 @@ def _worker(_delay, task, *args):
 
 def _detail_dummy_data_fetch() -> str:
     """
-    I created this method to have a dummy data in case a device goes down
+    I created this method to have a dummy data in case a device goes down or VPN isn't working
     NB: for testing purpose only!!!
     @return: xml in string format
     """
     string_result = ''
-    with open('detail_dummy_data.xml', 'r') as file:
-        for _line in file:
+    with open('detail_dummy_data.xml', 'r') as _file:
+        for _line in _file:
             # if "<?xml " in line:  # remove the xml prolog
             #     continue
 
@@ -77,11 +79,11 @@ def _detail_dummy_data_fetch() -> str:
 
 def _thread_get_alarms(host, port, user, password):
     """
-    this method is runned by the various threads, it is the core concept of the alarm library
+    this method is ran by the various threads. It is the core concept of the alarm library
     @param host: device IP
     @param port: netconf port
     @param user: username credential for netconf
-    @param password: passowrd for netconf
+    @param password: password for netconf
     @return: void
     """
     try:
@@ -92,7 +94,7 @@ def _thread_get_alarms(host, port, user, password):
         logging.log(logging.ERROR, "Could not retrieve data from netconf! switching to dummy data\n" + str(e))
         temp = _detail_dummy_data_fetch()
 
-    _root = _parse_to_ElementTree(temp)  # first, let's convert the xml to ElementTree
+    _root = _parse_to_ElementTree(temp)  # first, let's convert the xml to ElementTree object
 
     alarms_metadata = _parse_all_alarms_xml(_root)  # then we parse the xml to retrieve all the metadata that we need
 
@@ -106,7 +108,7 @@ def _thread_save_to_db(host, parsed_metadata):
     method used by the various threads to save inside the local.db all the metadata that we need
     here the things gets a little tricky:
     basically, parsed_metadata is a list of dictionaries. Each dictionary is an alarm.
-    If you want to know how this dictionary is formed look at _parse_all_alarms_xml(_root)
+    If you want to know how this dictionary is built look at _parse_all_alarms_xml(_root)
 
     @param host: specifies the host IP
     @param parsed_metadata: is a list of dictionaries that is coming from the method '_parse_all_alarms_xml(_root)'
@@ -124,6 +126,8 @@ def _thread_save_to_db(host, parsed_metadata):
         db_handler = DBHandler()
 
         db_handler.open_connection()
+
+        # todo verify if alarm already inserted
         db_handler.insert_row_alarm(device_ip=host,
                                     severity=severity,
                                     description=description,
@@ -136,7 +140,9 @@ def _thread_save_to_db(host, parsed_metadata):
 
 def __remove_namespaces(_root) -> ET:
     """
-    It does exactly what the name's specifies
+    It does exactly what the method's name specifies.
+    For the love of god, don't touch this. It was a nightmare finding how to do this
+    inside the documentation.
 
     @param _root: root of xml tree lxml.ElementTree format
     @return: lxml.ElementTree object
@@ -154,6 +160,11 @@ def __remove_namespaces(_root) -> ET:
 
 
 def _parse_to_ElementTree(xml='') -> ET:
+    """
+    creates a lxml.ElementTree from a xml in string format
+    @param xml: xml in string format
+    @return: lxml.ElementTree object
+    """
     xml_string = BytesIO(bytes(xml, encoding='utf-8'))
     tree = ET.parse(xml_string)
     _root = tree.getroot()
@@ -162,6 +173,15 @@ def _parse_to_ElementTree(xml='') -> ET:
 
 
 def _get_alarms_xml(host, port, user, password) -> str:
+    """
+    method that connect to the specified host,port using the credentials specified in user,password to retrieve
+    alarm information
+    @param host: Device IP
+    @param port: Device's netconf port
+    @param user: Device's netconf user credential
+    @param password: Device's netconf password credential
+    @return: xml from netconf, as a string
+    """
     with manager.connect(host=host,
                          port=port,
                          username=user,
@@ -182,29 +202,30 @@ def _get_alarms_xml(host, port, user, password) -> str:
 
 def _parse_all_alarms_xml(_root) -> List:
     """
-    method that parse and filters all the xml that we're interested in
+    method that parse and filters all the xml inside the lxml.ElementTree that we're interested in
 
-    @param _root: is the lxml.ElementTree of the xml we need to parse
+    @param _root: is the lxml.ElementTree containing the xml we need to parse
     @return: List of Dictionaries containing alarms metadata [{alarm_ID: {element.tag: element.text}}]
     """
-    # todo refactor this immediately. it is unreadable
+    # todo refactor this immediately. it's unreadable
 
     data = []
     tags_interested_in = ['condition-description', 'ne-condition-timestamp', 'notification-code']
 
-    for index, alarm in enumerate(_root.findall('*/managed-element/'), start=0):
+    for alarm in _root.findall('*/managed-element/'):
         my_dict = {}
 
         for child in alarm:
             if child.tag in tags_interested_in:
 
-                if child.tag == tags_interested_in[2]:  # replacing useless namespace
+                if child.tag == tags_interested_in[2]:  # (notification-code) replacing useless namespace
                     child.text = str(child.text).replace('acor-fmt:', '')
 
-                if child.tag == tags_interested_in[1]:  # formatting the datetime
+                if child.tag == tags_interested_in[1]:  # (timestamp) formatting the datetime
                     child.text = str(child.text).replace('T', ' ')
                     child.text = str(child.text).replace('Z', '')
 
+                # all the tags that don't need editing go directly inside the dictionary (e.g. condition-description)
                 my_dict[child.tag] = child.text
 
         data.append(my_dict)
@@ -232,8 +253,6 @@ def start_threads() -> List:
 
 
 if __name__ == "__main__":
-    # url = 'http://10.11.12.16:7777/restconf/data/tapi-common:context'
-    # print(get_request(url))
 
     threads = start_threads()
 
