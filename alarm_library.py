@@ -68,7 +68,7 @@ def _detail_dummy_data_fetch() -> str:
     @return: xml in string format
     """
     string_result = ''
-    with open('detail_dummy_data.xml', 'r') as _file:
+    with open('dummy_data.xml', 'r') as _file:
         for _line in _file:
             # if "<?xml " in line:  # remove the xml prolog
             #     continue
@@ -121,7 +121,7 @@ def _thread_save_to_db(host, parsed_metadata):
     _config_manager = ConfigManager()
     flag = _config_manager.get_alarm_dummy_data_flag()
 
-    if flag == True:  # we do not want to save again the same alarms (DEBUG)
+    if flag == True:  # we do not want to save again the same alarms (DEBUG), should refactor this to be clearer
         parsed_metadata = __filter_if_alarm_exists_in_db(host, parsed_metadata)
 
     for alarm_dict in parsed_metadata:
@@ -332,7 +332,7 @@ if __name__ == "__main__":
 
 
     result = ''
-    with open('detail_dummy_data.xml', 'r') as file:
+    with open('dummy_data.xml', 'r') as file:
         for line in file:
             result += line.rstrip()
 

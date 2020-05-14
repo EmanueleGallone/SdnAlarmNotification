@@ -34,15 +34,16 @@ def send_mail(msg_body, msg_subject='SDN Alarm notification'):
         except Exception as e:
             print("something went wrong reading personal_credentials.json file! ->" + str(e))
 
-    else:  # Use the information inside the config file todo: use the config_manager instead!
+    else:  # Use the information inside the config file
         try:
-            with open("config.json") as json_data_file:
-                data = json.load(json_data_file)['Notification_config']
-                email_address_sender = str(data['Sender_email'])
-                email_password_sender = str(data['Sender_email_password'])
-                email_address_receiver = str(data['Receiver_Email'])
-                smtp_server = str(data['SMTP_SERVER'])
-                smtp_port = int(data['SMTP_PORT'])
+
+            data = config_manager.get_notification_config()
+            email_address_sender = data['Sender_email']
+            email_password_sender = data['Sender_email_password']
+            email_address_receiver = data['Receiver_Email']
+            smtp_server = data['SMTP_SERVER']
+            smtp_port = data['SMTP_PORT']
+
         except Exception as e:
             print("something went wrong reading config.json file! ->" + str(e))
 
