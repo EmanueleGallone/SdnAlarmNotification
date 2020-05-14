@@ -36,6 +36,17 @@ class DBHandler(object):
             self._cursor = self._connection.cursor()
         return self
 
+    def close_connection(self):
+        lock.acquire()
+
+        if self._connection is not None:
+            self._connection.commit()  # save all changes
+            self._connection.close()
+
+        del self  # prevent memory leak
+
+        lock.release()
+
     def create_alarm_table(self):
         lock.acquire()
         # from here on, thread-safe environment!
@@ -49,17 +60,6 @@ class DBHandler(object):
 
         finally:
             lock.release()  # avoiding deadlock
-
-    def close_connection(self):
-        lock.acquire()
-
-        if self._connection is not None:
-            self._connection.commit()  # save all changes
-            self._connection.close()
-
-        del self  # prevent memory leak
-
-        lock.release()
 
     def select_alarm_by_ID(self, ID='0'):
         lock.acquire()
