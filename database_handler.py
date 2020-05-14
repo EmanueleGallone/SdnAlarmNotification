@@ -2,7 +2,7 @@
 Copyright (c) Emanuele Gallone 05-2020.
 Author Emanuele Gallone
 
-Unfortunately I discovered that the python implementation of SQLITE is not thread safe
+Unfortunately I discovered that the python implementation of SQLITE is not thread safe.
 To cope with this issue, I created a wrapper class that is thread-safe (hopefully)
 by creating methods that resembles atomic operations.
 
@@ -56,6 +56,8 @@ class DBHandler(object):
         if self._connection is not None:
             self._connection.commit()  # save all changes
             self._connection.close()
+
+        del self  # prevent memory leak
 
         lock.release()
 
