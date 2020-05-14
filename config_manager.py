@@ -15,7 +15,6 @@ from typing import Dict, List
 
 logging.basicConfig(filename="log.log", level=logging.ERROR)
 
-# todo refactor in a way to read the file only once!
 
 def _read_config_file() -> Dict:  # creating static method to read config file
     try:
@@ -32,26 +31,26 @@ class ConfigManager(object):
     def __init__(self):
         self.data = _read_config_file()
 
-    def read_network_params(self) -> Dict:
+    def get_network_params(self) -> Dict:
         return self.data['Network_params']
 
     def get_notification_params(self) -> Dict:
         return self.data['Notification_config']
 
     def get_all_devices_ip(self) -> List:
-        return self.data['Network_params']['devices_ip']
+        return self.get_network_params()['devices_ip']
 
     def get_netconf_port(self) -> List:
-        return self.data['Network_params']['netconf_port']
+        return self.get_network_params()['netconf_port']
 
     def get_netconf_user(self) -> str:
-        return self.data['Network_params']['netconf_credentials']['user']
+        return self.get_network_params()['netconf_credentials']['user']
 
     def get_netconf_password(self) -> str:
-        return self.data['Network_params']['netconf_credentials']['password']
+        return self.get_network_params()['netconf_credentials']['password']
 
     def get_netconf_fetch_rate(self) -> str:
-        return self.data['Network_params']['netconf_fetch_rate_in_sec']
+        return self.get_network_params()['netconf_fetch_rate_in_sec']
 
     def get_debug_mode(self) -> bool:
         return True if self.data['Debug_Mode'] == "True" else False
@@ -60,7 +59,7 @@ class ConfigManager(object):
         return self.data['Severity_levels']
 
     def get_severity_notification_threshold(self) -> int:
-        return self.data['Severity_notification_threshold']
+        return self.get_notification_params()['Severity_notification_threshold']
 
     def get_alarm_dummy_data_flag(self) -> bool:
         return True if self.data['Do_not_save_existing_alarms'] == "True" else False
@@ -70,7 +69,7 @@ if __name__ == '__main__':
     # debug
     c = ConfigManager()
 
-    print(c.read_network_params())
+    print(c.get_network_params())
     print(c.get_notification_params())
     print(c.get_all_devices_ip()[0])
     print(c.get_netconf_user() , c.get_netconf_password())
