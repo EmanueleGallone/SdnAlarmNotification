@@ -117,6 +117,19 @@ class DBHandler(object):
 
         return result
 
+    def select_ceased_alarms(self):
+        lock.acquire()
+
+        ceased = 1
+        t = (ceased,)
+
+        self._cursor.execute('SELECT * FROM alarm WHERE (ceased=?)', t)
+        result = self._cursor.fetchall()
+
+        lock.release()
+
+        return result
+
     def select_all(self):
         lock.acquire()
 
