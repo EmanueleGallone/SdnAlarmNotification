@@ -180,3 +180,10 @@ class DBHandler(object):
         self._cursor.executemany('UPDATE alarm SET notified = ? WHERE ID = ?;', t)
 
         lock.release()
+
+
+if __name__ == '__main__':
+    # create local.db script
+    db = DBHandler().open_connection()
+    db.create_alarm_table()
+    db.close_connection()
