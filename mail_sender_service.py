@@ -37,7 +37,7 @@ def send_mail(msg_body, msg_subject='SDN Alarm notification'):
     else:  # Use the information inside the config file todo: use the config_manager instead!
         try:
             with open("config.json") as json_data_file:
-                data = json.load(json_data_file)['notification_config']
+                data = json.load(json_data_file)['Notification_config']
                 email_address_sender = str(data['Sender_email'])
                 email_password_sender = str(data['Sender_email_password'])
                 email_address_receiver = str(data['Receiver_Email'])
