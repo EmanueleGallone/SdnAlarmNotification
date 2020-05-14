@@ -3,6 +3,7 @@ Copyright (c) Emanuele Gallone 05-2020.
 Author Emanuele Gallone
 
 a bunch of useful methods retrieving alarms from SDN devices using NETCONF.
+uses a façade style
 
 """
 
@@ -63,7 +64,7 @@ def _worker(_delay, task, *args):
 def _detail_dummy_data_fetch() -> str:
     """
     I created this method to have a dummy data in case a device goes down or VPN isn't working
-    NB: for testing purpose only!!!
+    NB: for testing purpose only
     @return: xml in string format
     """
     string_result = ''
@@ -87,18 +88,18 @@ def _thread_get_alarms(host, port, user, password):
     @return: void
     """
     try:
-        temp = _get_alarms_xml(host, port, user, password)
+        _temp = _get_alarms_xml(host, port, user, password)  # try to connect to netconf
 
-    except Exception as e:
+    except Exception as e:  # in case the device or vpn are down, load dummy data (Testing Purpose)
 
         logging.log(logging.ERROR, "Could not retrieve data from netconf! switching to dummy data\n" + str(e))
-        temp = _detail_dummy_data_fetch()
+        _temp = _detail_dummy_data_fetch()
 
-    _root = _parse_to_ElementTree(temp)  # first, let's convert the xml to ElementTree object
+    _root = _parse_to_ElementTree(_temp)  # first, let's convert the xml to ElementTree object
 
     alarms_metadata = _parse_all_alarms_xml(_root)  # then we parse the xml to retrieve all the metadata that we need
 
-    _check_if_alarm_has_ceased(host, alarms_metadata)
+    #_check_if_alarm_has_ceased(host, alarms_metadata)
 
     _thread_save_to_db(host, alarms_metadata)  # finally save the information in DB
 
@@ -118,9 +119,9 @@ def _thread_save_to_db(host, parsed_metadata):
     """
 
     _config_manager = ConfigManager()
-    use_dummy_data_flag = _config_manager.get_alarm_dummy_data_flag()
+    flag = _config_manager.get_alarm_dummy_data_flag()
 
-    if use_dummy_data_flag == False:  # we do not want to save again the same alarms
+    if flag == True:  # we do not want to save again the same alarms (DEBUG)
         parsed_metadata = __filter_if_alarm_exists_in_db(host, parsed_metadata)
 
     for alarm_dict in parsed_metadata:
@@ -130,7 +131,7 @@ def _thread_save_to_db(host, parsed_metadata):
         description = alarm_dict['condition-description']
         timestamp = alarm_dict['ne-condition-timestamp']
 
-        lock.acquire()
+        lock.acquire()  # need to lock also here because sqlite is s**t
         db_handler = DBHandler()
 
         db_handler.open_connection()
@@ -153,14 +154,30 @@ def _check_if_alarm_has_ceased(host, alarms):
     @param alarms: list of dict where each dict is an alarm
     @return: void
     """
+
+    raise NotImplementedError
+
     _db_handler = DBHandler()
 
     _db_handler.open_connection()
 
-    for alarm_dict in alarms:
-        continue
+    # get the alarms of that particular host
+    alarms_in_db = _db_handler.select_alarm_by_device_ip(host)
 
-    raise NotImplementedError
+    if len(alarms_in_db) == 0:  # return because is a useless check
+        return
+
+    # get only the alarm id and timestamp
+    id_and_timestamp = set([(_tuple[0], _tuple[4]) for _tuple in alarms_in_db])
+    # there is a more clever way to do this
+
+    temp = set(_alarm['ne-condition-timestamp'] for _alarm in alarms)
+
+    for alarm in id_and_timestamp:
+        _alarm_id = alarm[0]
+        _timestamp = alarm[1]
+        if _timestamp not in temp:
+            print("alarm ceased: " + str(_alarm_id))
 
 
 def __filter_if_alarm_exists_in_db(host, array) -> List:
@@ -173,7 +190,7 @@ def __filter_if_alarm_exists_in_db(host, array) -> List:
 
     _filtered_alarms = []
 
-    _db_handler = DBHandler()  # retrieving all alarms from db
+    _db_handler = DBHandler()
     _db_handler.open_connection()
 
     _severity_levels = config_m.get_severity_levels()  # needed for parsing the alarm notification code from text to int
@@ -261,7 +278,7 @@ def _parse_all_alarms_xml(_root) -> List:
     @param _root: is the lxml.ElementTree containing the xml we need to parse
     @return: List of Dictionaries containing alarms metadata [{alarm_ID: {element.tag: element.text}}]
     """
-    # todo refactor this immediately. it's unreadable
+    # todo refactor this immediately. it's unreadable. use list comprehension
 
     _data = []
     _tags_interested_in = ['condition-description', 'ne-condition-timestamp', 'notification-code']
@@ -321,4 +338,4 @@ if __name__ == "__main__":
 
     root = _parse_to_ElementTree(result)
     temp = _parse_all_alarms_xml(root)
-    listed = __filter_if_alarm_exists_in_db('10.11.12.21', temp)
+    res = _check_if_alarm_has_ceased('10.11.12.21', temp)

@@ -34,8 +34,14 @@ class ConfigManager(object):
     def get_network_params(self) -> Dict:
         return self.data['Network_params']
 
-    def get_notification_params(self) -> Dict:
+    def get_notification_config(self) -> Dict:
         return self.data['Notification_config']
+
+    def get_email_notification_flag(self) -> bool:
+        return True if self.get_notification_config()['Send_email'] == 'True' else False
+
+    def get_message_notification_flag(self) -> bool:
+        return True if self.get_notification_config()['Send_message'] == 'True' else False
 
     def get_all_devices_ip(self) -> List:
         return self.get_network_params()['devices_ip']
@@ -59,7 +65,7 @@ class ConfigManager(object):
         return self.data['Severity_levels']
 
     def get_severity_notification_threshold(self) -> int:
-        return self.get_notification_params()['Severity_notification_threshold']
+        return self.get_notification_config()['Severity_notification_threshold']
 
     def get_alarm_dummy_data_flag(self) -> bool:
         return True if self.data['Do_not_save_existing_alarms'] == "True" else False
@@ -70,7 +76,7 @@ if __name__ == '__main__':
     c = ConfigManager()
 
     print(c.get_network_params())
-    print(c.get_notification_params())
+    print(c.get_notification_config())
     print(c.get_all_devices_ip()[0])
     print(c.get_netconf_user() , c.get_netconf_password())
     print(c.get_debug_mode())

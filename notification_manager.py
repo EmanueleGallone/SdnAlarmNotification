@@ -19,13 +19,13 @@ class NotificationManager(object):
         self._broadcast_alarm(msg)
 
     def _send_mail(self, msg):
-        send_email_flag = self.config_manager.get_notification_params()['Send_email']
+        send_email_flag = self.config_manager.get_email_notification_flag()
 
         if send_email_flag:
             mail_sender_service.send_mail(msg)
 
     def _broadcast_alarm(self, msg):
-        send_message_flag = self.config_manager.get_notification_params()['Send_message']
+        send_message_flag = self.config_manager.get_message_notification_flag()
 
         if send_message_flag:
             telegram_bot_service.send_to_bot_group(msg)

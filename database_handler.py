@@ -170,8 +170,13 @@ class DBHandler(object):
         lock.acquire()
 
         notified = 1
-        t = (ID, notified)
 
-        self._cursor.execute('UPDATE alarm SET notified = ? WHERE ID = ?;', t)
+        if len(ID) == 0:
+            lock.release()
+            return
+
+        t = [(notified, _id) for _id in ID]
+
+        self._cursor.executemany('UPDATE alarm SET notified = ? WHERE ID = ?;', t)
 
         lock.release()
