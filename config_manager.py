@@ -4,6 +4,9 @@ Author Emanuele Gallone
 
 Simple wrapper class to decouple the reading of the config.json file
 from the rest of the program
+
+NB: inside the config.json the bool are of string type, because json bool is 'true'
+but python's bool is 'True'; this was the simplest workaround.
 """
 
 import json
@@ -30,29 +33,28 @@ class ConfigManager(object):
         self.data = _read_config_file()
 
     def read_network_params(self) -> Dict:
-        return self.data['network_params']
+        return self.data['Network_params']
 
     def get_notification_params(self) -> Dict:
-        return self.data['notification_config']
+        return self.data['Notification_config']
 
     def get_all_devices_ip(self) -> List:
-        return self.data['network_params']['devices_ip']
+        return self.data['Network_params']['devices_ip']
 
     def get_netconf_port(self) -> List:
-        return self.data['network_params']['netconf_port']
+        return self.data['Network_params']['netconf_port']
 
     def get_netconf_user(self) -> str:
-        return self.data['network_params']['netconf_credentials']['user']
+        return self.data['Network_params']['netconf_credentials']['user']
 
     def get_netconf_password(self) -> str:
-        return self.data['network_params']['netconf_credentials']['password']
+        return self.data['Network_params']['netconf_credentials']['password']
 
     def get_netconf_fetch_rate(self) -> str:
-        return self.data['network_params']['netconf_fetch_rate_in_sec']
+        return self.data['Network_params']['netconf_fetch_rate_in_sec']
 
     def get_debug_mode(self) -> bool:
-        _result = True if self.data['Debug_Mode'] == "True" else False
-        return _result
+        return True if self.data['Debug_Mode'] == "True" else False
 
     def get_severity_levels(self) -> Dict:
         return self.data['Severity_levels']
@@ -61,8 +63,7 @@ class ConfigManager(object):
         return self.data['Severity_notification_threshold']
 
     def get_alarm_dummy_data_flag(self) -> bool:
-        _result = True if self.data['Alarm_dummy_data'] == "True" else False
-        return _result
+        return True if self.data['Do_not_save_existing_alarms'] == "True" else False
 
 
 if __name__ == '__main__':
