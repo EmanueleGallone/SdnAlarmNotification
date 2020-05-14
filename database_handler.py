@@ -130,6 +130,7 @@ class DBHandler(object):
 
         return result
 
+
     def select_all(self):
         lock.acquire()
 
@@ -153,10 +154,22 @@ class DBHandler(object):
 
         lock.release()
 
-    def set_notified_by_ID(self, ID='0'):
+    def update_ceased_alarms(self, ID):
+        lock.acquire()
+
+        ceased = 1
+        t = (ID, ceased)
+
+        self._cursor.execute('UPDATE alarm SET ceased = ? WHERE ID = ?', t)
+
+        lock.release()
+
+    def update_notified_by_ID(self, ID):
+        lock.acquire()
+
         notified = 1
         t = (ID, notified)
 
         self._cursor.execute('UPDATE alarm SET notified = ? WHERE ID = ?;', t)
 
-        return self._cursor.fetchall()
+        lock.release()
