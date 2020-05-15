@@ -1,3 +1,10 @@
+"""
+Copyright (c) Emanuele Gallone 05-2020.
+Author Emanuele Gallone
+
+Definition of device model.
+"""
+
 
 class Device(object):
     def __init__(self, ip, netconf_rate, netconf_port, user, password):
