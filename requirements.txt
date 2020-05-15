@@ -3,3 +3,5 @@ ncclient >= 0.6.7
 python-telegram-bot >= 12.7
 sqlite >= 3.31.1
 requests >= 2.23.0
+pyQt5 >= 5.14.2
+matplotlib >= 3.2.1

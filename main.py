@@ -2,6 +2,7 @@ import alarm_library
 
 from models.notification_manager import NotificationManager
 from models.database_handler import DBHandler
+from services import telegram_bot_service
 from models.config_manager import ConfigManager
 
 import threading
@@ -9,7 +10,7 @@ import time
 import traceback
 import logging
 
-logging.basicConfig(filename="log.log", level=logging.ERROR)
+logging.basicConfig(filename="../log.log", level=logging.ERROR)
 
 # todo refactor
 
@@ -100,7 +101,6 @@ def main():
 
     try:
 
-        from services import telegram_bot_service
         # the bot needs to be inside the main thread for signalling purposes
         telegram_bot_service.main()
 

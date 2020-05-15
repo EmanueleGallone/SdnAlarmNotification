@@ -40,7 +40,6 @@ def start(update, context):
                               f'Enroll to the private group instead {link} where I notify the alarms to all members!')
 
 
-# custom method
 def send_single_message(chat_id, content='Alarm Notification : {info}'):
     # using this approach we have to save each chat_id for each subscriber (it's doable but I don't like it)
     # use Ngrok to create tunnels and use the webhook instead
