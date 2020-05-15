@@ -27,6 +27,8 @@ with open("personal_credentials.json") as json_data_file:
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update, context):
     """Send a message when the command /start is issued."""
+    link = 'tg://join?invite=HJpFahAwxvTRLEMOmSiYEA'
+    
     update.message.reply_text('Hi! welcome to the Alarm dispatcher bot. '
                               'It will deliver on your phone major alarms detected from your network devices!\n\n'
                               'type /help to list all the commands.\n\n'
@@ -35,7 +37,7 @@ def start(update, context):
                               '-How can I message all of my bot\'s subscribers at once?\n'
                               '-Unfortunately, at this moment we don\'t have methods for sending bulk messages,'
                               ' e.g. notifications. We may add something along these lines in the future. (...)\n\n'
-                              'Enroll to the private group instead tg://join?invite=HJpFahAwxvQ1qOtRWXXw9g where I notify the alarms to all members!')
+                              f'Enroll to the private group instead {link} where I notify the alarms to all members!')
 
 
 # custom method
