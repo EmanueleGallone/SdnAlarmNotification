@@ -9,8 +9,8 @@
     "Receiver_Email": "",
     "SMTP_SERVER": "smtp.office365.com",
     "SMTP_PORT": "587",
-    "Send_email": "False",
-    "Send_message": "True",
+    "Send_email": "True",
+    "Send_message": "False",
     "Severity_notification_threshold": 3
 
   },
@@ -22,19 +22,7 @@
     "not-reported": 0
   },
 
-  "Network_params": {
-    "devices_ip": ["10.11.12.19", "10.11.12.21", "10.11.12.23"],
-    "netconf_fetch_rate_in_sec": 5,
-    "netconf_port": 830,
-
-    "netconf_credentials": {
-      "user": "admin",
-      "password": "CHGME.1a"
-    }
-  },
-
-  "NewImplementation": [
-    {
+  "Network": [{
       "device_ip": "10.11.12.19",
       "netconf_fetch_rate_in_sec": 5,
       "netconf_port": 830,
@@ -55,5 +43,4 @@
       "netconf_user": "admin",
       "netconf_password": "CHGME.1a"
     }]
-
 }

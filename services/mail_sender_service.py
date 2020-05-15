@@ -9,6 +9,9 @@ import logging
 from email.message import EmailMessage
 from models.config_manager import ConfigManager
 
+import os
+dirname = os.path.dirname(__file__)
+
 # todo: I know. it all needs a refactor.
 
 logging.basicConfig(filename="../log.log", level=logging.ERROR)
@@ -24,7 +27,9 @@ def send_mail(msg_body, msg_subject='SDN Alarm notification'):
 
     if debug_mode:  # use my personal credentials
         try:
-            with open("../config/personal_credentials.json") as json_data_file:
+            filename = os.path.join(dirname, '../config/personal_credentials.json')
+
+            with open(filename) as json_data_file:
                 data = json.load(json_data_file)
                 email_address_sender = str(data['email'])
                 email_password_sender = str(data['password'])

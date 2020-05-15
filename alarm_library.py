@@ -11,6 +11,7 @@ import threading, time, traceback, logging
 
 from models.database_handler import DBHandler
 from models.config_manager import ConfigManager
+from models.Device import Device
 
 from ncclient import manager
 from io import BytesIO
@@ -25,11 +26,12 @@ device_port = 830
 
 config_m = ConfigManager()
 
-netconf_fetch_rate = config_m.get_netconf_fetch_rate()
-devices = config_m.get_all_devices_ip()
-netconf_port = config_m.get_netconf_port()
-netconf_user = config_m.get_netconf_user()
-netconf_password = config_m.get_netconf_password()
+devices = [Device(d['device_ip'],
+                  d['netconf_fetch_rate_in_sec'],
+                  d['netconf_port'],
+                  d['netconf_user'],
+                  d['netconf_password'])
+           for d in config_m.get_network_params()]
 
 lock = threading.Lock()
 
@@ -78,17 +80,14 @@ def _detail_dummy_data_fetch() -> str:
     return string_result
 
 
-def _thread_get_alarms(host, port, user, password):
+def _thread_get_alarms(device):
     """
     this method is ran by the various threads. It is the core concept of the alarm library
-    @param host: device IP
-    @param port: netconf port
-    @param user: username credential for netconf
-    @param password: password for netconf
+    @param device: Device object containing all the informations. (see models/Device.py)
     @return: void
     """
     try:
-        _temp = _get_alarms_xml(host, port, user, password)  # try to connect to netconf
+        _temp = _get_alarms_xml(device)  # try to connect to netconf
 
     except Exception as e:  # in case the device or vpn are down, load dummy data (Testing Purpose)
 
@@ -101,7 +100,7 @@ def _thread_get_alarms(host, port, user, password):
 
     #_check_if_alarm_has_ceased(host, alarms_metadata)
 
-    _thread_save_to_db(host, alarms_metadata)  # finally save the information in DB
+    _thread_save_to_db(device.ip, alarms_metadata)  # finally save the information in DB
 
     return
 
@@ -243,20 +242,17 @@ def _parse_to_ElementTree(xml='') -> ET:
     return __remove_namespaces(_root)
 
 
-def _get_alarms_xml(host, port, user, password) -> str:
+def _get_alarms_xml(device) -> str:
     """
     method that connect to the specified host,port using the credentials specified in user,password to retrieve
     alarm information
-    @param host: Device IP
-    @param port: Device's netconf port
-    @param user: Device's netconf user credential
-    @param password: Device's netconf password credential
+    @param device: Device object containing all the informations (see models/Device.py)
     @return: xml from netconf, as a string
     """
-    with manager.connect(host=host,
-                         port=port,
-                         username=user,
-                         password=password,
+    with manager.connect(host=device.ip,
+                         port=device.netconf_port,
+                         username=device.user,
+                         password=device.password,
                          timeout=10,
                          hostkey_verify=False) as conn:
 
@@ -314,11 +310,10 @@ def start_threads() -> List:
     _threads = []
 
     for device in devices:
-        _t = threading.Thread(
-            target=lambda: _worker(netconf_fetch_rate, _thread_get_alarms, device, netconf_port, netconf_user,
-                                   netconf_password))
-        _t.start()
-        _threads.append(_t)
+        t = threading.Thread(
+            target=lambda: _worker(device.netconf_rate, _thread_get_alarms, device))
+        t.start()
+        _threads.append(t)
 
     return _threads
 

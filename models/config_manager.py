@@ -13,16 +13,22 @@ import json
 import logging
 from typing import Dict, List
 
+import os
+dirname = os.path.dirname(__file__)
+
 logging.basicConfig(filename="../log.log", level=logging.ERROR)
 
 
 def _read_config_file() -> Dict:  # creating static method to read config file
+    filename = os.path.join(dirname, '../config/config.json')
+
     try:
         data = {}
-        with open('config/config.json', 'r') as json_file:
+        with open(filename, 'r') as json_file:
             data = json.load(json_file)
     except Exception as e:
-        logging.log(logging.CRITICAL, "Error reading config.json file! -> " + str(e))
+        logging.log(logging.CRITICAL, "Error reading config/config.json file! -> " + str(e))
+
     finally:
         return data
 
@@ -31,8 +37,8 @@ class ConfigManager(object):
     def __init__(self):
         self.data = _read_config_file()
 
-    def get_network_params(self) -> Dict:
-        return self.data['Network_params']
+    def get_network_params(self) -> List:
+        return self.data['Network']
 
     def get_notification_config(self) -> Dict:
         return self.data['Notification_config']
@@ -42,21 +48,6 @@ class ConfigManager(object):
 
     def get_message_notification_flag(self) -> bool:
         return True if self.get_notification_config()['Send_message'] == 'True' else False
-
-    def get_all_devices_ip(self) -> List:
-        return self.get_network_params()['devices_ip']
-
-    def get_netconf_port(self) -> List:
-        return self.get_network_params()['netconf_port']
-
-    def get_netconf_user(self) -> str:
-        return self.get_network_params()['netconf_credentials']['user']
-
-    def get_netconf_password(self) -> str:
-        return self.get_network_params()['netconf_credentials']['password']
-
-    def get_netconf_fetch_rate(self) -> str:
-        return self.get_network_params()['netconf_fetch_rate_in_sec']
 
     def get_debug_mode(self) -> bool:
         return True if self.data['Debug_Mode'] == "True" else False
