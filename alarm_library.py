@@ -11,7 +11,7 @@ import threading, time, traceback, logging
 
 from models.database_handler import DBHandler
 from models.config_manager import ConfigManager
-from models.Device import Device
+from models.device import Device
 
 from ncclient import manager
 from io import BytesIO
@@ -83,7 +83,7 @@ def _detail_dummy_data_fetch() -> str:
 def _thread_get_alarms(device):
     """
     this method is ran by the various threads. It is the core concept of the alarm library
-    @param device: Device object containing all the informations. (see models/Device.py)
+    @param device: Device object containing all the informations. (see models/device.py)
     @return: void
     """
     try:
@@ -246,7 +246,7 @@ def _get_alarms_xml(device) -> str:
     """
     method that connect to the specified host,port using the credentials specified in user,password to retrieve
     alarm information
-    @param device: Device object containing all the informations (see models/Device.py)
+    @param device: Device object containing all the informations (see models/device.py)
     @return: xml from netconf, as a string
     """
     with manager.connect(host=device.ip,
