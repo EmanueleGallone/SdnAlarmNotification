@@ -156,27 +156,72 @@ print(results)
 
 
 def plot1():
-
+    width=0.25
+    i=0
+    odd=True
+    even=False
     for host in alarmsPerHost:
 
-        xlistElements, ylistElements = [], []
+        xlistElements, ylistElements,descriptionList,loc = [], [],[],[]
         lbl = "Host:{0}".format(host)  # Labels: (s1, s2), (s2,s3), etc.
+
+        if i % 2 == 0:
+            if even==False:
+                even=True
+                deltaPosition = +width * i
+            else:
+                deltaPosition = -width * i
+                odd = True
+        else:
+
+            if odd==False:
+                odd=True
+                deltaPosition = -width * i
+            else:
+                deltaPosition = +width * i
+                even = True
+
         for severity in sorted(alarmsPerHost[host].keys()):
+            loc.append(int(severity) +deltaPosition)
             xlistElements.append(int(severity))
+            print(host,loc)
+
             ylistElements.append(alarmsPerHost[host][severity])
 
 
-        descriptionList=getInfo(xlistElements)
-        plt.xticks(xlistElements,descriptionList)
-        plt.plot(xlistElements, ylistElements,'-',label=lbl,marker='o')
-    plt.axhline(3,color='black', linestyle='--')
 
+            plt.annotate(alarmsPerHost[host][severity], xy=(int(severity) +deltaPosition-width/5, alarmsPerHost[host][severity]+0.15))
+        #plt.plot(xlistElements, ylistElements,'-',label=lbl,marker='o')
+        plt.bar(loc, ylistElements, label=lbl, width=0.2)
+
+
+        '''
+        bars=plt.bar(loc, ylistElements,label=lbl, width=0.2)
+        for bar in bars:
+            occurencies = bar.get_height()
+            print(bar.get_x())
+            plt.text(bar.get_x(), occurencies + 0.2, occurencies,ha='center',va='bottom')
+        '''
+
+        descriptionList=getInfo(xlistElements)
+        print(descriptionList)
+        plt.xticks(xlistElements,descriptionList)
+        if odd and even:
+            i=i+1
+            odd=False
+            even=False
+
+    #plt.axhline(3,color='black', linestyle='--')
     plt.xlabel("Severity Level")
     plt.ylabel("Number of alarms")
     plt.title("Alarms received per host ")
-    plt.xlim(-0.5,5.5)
+    #plt.xlim(-0.5,5.5)
+
+    plt.axhline(7, color='black', linestyle='--',label="num threshold")
     plt.legend()
     plt.show()
+
+#https://matplotlib.org/3.1.1/gallery/lines_bars_and_markers/horizontal_barchart_distribution.html#sphx-glr-gallery-lines-bars-and-markers-horizontal-barchart-distribution-py
 
 
 def getInfo(xlistElements):
@@ -188,7 +233,7 @@ def getInfo(xlistElements):
 
 def redoRefresh():
     print("Here I need to implement the refresh code")
-
+    #plt.savefig("image.png")--->toolbar?
 Gui.refreshButton.clicked.connect(redoRefresh)
 
 
