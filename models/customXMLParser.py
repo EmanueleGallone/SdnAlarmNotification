@@ -1,4 +1,9 @@
+"""
+Copyright (c) Emanuele Gallone 05-2020.
+Author Emanuele Gallone
 
+Wrapper class to implement a custom XML parser.
+"""
 from io import BytesIO
 from typing import List
 
