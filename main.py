@@ -1,5 +1,4 @@
 import alarm_library
-import telegram_bot_service
 
 from notification_manager import NotificationManager
 from database_handler import DBHandler
@@ -91,6 +90,8 @@ def main():
     threads.append(notifier)
 
     try:
+
+        import telegram_bot_service
         # the bot needs to be inside the main thread for signalling purposes
         telegram_bot_service.main()
 
