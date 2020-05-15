@@ -62,15 +62,13 @@ class ConfigManager(object):
         return True if self.data['Do_not_save_existing_alarms'] == "True" else False
 
     def get_severity_mapping(self, severity) -> str:
-        # todo refactor using list comprehesion
+        """
+        returns the dict mapping of severity levels (see in config.json)
+        @param severity: must be a int
+        """
         if severity is not None:
-            levels = dict(self.data['Severity_levels'])
-            name = ''
-            for k, v in levels.items():
-                if v == severity:
-                    name = str(k)
-
-            return name
+            levels = self.data['Severity_levels']
+            return [k for k, v in levels.items() if v == severity][0]
 
 
 if __name__ == '__main__':
