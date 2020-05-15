@@ -61,6 +61,17 @@ class ConfigManager(object):
     def get_alarm_dummy_data_flag(self) -> bool:
         return True if self.data['Do_not_save_existing_alarms'] == "True" else False
 
+    def get_severity_mapping(self, severity) -> str:
+        # todo refactor using list comprehesion
+        if severity is not None:
+            levels = dict(self.data['Severity_levels'])
+            name = ''
+            for k, v in levels.items():
+                if v == severity:
+                    name = str(k)
+
+            return name
+
 
 if __name__ == '__main__':
     # debug
@@ -68,7 +79,5 @@ if __name__ == '__main__':
 
     print(c.get_network_params())
     print(c.get_notification_config())
-    print(c.get_all_devices_ip()[0])
-    print(c.get_netconf_user() , c.get_netconf_password())
     print(c.get_debug_mode())
-    print(c.get_severity_levels())
+    print(c.get_severity_mapping(0))
