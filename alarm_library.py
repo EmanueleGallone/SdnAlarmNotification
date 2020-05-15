@@ -12,11 +12,10 @@ import threading, time, traceback, logging
 from models.database_handler import DBHandler
 from models.config_manager import ConfigManager
 from models.device import Device
+from models.customXMLParser import CustomXMLParser
 
 from ncclient import manager
-from io import BytesIO
 from typing import List
-from lxml import etree as ET, objectify
 
 ####################setting up globals###################
 
@@ -85,18 +84,16 @@ def _thread_get_alarms(device):
     @return: void
     """
     try:
-        _temp = _get_alarms_xml(device)  # try to connect to netconf
+        _xml = _get_alarms_xml(device)  # try to connect to netconf
 
     except Exception as e:  # in case the device or vpn are down, load dummy data (Testing Purpose)
 
         logging.log(logging.ERROR, "Could not retrieve data from netconf! switching to dummy data\n" + str(e))
-        _temp = _detail_dummy_data_fetch()
+        _xml = _detail_dummy_data_fetch()
 
-    _root = _parse_to_ElementTree(_temp)  # first, let's convert the xml to ElementTree object
+    alarms_metadata = CustomXMLParser(_xml).parse_all_alarms_xml()
 
-    alarms_metadata = _parse_all_alarms_xml(_root)  # then we parse the xml to retrieve all the metadata that we need
-
-    #_check_if_alarm_has_ceased(host, alarms_metadata)
+    #_check_if_alarm_has_ceased(host, alarms_metadata) # to be implemented
 
     _thread_save_to_db(device.ip, alarms_metadata)  # finally save the information in DB
 
@@ -207,40 +204,6 @@ def __filter_if_alarm_exists_in_db(host, array) -> List:
     return _filtered_alarms
 
 
-def __remove_namespaces(_root) -> ET:
-    """
-    It does exactly what the method's name specifies.
-    For the love of god, don't touch this. It was a nightmare finding how to do this
-    inside the documentation.
-
-    @param _root: root of xml tree lxml.ElementTree format
-    @return: lxml.ElementTree object
-    """
-
-    for _elem in _root.getiterator():
-        if not hasattr(_elem.tag, 'find'):
-            continue
-        _i = _elem.tag.find('}')
-        if _i >= 0:
-            _elem.tag = _elem.tag[_i + 1:]
-    objectify.deannotate(_root, cleanup_namespaces=True)
-
-    return _root
-
-
-def _parse_to_ElementTree(xml='') -> ET:
-    """
-    creates a lxml.ElementTree from a xml in string format
-    @param xml: xml in string format
-    @return: lxml.ElementTree object
-    """
-    xml_string = BytesIO(bytes(xml, encoding='utf-8'))
-    tree = ET.parse(xml_string)
-    _root = tree.getroot()
-
-    return __remove_namespaces(_root)
-
-
 def _get_alarms_xml(device) -> str:
     """
     method that connect to the specified host,port using the credentials specified in user,password to retrieve
@@ -266,39 +229,6 @@ def _get_alarms_xml(device) -> str:
     return result
 
 
-def _parse_all_alarms_xml(_root) -> List:
-    """
-    method that parse and filters all the xml inside the lxml.ElementTree that we're interested in
-
-    @param _root: is the lxml.ElementTree containing the xml we need to parse
-    @return: List of Dictionaries containing alarms metadata [{alarm_ID: {element.tag: element.text}}]
-    """
-    # todo refactor this immediately. it's unreadable. use list comprehension
-
-    _data = []
-    _tags_interested_in = ['condition-description', 'ne-condition-timestamp', 'notification-code']
-
-    for alarm in _root.findall('*/managed-element/'):
-        my_dict = {}
-
-        for child in alarm:
-            if child.tag in _tags_interested_in:
-
-                if child.tag == _tags_interested_in[2]:  # (notification-code) replacing useless namespace
-                    child.text = str(child.text).replace('acor-fmt:', '')
-
-                if child.tag == _tags_interested_in[1]:  # (timestamp) formatting the datetime
-                    child.text = str(child.text).replace('T', ' ')
-                    child.text = str(child.text).replace('Z', '')
-
-                # all the tags that don't need editing go directly inside the dictionary (e.g. condition-description)
-                my_dict[child.tag] = child.text
-
-        _data.append(my_dict)
-
-    return _data
-
-
 def start_threads() -> List:
     """
     method available on the outside. it start all the magic to retrieve the alarms on the devices
@@ -309,10 +239,9 @@ def start_threads() -> List:
     _threads = []
 
     for device in devices:
-        t = threading.Thread(
-            target=lambda: _worker(device.netconf_rate, _thread_get_alarms, device))
-        t.start()
-        _threads.append(t)
+        _t = threading.Thread(target=lambda: _worker(device.netconf_rate, _thread_get_alarms, device))
+        _t.start()
+        _threads.append(_t)
 
     return _threads
 
@@ -331,6 +260,5 @@ if __name__ == "__main__":
         for line in file:
             result += line.rstrip()
 
-    root = _parse_to_ElementTree(result)
-    temp = _parse_all_alarms_xml(root)
+    temp = CustomXMLParser(result).parse_all_alarms_xml()
     res = _check_if_alarm_has_ceased('10.11.12.21', temp)
