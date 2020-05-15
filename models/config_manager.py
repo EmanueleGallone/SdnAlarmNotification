@@ -13,13 +13,13 @@ import json
 import logging
 from typing import Dict, List
 
-logging.basicConfig(filename="log.log", level=logging.ERROR)
+logging.basicConfig(filename="../log.log", level=logging.ERROR)
 
 
 def _read_config_file() -> Dict:  # creating static method to read config file
     try:
         data = {}
-        with open('config.json', 'r') as json_file:
+        with open('config/config.json', 'r') as json_file:
             data = json.load(json_file)
     except Exception as e:
         logging.log(logging.CRITICAL, "Error reading config.json file! -> " + str(e))

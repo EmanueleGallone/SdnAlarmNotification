@@ -18,7 +18,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 # retrieving my personal information to start and contact the bot
-with open("personal_credentials.json") as json_data_file:
+with open("config/personal_credentials.json") as json_data_file:
     data = json.load(json_data_file)
     TOKEN = data['token']  # getting bot token
     BOT_CHAT_GROUP_ID = data['bot_group_id']

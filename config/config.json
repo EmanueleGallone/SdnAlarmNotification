@@ -1,6 +1,7 @@
 {
   "Debug_Mode": "True",
   "Do_not_save_existing_alarms" : "True",
+  "Version": "0.0.1",
 
   "Notification_config": {
     "Sender_email": "",
@@ -30,7 +31,29 @@
       "user": "admin",
       "password": "CHGME.1a"
     }
+  },
 
-  }
+  "NewImplementation": [
+    {
+      "device_ip": "10.11.12.19",
+      "netconf_fetch_rate_in_sec": 5,
+      "netconf_port": 830,
+      "netconf_user": "admin",
+      "netconf_password": "CHGME.1a"
+    },
+    {
+      "device_ip": "10.11.12.21",
+      "netconf_fetch_rate_in_sec": 5,
+      "netconf_port": 830,
+      "netconf_user": "admin",
+      "netconf_password": "CHGME.1a"
+    },
+    {
+      "device_ip": "10.11.12.23",
+      "netconf_fetch_rate_in_sec": 5,
+      "netconf_port": 830,
+      "netconf_user": "admin",
+      "netconf_password": "CHGME.1a"
+    }]
 
 }

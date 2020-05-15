@@ -1,8 +1,8 @@
 import alarm_library
 
-from notification_manager import NotificationManager
-from database_handler import DBHandler
-from config_manager import ConfigManager
+from models.notification_manager import NotificationManager
+from models.database_handler import DBHandler
+from models.config_manager import ConfigManager
 
 import threading
 import time
@@ -100,7 +100,7 @@ def main():
 
     try:
 
-        import telegram_bot_service
+        from services import telegram_bot_service
         # the bot needs to be inside the main thread for signalling purposes
         telegram_bot_service.main()
 

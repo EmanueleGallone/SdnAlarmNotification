@@ -7,11 +7,11 @@ import smtplib
 import json
 import logging
 from email.message import EmailMessage
-from config_manager import ConfigManager
+from models.config_manager import ConfigManager
 
 # todo: I know. it all needs a refactor.
 
-logging.basicConfig(filename="log.log", level=logging.ERROR)
+logging.basicConfig(filename="../log.log", level=logging.ERROR)
 
 
 def send_mail(msg_body, msg_subject='SDN Alarm notification'):
@@ -24,7 +24,7 @@ def send_mail(msg_body, msg_subject='SDN Alarm notification'):
 
     if debug_mode:  # use my personal credentials
         try:
-            with open("personal_credentials.json") as json_data_file:
+            with open("../config/personal_credentials.json") as json_data_file:
                 data = json.load(json_data_file)
                 email_address_sender = str(data['email'])
                 email_password_sender = str(data['password'])
@@ -91,6 +91,6 @@ def send_mail(msg_body, msg_subject='SDN Alarm notification'):
 
 if __name__ == "__main__":
     try:
-        send_mail('debug from test')
+        send_mail('debug from tests')
     except Exception as ex:
         print("Error: " + str(ex))

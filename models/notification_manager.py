@@ -4,9 +4,8 @@ Author Emanuele Gallone
 
 """
 
-import mail_sender_service
-import telegram_bot_service
-from config_manager import ConfigManager
+from services import telegram_bot_service, mail_sender_service
+from models.config_manager import ConfigManager
 
 
 class NotificationManager(object):

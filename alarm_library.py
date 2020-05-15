@@ -9,8 +9,8 @@ uses a façade style
 
 import threading, time, traceback, logging
 
-from database_handler import DBHandler
-from config_manager import ConfigManager
+from models.database_handler import DBHandler
+from models.config_manager import ConfigManager
 
 from ncclient import manager
 from io import BytesIO
