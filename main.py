@@ -31,6 +31,12 @@ def _build_new_alarm_msg(_list) -> str:
     return message
 
 
+def _create_db():
+    db = DBHandler().open_connection()
+    db.create_alarm_table()
+    db.close_connection()
+
+
 def _update_alarms_table_notified(_list):
     ids = []
     for alarm in _list:
@@ -79,6 +85,9 @@ def __notificationThread(_delay):
 
 
 def main():
+
+    # create if does not exist the local.db
+    _create_db()
 
     # starting thread to fetch netconf data from devices
     threads = alarm_library.start_threads()

@@ -28,7 +28,7 @@ with open("personal_credentials.json") as json_data_file:
 def start(update, context):
     """Send a message when the command /start is issued."""
     link = 'tg://join?invite=HJpFahAwxvTRLEMOmSiYEA'
-    
+
     update.message.reply_text('Hi! welcome to the Alarm dispatcher bot. '
                               'It will deliver on your phone major alarms detected from your network devices!\n\n'
                               'type /help to list all the commands.\n\n'
