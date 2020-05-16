@@ -38,7 +38,7 @@ class CustomXMLParser(object):
 
         return self
 
-    def _parse_to_ElementTree(self):
+    def __parse_to_ElementTree(self):
         """
         creates a lxml.ElementTree from a xml in string format
         @param xml: xml in string format
@@ -57,7 +57,7 @@ class CustomXMLParser(object):
         @return: List of Dictionaries containing alarms metadata [{alarm_ID: {element.tag: element.text}}]
         """
     # todo refactor this immediately. it's unreadable. use list comprehension
-        self._parse_to_ElementTree()
+        self.__parse_to_ElementTree()
 
         _data = []
         _tags_interested_in = ['condition-description', 'ne-condition-timestamp', 'notification-code']
@@ -86,4 +86,5 @@ class CustomXMLParser(object):
 if __name__ == '__main__':
     from alarm_library import _detail_dummy_data_fetch
     c = CustomXMLParser(_detail_dummy_data_fetch()).parse_all_alarms_xml()
+    print(c)
 

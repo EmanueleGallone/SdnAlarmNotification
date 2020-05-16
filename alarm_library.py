@@ -7,7 +7,7 @@ uses a façade pattern exposing only one method.
 
 """
 
-import threading, time, traceback, logging
+import threading, time, traceback, logging, os
 
 from models.database_handler import DBHandler
 from models.config_manager import ConfigManager
@@ -66,8 +66,10 @@ def _detail_dummy_data_fetch() -> str:
     NB: for testing purpose only
     @return: xml in string format
     """
+
+    filename = os.path.join(os.path.dirname(__file__), 'dummy_data.xml')
     string_result = ''
-    with open('dummy_data.xml', 'r') as _file:
+    with open(filename, 'r') as _file:
         for _line in _file:
             # if "<?xml " in line:  # remove the xml prolog
             #     continue
