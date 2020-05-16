@@ -3,7 +3,7 @@ Copyright (c) Emanuele Gallone 05-2020.
 Author Emanuele Gallone
 
 Simple wrapper class to decouple the reading of the config.json file
-from the rest of the program
+from the rest of the program.
 
 NB: inside the config.json the bool are of string type, because json bool is 'true'
 but python's bool is 'True'; this was the simplest workaround.

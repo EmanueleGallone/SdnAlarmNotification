@@ -1,6 +1,9 @@
 """
 Copyright (c) Emanuele Gallone 05-2020.
 Author Emanuele Gallone
+
+This class is responsible for sending email through SMTP. It has only one method "send_mail(..)
+that reads the parameters from the config.json file and send the email.
 """
 
 import smtplib

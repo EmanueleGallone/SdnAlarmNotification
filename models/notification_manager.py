@@ -2,7 +2,10 @@
 Copyright (c) Emanuele Gallone 05-2020.
 Author Emanuele Gallone
 
-This class is responsible for notifying the user about alarms. It uses a singleton architecture
+This class is responsible for notifying the user about alarms. It uses a singleton architecture.
+I created this class to decouple the notification handling from the rest of the program.
+If you want to add new notification methods (e.g. sending SMS) simply create a private method
+and call it inside the notify()
 """
 import logging
 import threading
@@ -32,22 +35,26 @@ class NotificationManager(object, metaclass=Singleton):
         self.msg = ''
 
     def notify(self, msg="DEBUG FROM NOTIFICATION MANAGER!"):
+        """ method that broadcast the alarm through all the technologies defined here (eg. email, messages...)"""
         self._send_mail(msg)
         self._broadcast_alarm(msg)
 
     def _send_mail(self, msg):
+        """ helper method that sends the email through the service if the flag inside config.json is set to true"""
         send_email_flag = self._config_manager.get_email_notification_flag()
 
         if send_email_flag:
             mail_sender_service.send_mail(msg)
 
     def _broadcast_alarm(self, msg):
+        """ broadcast the alarm using the bot"""
         send_message_flag = self._config_manager.get_message_notification_flag()
 
         if send_message_flag:
             telegram_bot_service.send_to_bot_group(msg)
 
     def start(self):
+        """method available on the outside. It just starts the thread responsible to deliver notifications to users."""
 
         notifier = threading.Thread(target=lambda: self.__notificationThread(5))
         notifier.start()
@@ -55,6 +62,11 @@ class NotificationManager(object, metaclass=Singleton):
         return notifier
 
     def __build_new_alarm_msg(self, _list) -> str:
+        """
+        helper method that build the msg to be notified
+
+        @param _list: list of dictionaries. each dictionary is an alarm
+        """
 
         self.message = 'New Alarm(s): \n'
 
@@ -72,6 +84,10 @@ class NotificationManager(object, metaclass=Singleton):
         return self.message
 
     def __update_alarms_table_notified(self, _list):
+        """
+        method used to update the DB's table. It sets the notified attribute to 1 to all
+        the alarms that were notified.
+        """
 
         ids = []
         for alarm in _list:
@@ -84,7 +100,7 @@ class NotificationManager(object, metaclass=Singleton):
     def __notificationThread(self, _delay):
 
         """
-        worker definition for thread task
+        worker definition notification task. It query the DB and chooses what alarms to notify.
 
         @param _delay: it specifies the delay in which the task will be performed
         @return: void

@@ -6,7 +6,7 @@ from services import telegram_bot_service
 
 import logging
 
-logging.basicConfig(filename="../log.log", level=logging.ERROR)
+logging.basicConfig(filename="log.log", level=logging.ERROR)
 
 
 def _create_db():

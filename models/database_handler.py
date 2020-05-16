@@ -6,9 +6,11 @@ Unfortunately I discovered that the python implementation of SQLITE is not threa
 To cope with this issue, I created a wrapper class that is thread-safe (hopefully)
 by creating methods that resembles atomic operations.
 
+To avoid SQLInjections, NEVER append the parameters directly inside the SQL statements.
+
 Issue #2: Performances.
 Sqlite is known for its poor performances but it's simple to implement and for the purpose of this project
-is more than enough.
+is more than enough. You want to change this with another DB as soon as you can. trust me.
 
 """
 import sqlite3
@@ -77,7 +79,7 @@ class DBHandler(object):
             logging.log(logging.ERROR, "something wrong selecting alarm by ID" + str(e))
 
         finally:
-            lock.release()  # avoiding deadlock
+            lock.release()
 
         return result
 

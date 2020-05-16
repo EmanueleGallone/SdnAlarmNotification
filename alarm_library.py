@@ -182,8 +182,10 @@ def _check_if_alarm_has_ceased(host, alarms):
 
 def __filter_if_alarm_exists_in_db(host, array) -> List:
     """
-    helper method to avoid the repetition of inserting existing alarms in db, not having the
-    possibility to create alarms ourselves
+    helper method to avoid the repetition of inserting existing alarms in db.
+    It is used due to not having the possibility to create alarms ourselves.
+    By not using this filter, every new alarms fetched through netconf will be seen as 'new' alarms.
+
     @param host: device ip
     @param array: list of dict where each dict is an alarm
     @return: list of dict alarms, where these alarms are not present in db
@@ -238,7 +240,7 @@ def _get_alarms_xml(device) -> str:
 def start_threads() -> List:
     """
     method available on the outside. it start all the magic to retrieve the alarms on the devices
-    listed inside the config.json
+    listed inside the config.json. It starts a thread for each device found in the config.json file
 
     @return: List of threads that need to be joined outside
     """

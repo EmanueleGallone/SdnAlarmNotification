@@ -3,6 +3,7 @@ Copyright (c) Emanuele Gallone 05-2020.
 Author Emanuele Gallone
 
 Wrapper class to implement a custom XML parser.
+The only method exposed to the extern is parse_all_alarms_xml()
 """
 from io import BytesIO
 from typing import List
@@ -23,7 +24,7 @@ class CustomXMLParser(object):
         For the love of god, don't touch this. It was a nightmare finding how to do this
         inside the documentation.
 
-        it could be useless.
+        it could be useless, just ignore namespaces using lxml. maybe a refactor will be needed.
 
         @return: lxml.ElementTree object
         """
@@ -53,7 +54,6 @@ class CustomXMLParser(object):
         """
         method that parse and filters all the xml inside the lxml.ElementTree that we're interested in
 
-        @param _root: is the lxml.ElementTree containing the xml we need to parse
         @return: List of Dictionaries containing alarms metadata [{alarm_ID: {element.tag: element.text}}]
         """
     # todo refactor this immediately. it's unreadable. use list comprehension
