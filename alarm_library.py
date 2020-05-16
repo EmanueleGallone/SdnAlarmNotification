@@ -120,23 +120,30 @@ def _thread_save_to_db(host, parsed_metadata):
 
     for alarm_dict in parsed_metadata:
 
-        severity_levels = config_m.get_severity_levels()
-        severity = severity_levels[alarm_dict['notification-code']]
-        description = alarm_dict['condition-description']
-        timestamp = alarm_dict['ne-condition-timestamp']
+        try:
 
-        lock.acquire()  # need to lock also here because sqlite is s**t
-        db_handler = DBHandler()
+            severity_levels = config_m.get_severity_levels()
+            severity = severity_levels[alarm_dict['notification-code']]
+            description = alarm_dict['condition-description']
+            timestamp = alarm_dict['ne-condition-timestamp']
 
-        db_handler.open_connection()
+            lock.acquire()  # need to lock also here because sqlite is s**t
 
-        db_handler.insert_row_alarm(device_ip=host,
-                                    severity=severity,
-                                    description=description,
-                                    _time=timestamp)
-        db_handler.close_connection()
+            db_handler = DBHandler()
 
-        lock.release()
+            db_handler.open_connection()
+
+            db_handler.insert_row_alarm(device_ip=host,
+                                        severity=severity,
+                                        description=description,
+                                        _time=timestamp)
+            db_handler.close_connection()
+
+        except Exception as e:
+            logging.log(logging.ERROR, str(e))
+
+        finally:
+            lock.release()
 
 
 def _check_if_alarm_has_ceased(host, alarms):
