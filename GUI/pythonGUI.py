@@ -14,8 +14,93 @@ from models.database_handler import DBHandler
 from models.config_manager import ConfigManager
 from collections import defaultdict
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 import numpy as np
 
+
+def fetchData():
+    for row in results:
+        alarmsPerHost[row[1]][row[2]] += 1
+        totalAlarmsPerSeverity[row[2]] += 1
+    print(results)
+
+    config_manager = ConfigManager()
+    severity_levels = config_manager.get_severity_levels()
+    #severity = severity_levels[alarm_dict['notification-code']]
+    #print(severity_levels)
+    for key, item in severity_levels.items():
+        #print(item)
+        for host in alarmsPerHost:
+            if str(item) not in alarmsPerHost[host]:
+                alarmsPerHost[host][str(item)]=0
+
+
+class plot1(FigureCanvas):
+    def __init__(self, parent=None, width=5, height=5, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+
+        FigureCanvas.__init__(self, fig)
+        self.setParent(parent)
+        self.plotCode()
+
+    def plotCode(self):
+        width=0.25
+        i=0
+        odd=True
+        even=False
+        for host in alarmsPerHost:
+            xlistElements, ylistElements,descriptionList,loc = [], [],[],[]
+            lbl = "Host:{0}".format(host)  # Labels: (s1, s2), (s2,s3), etc.
+            if i % 2 == 0:
+                if even==False:
+                    even=True
+                    deltaPosition = +width * i
+                else:
+                    deltaPosition = -width * i
+                    odd = True
+            else:
+                if odd==False:
+                    odd=True
+                    deltaPosition = -width * i
+                else:
+                    deltaPosition = +width * i
+                    even = True
+            for severity in sorted(alarmsPerHost[host].keys()):
+                loc.append(int(severity) +deltaPosition)
+                xlistElements.append(int(severity))
+                print(host,loc)
+                ylistElements.append(alarmsPerHost[host][severity])
+                plt.annotate(alarmsPerHost[host][severity], xy=(int(severity) +deltaPosition-width/5, alarmsPerHost[host][severity]+0.15))
+            #plt.plot(xlistElements, ylistElements,'-',label=lbl,marker='o')
+            plt.bar(loc, ylistElements, label=lbl, width=0.2)
+
+            descriptionList=self.getInfo(xlistElements)
+            print(descriptionList)
+            plt.xticks(xlistElements,descriptionList)
+            if odd and even:
+                i=i+1
+                odd=False
+                even=False
+
+        plt.xlabel("Severity Level")
+        plt.ylabel("Number of alarms")
+        plt.title("Alarms received per host ")
+
+
+        plt.axhline(7, color='black', linestyle='--',label="num threshold")
+        plt.legend()
+        plt.show()
+
+    def getInfo(self,xlistElements):
+        _config_manager = ConfigManager()
+        descriptionList = []
+        for element in xlistElements:
+            descriptionList.append(_config_manager.get_severity_mapping(element))
+        return descriptionList
+
+#https://matplotlib.org/3.1.1/gallery/lines_bars_and_markers/horizontal_barchart_distribution.html#sphx-glr-gallery-lines-bars-and-markers-horizontal-barchart-distribution-py
 
 class DBWindow(QMainWindow):
     '''
@@ -92,6 +177,8 @@ class DBWindow(QMainWindow):
         self.refreshButton.setCheckable(True) #by default is unchecked
 
 
+        self.plotWidget=plot1(self, width=5, height=5, dpi=100)
+        self.plotWidget.move(0,0)
         #self.refreshButton.toggle()
         '''
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
@@ -101,12 +188,13 @@ class DBWindow(QMainWindow):
         self.refreshButton.setText("Refresh")
         
         '''
+
         # inizializzo lo spazio dove mettero la tabella
         self.textBrowser = QtWidgets.QTextBrowser(self.centralwidget)
         self.textBrowser.setGeometry(QtCore.QRect(230, 140, 256, 192))
         self.textBrowser.setObjectName("textBrowser")
         self.textBrowser.setText("Empty table")
-
+        '''
         self.menubar = QtWidgets.QMenuBar(self)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
         self.menubar.setObjectName("menubar")
@@ -125,13 +213,17 @@ class DBWindow(QMainWindow):
         self.menuMain.addAction(self.actionSave)
         self.menuMain.addAction(self.actionExplore)
         self.menubar.addAction(self.menuMain.menuAction())
-
+        '''
         #self.retranslateUi(self)
         QtCore.QMetaObject.connectSlotsByName(self)
 
 
-app = QtWidgets.QApplication([])
-Gui = DBWindow()
+
+def redoRefresh():
+    print("Here I need to implement the refresh code")
+    #plt.savefig("image.png")--->toolbar?
+
+
 
 
 alarmTable=DBHandler()
@@ -143,101 +235,14 @@ alarmTable.close_connection()
 alarmsPerHost=defaultdict(lambda: defaultdict(int)) #stores IPAddress and the correspondents severity alarms counters
 totalAlarmsPerSeverity=defaultdict(int) #defaultdict(int)=inizializza il dizionario a 0
 
-for row in results:
-    alarmsPerHost[row[1]][row[2]] += 1
-    totalAlarmsPerSeverity[row[2]] += 1
-print(results)
+fetchData()
 
-#for host in alarmsPerHost:
- #   for severity in alarmsPerHost[host]:
-  #      print("")
-
-
-
-
-def plot1():
-    width=0.25
-    i=0
-    odd=True
-    even=False
-    for host in alarmsPerHost:
-
-        xlistElements, ylistElements,descriptionList,loc = [], [],[],[]
-        lbl = "Host:{0}".format(host)  # Labels: (s1, s2), (s2,s3), etc.
-
-        if i % 2 == 0:
-            if even==False:
-                even=True
-                deltaPosition = +width * i
-            else:
-                deltaPosition = -width * i
-                odd = True
-        else:
-
-            if odd==False:
-                odd=True
-                deltaPosition = -width * i
-            else:
-                deltaPosition = +width * i
-                even = True
-
-        for severity in sorted(alarmsPerHost[host].keys()):
-            loc.append(int(severity) +deltaPosition)
-            xlistElements.append(int(severity))
-            print(host,loc)
-
-            ylistElements.append(alarmsPerHost[host][severity])
-
-
-
-            plt.annotate(alarmsPerHost[host][severity], xy=(int(severity) +deltaPosition-width/5, alarmsPerHost[host][severity]+0.15))
-        #plt.plot(xlistElements, ylistElements,'-',label=lbl,marker='o')
-        plt.bar(loc, ylistElements, label=lbl, width=0.2)
-
-
-        '''
-        bars=plt.bar(loc, ylistElements,label=lbl, width=0.2)
-        for bar in bars:
-            occurencies = bar.get_height()
-            print(bar.get_x())
-            plt.text(bar.get_x(), occurencies + 0.2, occurencies,ha='center',va='bottom')
-        '''
-
-        descriptionList=getInfo(xlistElements)
-        print(descriptionList)
-        plt.xticks(xlistElements,descriptionList)
-        if odd and even:
-            i=i+1
-            odd=False
-            even=False
-
-    #plt.axhline(3,color='black', linestyle='--')
-    plt.xlabel("Severity Level")
-    plt.ylabel("Number of alarms")
-    plt.title("Alarms received per host ")
-    #plt.xlim(-0.5,5.5)
-
-    plt.axhline(7, color='black', linestyle='--',label="num threshold")
-    plt.legend()
-    plt.show()
-
-#https://matplotlib.org/3.1.1/gallery/lines_bars_and_markers/horizontal_barchart_distribution.html#sphx-glr-gallery-lines-bars-and-markers-horizontal-barchart-distribution-py
-
-
-def getInfo(xlistElements):
-    _config_manager = ConfigManager()
-    descriptionList=[]
-    for element in xlistElements:
-        descriptionList.append(_config_manager.get_severity_mapping(element))
-    return descriptionList
-
-def redoRefresh():
-    print("Here I need to implement the refresh code")
-    #plt.savefig("image.png")--->toolbar?
+app = QtWidgets.QApplication([])
+Gui = DBWindow()
 Gui.refreshButton.clicked.connect(redoRefresh)
 
 
-plot1()
+
 
 Gui.show()
 
