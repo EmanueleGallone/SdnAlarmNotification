@@ -14,11 +14,13 @@ is more than enough.
 import sqlite3
 import threading
 import logging
+import os
 from datetime import datetime
 
 lock = threading.Lock()  # creating a global lock mechanism
 
-default_url = 'local.db'
+dirname = os.path.dirname(__file__)
+default_url = os.path.join(dirname, '../local.db')
 
 
 class DBHandler(object):
