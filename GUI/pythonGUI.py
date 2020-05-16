@@ -19,7 +19,8 @@ from matplotlib.figure import Figure
 import numpy as np
 
 
-def fetchData():
+
+def fetchData(results):
     for row in results:
         alarmsPerHost[row[1]][row[2]] += 1
         totalAlarmsPerSeverity[row[2]] += 1
@@ -27,10 +28,8 @@ def fetchData():
 
     config_manager = ConfigManager()
     severity_levels = config_manager.get_severity_levels()
-    #severity = severity_levels[alarm_dict['notification-code']]
-    #print(severity_levels)
+
     for key, item in severity_levels.items():
-        #print(item)
         for host in alarmsPerHost:
             if str(item) not in alarmsPerHost[host]:
                 alarmsPerHost[host][str(item)]=0
@@ -43,9 +42,9 @@ class plot1(FigureCanvas):
 
         FigureCanvas.__init__(self, fig)
         self.setParent(parent)
-        self.plotCode()
+        self.plotCode(self.axes)
 
-    def plotCode(self):
+    def position(self,ax):
         width=0.25
         i=0
         odd=True
@@ -72,24 +71,34 @@ class plot1(FigureCanvas):
                 xlistElements.append(int(severity))
                 print(host,loc)
                 ylistElements.append(alarmsPerHost[host][severity])
+                ax.annotate(alarmsPerHost[host][severity],xy=(int(severity) + deltaPosition - width / 5, alarmsPerHost[host][severity] + 0.15))
                 plt.annotate(alarmsPerHost[host][severity], xy=(int(severity) +deltaPosition-width/5, alarmsPerHost[host][severity]+0.15))
             #plt.plot(xlistElements, ylistElements,'-',label=lbl,marker='o')
+            ax.bar(loc, ylistElements, label=lbl, width=0.2)
             plt.bar(loc, ylistElements, label=lbl, width=0.2)
 
             descriptionList=self.getInfo(xlistElements)
-            print(descriptionList)
+            #print(descriptionList)
+            ax.set_xticks(xlistElements)
+            ax.set_xticklabels(descriptionList)
             plt.xticks(xlistElements,descriptionList)
+            #plt.setp(ax,xlistElements,descriptionList,ylistElements)
             if odd and even:
                 i=i+1
                 odd=False
                 even=False
 
-        plt.xlabel("Severity Level")
-        plt.ylabel("Number of alarms")
-        plt.title("Alarms received per host ")
+    def plotCode(self,ax):
 
+        #ax=self.figure.add_subplot(111)
+        ax.set_xlabel("Severity Level")
+        ax.set_ylabel("Number of alarms")
+        ax.set_title("Alarms received per host ")
+        self.position(ax)
 
-        plt.axhline(7, color='black', linestyle='--',label="num threshold")
+        ax.axhline(7, color='black', linestyle='--',label="num threshold")
+        plt.axhline(7, color='black', linestyle='--', label="num threshold")
+        ax.legend()
         plt.legend()
         plt.show()
 
@@ -99,6 +108,7 @@ class plot1(FigureCanvas):
         for element in xlistElements:
             descriptionList.append(_config_manager.get_severity_mapping(element))
         return descriptionList
+
 
 #https://matplotlib.org/3.1.1/gallery/lines_bars_and_markers/horizontal_barchart_distribution.html#sphx-glr-gallery-lines-bars-and-markers-horizontal-barchart-distribution-py
 
@@ -170,12 +180,12 @@ class DBWindow(QMainWindow):
 
         #inizializzo il refresh button :QPushButton:https://doc.qt.io/qt-5/qpushbutton.html
         self.refreshButton = QtWidgets.QPushButton(self.centralwidget)
-        self.refreshButton.setGeometry(QtCore.QRect(350, 400, 75, 23))
+        self.refreshButton.setGeometry(QtCore.QRect(700, 1500, 75, 23))
         self.refreshButton.setObjectName("refreshButton") #variable name
         self.refreshButton.setText("Refresh")  #name that appears in the window
         self.refreshButton.setStatusTip("Click this if you want to re-Fresh the table")
         self.refreshButton.setCheckable(True) #by default is unchecked
-
+        self.refreshButton.move(600,600)
 
         self.plotWidget=plot1(self, width=5, height=5, dpi=100)
         self.plotWidget.move(0,0)
@@ -220,10 +230,21 @@ class DBWindow(QMainWindow):
 
 
 def redoRefresh():
+    updatedAlarmTable = DBHandler()
+    updatedAlarmTable.open_connection()
+    results = updatedAlarmTable.select_all()
+    updatedAlarmTable.close_connection()
+
     print("Here I need to implement the refresh code")
     #plt.savefig("image.png")--->toolbar?
+    alarmsPerHost.clear()
+    totalAlarmsPerSeverity.clear()
 
-
+    fetchData(results)
+    newPlot=plot1()
+    Gui.plotWidget.axes.cla()
+    print(Gui.plotWidget.axes, " ", type(Gui.plotWidget.axes))
+    newPlot.position(Gui.plotWidget.axes)
 
 
 alarmTable=DBHandler()
@@ -235,7 +256,7 @@ alarmTable.close_connection()
 alarmsPerHost=defaultdict(lambda: defaultdict(int)) #stores IPAddress and the correspondents severity alarms counters
 totalAlarmsPerSeverity=defaultdict(int) #defaultdict(int)=inizializza il dizionario a 0
 
-fetchData()
+fetchData(results)
 
 app = QtWidgets.QApplication([])
 Gui = DBWindow()
