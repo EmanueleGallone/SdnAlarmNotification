@@ -121,17 +121,14 @@ def _thread_save_to_db(host, parsed_metadata):
     for alarm_dict in parsed_metadata:
 
         try:
+            lock.acquire()  # need to lock also here because sqlite is s**t
 
             severity_levels = config_m.get_severity_levels()
             severity = severity_levels[alarm_dict['notification-code']]
             description = alarm_dict['condition-description']
             timestamp = alarm_dict['ne-condition-timestamp']
 
-            lock.acquire()  # need to lock also here because sqlite is s**t
-
-            db_handler = DBHandler()
-
-            db_handler.open_connection()
+            db_handler = DBHandler().open_connection()
 
             db_handler.insert_row_alarm(device_ip=host,
                                         severity=severity,
