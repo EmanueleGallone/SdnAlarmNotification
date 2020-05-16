@@ -90,7 +90,7 @@ class DBHandler(object):
         notified = 0
         t = (severity, notified)
 
-        self._cursor.execute('SELECT * FROM alarm WHERE (severity=?) AND (notified=?)', t)
+        self._cursor.execute('SELECT * FROM alarm WHERE (severity>=?) AND (notified=?) ORDER BY severity desc', t)
         result = self._cursor.fetchall()
 
         lock.release()
