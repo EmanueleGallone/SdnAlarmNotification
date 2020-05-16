@@ -16,6 +16,7 @@ logging.basicConfig(filename="../log.log", level=logging.ERROR)
 
 
 def _build_new_alarm_msg(_list) -> str:
+    # todo move this into notification manager
     message = 'New Alarm(s): \n'
 
     for alarm in _list:
@@ -39,6 +40,7 @@ def _create_db():
 
 
 def _update_alarms_table_notified(_list):
+    # todo move this into notification manager
     ids = []
     for alarm in _list:
         ids.append(alarm[0])
@@ -49,6 +51,7 @@ def _update_alarms_table_notified(_list):
 
 
 def __notificationThread(_delay):
+    # todo move this inside the notification manager
     """
     worker definition for thread task
 

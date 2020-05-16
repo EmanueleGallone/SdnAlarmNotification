@@ -2,13 +2,23 @@
 Copyright (c) Emanuele Gallone 05-2020.
 Author Emanuele Gallone
 
+This class is responsible for notifying the user about alarms. It uses a singleton architecture
 """
 
 from services import telegram_bot_service, mail_sender_service
 from models.config_manager import ConfigManager
 
 
-class NotificationManager(object):
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class NotificationManager(object, metaclass=Singleton):
 
     def __init__(self):
         self.config_manager = ConfigManager()
@@ -32,3 +42,5 @@ class NotificationManager(object):
 
 if __name__ == '__main__':
     notification_m = NotificationManager()
+    x = NotificationManager()
+    print(x.__class__)

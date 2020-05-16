@@ -23,6 +23,8 @@ class CustomXMLParser(object):
         For the love of god, don't touch this. It was a nightmare finding how to do this
         inside the documentation.
 
+        it could be useless.
+
         @return: lxml.ElementTree object
         """
 

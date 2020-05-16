@@ -9,6 +9,7 @@ built on top of python-telegram-bot's examples ( https://github.com/python-teleg
 import logging
 import json
 import requests
+import os
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 # Enable logging
@@ -17,11 +18,21 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
+
 # retrieving my personal information to start and contact the bot
-with open("config/personal_credentials.json") as json_data_file:
-    data = json.load(json_data_file)
-    TOKEN = data['token']  # getting bot token
-    BOT_CHAT_GROUP_ID = data['bot_group_id']
+dirname = os.path.dirname(__file__)
+filename = os.path.join(dirname, '../config/personal_credentials.json')
+
+try:
+
+    with open(filename) as json_data_file:
+        data = json.load(json_data_file)
+        TOKEN = data['token']  # getting bot token
+        BOT_CHAT_GROUP_ID = data['bot_group_id']
+
+except Exception as e:
+    logger.log(logging.CRITICAL, "Could not retrieve bot information. Bot will not Answer.")
+
 
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
