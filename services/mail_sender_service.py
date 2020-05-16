@@ -23,9 +23,21 @@ def send_mail(msg_body, msg_subject='SDN Alarm notification'):
     if msg_body is None:
         raise Exception("you need to specify the the email body!")
 
+    try:
+
+        data = config_manager.get_notification_config()
+        email_address_sender = data['Sender_email']
+        email_password_sender = data['Sender_email_password']
+        email_address_receiver = data['Receiver_Email']
+        smtp_server = data['SMTP_SERVER']
+        smtp_port = data['SMTP_PORT']
+
+    except Exception as e:
+        print("something went wrong reading config.json file! ->" + str(e))
+
     debug_mode = config_manager.get_debug_mode()
 
-    if debug_mode:  # use my personal credentials
+    if debug_mode:  # overwrite with my personal credentials
         try:
             filename = os.path.join(dirname, '../config/personal_credentials.json')
 
@@ -38,19 +50,6 @@ def send_mail(msg_body, msg_subject='SDN Alarm notification'):
                 smtp_port = 587
         except Exception as e:
             print("something went wrong reading personal_credentials.json file! ->" + str(e))
-
-    else:  # Use the information inside the config file
-        try:
-
-            data = config_manager.get_notification_config()
-            email_address_sender = data['Sender_email']
-            email_password_sender = data['Sender_email_password']
-            email_address_receiver = data['Receiver_Email']
-            smtp_server = data['SMTP_SERVER']
-            smtp_port = data['SMTP_PORT']
-
-        except Exception as e:
-            print("something went wrong reading config.json file! ->" + str(e))
 
 
     ################### implementation #######################
