@@ -19,6 +19,8 @@ from matplotlib.figure import Figure
 import numpy as np
 import time
 import random
+import sqlite3
+import logging
 
 #plt.ion()
 
@@ -34,114 +36,6 @@ def organizeData(results):
                 alarmsPerHost[host][str(item)]=0
         if item not in totalAlarmsPerSeverity:
             totalAlarmsPerSeverity[item]=0
-class plot1(FigureCanvas):
-    def __init__(self, parent=None, width=5, height=5, dpi=100,updateCheck=False):
-        self.fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = self.fig.add_subplot(111)
-        #self.axes = self.fig.add_subplot(221)
-        #self.axes2 = self.fig.add_subplot(222)
-        FigureCanvas.__init__(self, self.fig)
-        self.setParent(parent)
-        self.updateCheck=updateCheck
-        self.plotCode(self.axes,True)
-        #self.plotCode(self.axes2, True)
-    def position(self,ax):
-        width=0.25
-        i=0
-        odd=True
-        even=False
-
-        for host in alarmsPerHost:
-            xlistElements, ylistElements,descriptionList,loc = [], [],[],[]
-            lbl = "Host:{0}".format(host)  # Labels: (s1, s2), (s2,s3), etc.
-            if i % 2 == 0:
-                if even==False:
-                    even=True
-                    deltaPosition = +width * i
-                else:
-                    deltaPosition = -width * i
-                    odd = True
-            else:
-                if odd==False:
-                    odd=True
-                    deltaPosition = -width * i
-                else:
-                    deltaPosition = +width * i
-                    even = True
-            for severity in sorted(alarmsPerHost[host].keys()):
-                loc.append(int(severity) +deltaPosition)
-                xlistElements.append(int(severity))
-                if self.updateCheck==True:
-                    tot=alarmsPerHost[host][severity]+random.randint(10,100)
-                    ylistElements.append(tot)
-                    print(tot,"ooo",alarmsPerHost[host][severity])
-                else:
-                    ylistElements.append(alarmsPerHost[host][severity])
-
-                ax.annotate(alarmsPerHost[host][severity],xy=(int(severity) + deltaPosition - width / 5, alarmsPerHost[host][severity] + 0.15))
-                #plt.annotate(alarmsPerHost[host][severity], xy=(int(severity) +deltaPosition-width/5, alarmsPerHost[host][severity]+0.15))
-            #plt.plot(xlistElements, ylistElements,'-',label=lbl,marker='o')
-            ax.bar(loc, ylistElements, label=lbl, width=0.2)
-            #plt.bar(loc, ylistElements, label=lbl, width=0.2)
-            #print("position ")
-            descriptionList=self.getInfo(xlistElements)
-            #print(descriptionList)
-            ax.set_xticks(xlistElements)
-            ax.set_xticklabels(descriptionList)
-            #plt.xticks(xlistElements,descriptionList)
-            #plt.setp(ax,xlistElements,descriptionList,ylistElements)
-            if odd and even:
-                i=i+1
-                odd=False
-                even=False
-
-
-    def plotCode(self,ax,new):
-        if(new==True):
-            ax.set_xlabel("Severity Level")
-            ax.set_ylabel("Number of alarms")
-            ax.set_title("Alarms received per host ")
-        self.position(ax)
-
-        #print("plotcode ")
-
-
-        yAverageList=[]
-        xAverageList=[]
-        for key, item in sorted(totalAlarmsPerSeverity.items()):
-            avg=item/len(totalAlarmsPerSeverity)
-            yAverageList.append(avg)
-            xAverageList.append(int(key))
-            ax.annotate(avg,xy=(key, avg + 0.15))
-
-        ax.plot(xAverageList,yAverageList, color='red', linestyle='--', label="Average number of alarms per severity")
-        
-
-        ax.axhline(7, color='black', linestyle='--',label="num threshold")
-        #plt.axhline(7, color='black', linestyle='--', label="num threshold")
-        ax.legend()
-        #plt.legend()
-
-        #plt.show()
-
-
-    def reStart(self):
-        #self.clearFigure(self.fig)
-        self.plotCode(self.axes,False)
-
-    def clearFigure(self,oldFigure):
-        fig = oldFigure
-        fig.canvas.draw_idle()
-        time.sleep(0.01)  # sleep + flush_events invece che pause, secondo stackOverflow e' meglio, piu' efficiente
-        fig.canvas.flush_events()
-
-    def getInfo(self,xlistElements):
-        _config_manager = ConfigManager()
-        descriptionList = []
-        for element in xlistElements:
-            descriptionList.append(_config_manager.get_severity_mapping(element))
-        return descriptionList
-#https://matplotlib.org/3.1.1/gallery/lines_bars_and_markers/horizontal_barchart_distribution.html#sphx-glr-gallery-lines-bars-and-markers-horizontal-barchart-distribution-py
 
 class DBWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
@@ -149,7 +43,7 @@ class DBWindow(QMainWindow):
         self.title = 'Alarm Table Window'
         self.left =30
         self.top = 30
-        self.width = 1200
+        self.width = 1300
         self.height = 700
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
@@ -166,10 +60,13 @@ class DBWindow(QMainWindow):
         self.refreshButton.setText("Refresh")  #name that appears in the window
         self.refreshButton.setStatusTip("Click this if you want to re-Fresh the table")
         self.refreshButton.setCheckable(True) #by default is unchecked
-        self.refreshButton.move(600,600)
+        self.refreshButton.move(650,5)
 
-        self.plotWidget=plot1(self, width=5, height=5, dpi=100,updateCheck=False)
-        self.plotWidget.move(0,0)
+        self.plotWidget=plot1(self, width=5.5, height=5.5, dpi=100,updateCheck=False)
+        self.plotWidget.move(0,30)
+
+        self.plotWidget2=plot2(self, width=8, height=6, dpi=100,updateCheck=False)
+        self.plotWidget2.move(560,30)
 
         #self.plotWidget2=plot1(self, width=5, height=5, dpi=100,updateCheck=False)
         #self.plotWidget2.move(3,3)
@@ -181,11 +78,94 @@ class DBWindow(QMainWindow):
         self.textBrowser.setText("Empty table")
         #self.retranslateUi(self)
         QtCore.QMetaObject.connectSlotsByName(self)
-    def reStartGui(self):
+
+    def reFresh(self):
         self.plotWidget.axes.cla()
         self.plotWidget.updateCheck=True
-        self.plotWidget.reStart()
+        self.plotWidget.reStartPlot1()
         self.plotWidget.draw()
+
+        self.plotWidget2.axes.cla()
+        self.plotWidget2.updateCheck=True
+        self.plotWidget2.reStartPlot2()
+        self.plotWidget2.draw()
+
+class plot2(FigureCanvas):
+    def __init__(self, parent=None, width=5, height=5, dpi=100,updateCheck=False):
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = self.fig.add_subplot(111)
+        #self.fig.tight_layout()
+        FigureCanvas.__init__(self, self.fig)
+        self.setParent(parent)
+        self.updateCheck=updateCheck #TODO
+        self.barGraph(self.axes)
+
+    def barGraph(self,axes):
+        print("here")
+        try:
+            print("dhere")
+            connection = sqlite3.connect('local.db')
+            query = "SELECT deviceIP FROM alarm"
+            result = connection.execute(query)
+            alarms_ip = []
+            for column_number, data in enumerate(result):
+                alarms_ip.append(data[0])
+            labels = set(alarms_ip)
+
+            query = "SELECT description FROM alarm"
+            result = connection.execute(query)
+            alarms_desc = []
+            for column_number, data in enumerate(result):
+                alarms_desc.append(data[0])
+            alarms_description = set(alarms_desc)
+
+            rects=[]
+            for alarms in alarms_description:
+                means = []
+                for ip in labels:
+                    t=(alarms,)
+                    query = "SELECT COUNT() FROM "+"alarm WHERE DESCRIPTION=? AND deviceIP='"+str(ip)+"'"
+                    result = connection.execute(query, t)
+                    for column_number, data in enumerate(result):
+                        means.append(data[0])
+                rects.append(means)
+
+            #print(alarms_description)
+            #print(rects)
+
+            x = np.arange(len(labels))  # the label locations
+            width = 0.2  # the width of the bars
+
+            for i in range(0, len(rects)):
+                if self.updateCheck == True:
+                    rects[i]=rects[i]+random.randint(2, 5)
+                    print("redo")
+                bar= axes.bar(x + (i-(len(rects)-1)/2) * width / 2, rects[i], width/2, label=list(alarms_description)[i])
+                autolabel(bar,axes)
+
+            # Add some text for labels, title and custom x-axis tick labels, etc.
+            axes.set_ylabel('Number of Alarms')
+            axes.set_title('Alarms by IP')
+            axes.set_xticks(x)
+            axes.set_xticklabels(labels)
+            axes.legend(loc='lower center')
+            connection.close()
+            #plt.show()
+        except Exception as e:
+            logging.log(logging.ERROR, "something wrong opening the Data Base" + str(e))
+    def reStartPlot2(self):
+        self.barGraph(self.axes)
+
+def autolabel(rects,axes):
+    """Attach a text label above each bar in *rects*, displaying its height."""
+    for rect in rects:
+        height = rect.get_height()
+        axes.annotate('{}'.format(height),
+                    xy=(rect.get_x() + rect.get_width() / 2, height),
+                    xytext=(0, 3),  # 3 points vertical offset
+                    textcoords="offset points",
+                    ha='center', va='bottom')
+
 
 def redoRefresh():
     results = fetchDataFromDB()
@@ -193,7 +173,7 @@ def redoRefresh():
     alarmsPerHost.clear()
     totalAlarmsPerSeverity.clear()
     organizeData(results)
-    Gui.reStartGui()
+    Gui.reFresh()
 
 
 def fetchDataFromDB():
