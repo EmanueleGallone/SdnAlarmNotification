@@ -3,7 +3,7 @@ Copyright (c) Emanuele Gallone 05-2020.
 Author Emanuele Gallone
 
 This class is responsible for notifying the user about alarms. It uses a singleton architecture.
-I created this class to decouple the notification handling from the rest of the program.
+I created this class to decouple the notification handling from the rest of the application.
 If you want to add new notification methods (e.g. sending SMS) simply create a private method
 and call it inside the notify() method.
 """
