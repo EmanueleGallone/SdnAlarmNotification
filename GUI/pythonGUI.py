@@ -17,32 +17,29 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import numpy as np
+import time
 
+#plt.ion()
 
-
-def fetchData(results):
+def organizeData(results):
     for row in results:
         alarmsPerHost[row[1]][row[2]] += 1
         totalAlarmsPerSeverity[row[2]] += 1
-    print(results)
-
     config_manager = ConfigManager()
     severity_levels = config_manager.get_severity_levels()
-
     for key, item in severity_levels.items():
         for host in alarmsPerHost:
             if str(item) not in alarmsPerHost[host]:
                 alarmsPerHost[host][str(item)]=0
 
-
 class plot1(FigureCanvas):
-    def __init__(self, parent=None, width=5, height=5, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
-
-        FigureCanvas.__init__(self, fig)
+    def __init__(self, parent=None, width=5, height=5, dpi=100,updateCheck=False):
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = self.fig.add_subplot(111)
+        FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
-        self.plotCode(self.axes)
+        self.updateCheck=updateCheck
+        self.plotCode(self.axes,True)
 
     def position(self,ax):
         width=0.25
@@ -69,14 +66,19 @@ class plot1(FigureCanvas):
             for severity in sorted(alarmsPerHost[host].keys()):
                 loc.append(int(severity) +deltaPosition)
                 xlistElements.append(int(severity))
-                print(host,loc)
-                ylistElements.append(alarmsPerHost[host][severity])
+                if self.updateCheck==True:
+                    tot=alarmsPerHost[host][severity]+100
+                    ylistElements.append(tot)
+                    print(tot,"ooo",alarmsPerHost[host][severity])
+                else:
+                    ylistElements.append(alarmsPerHost[host][severity])
+
                 ax.annotate(alarmsPerHost[host][severity],xy=(int(severity) + deltaPosition - width / 5, alarmsPerHost[host][severity] + 0.15))
                 plt.annotate(alarmsPerHost[host][severity], xy=(int(severity) +deltaPosition-width/5, alarmsPerHost[host][severity]+0.15))
             #plt.plot(xlistElements, ylistElements,'-',label=lbl,marker='o')
             ax.bar(loc, ylistElements, label=lbl, width=0.2)
             plt.bar(loc, ylistElements, label=lbl, width=0.2)
-
+            print("position ")
             descriptionList=self.getInfo(xlistElements)
             #print(descriptionList)
             ax.set_xticks(xlistElements)
@@ -88,19 +90,30 @@ class plot1(FigureCanvas):
                 odd=False
                 even=False
 
-    def plotCode(self,ax):
-
-        #ax=self.figure.add_subplot(111)
-        ax.set_xlabel("Severity Level")
-        ax.set_ylabel("Number of alarms")
-        ax.set_title("Alarms received per host ")
+    def plotCode(self,ax,new):
+        if(new==True):
+            ax.set_xlabel("Severity Level")
+            ax.set_ylabel("Number of alarms")
+            ax.set_title("Alarms received per host ")
         self.position(ax)
+        print("plotcode ")
 
         ax.axhline(7, color='black', linestyle='--',label="num threshold")
         plt.axhline(7, color='black', linestyle='--', label="num threshold")
         ax.legend()
         plt.legend()
+
         plt.show()
+
+    def reStart(self):
+        #self.clearFigure(self.fig)
+        self.plotCode(self.axes,False)
+
+    def clearFigure(self,oldFigure):
+        fig = oldFigure
+        fig.canvas.draw_idle()
+        time.sleep(0.01)  # sleep + flush_events invece che pause, secondo stackOverflow e' meglio, piu' efficiente
+        fig.canvas.flush_events()
 
     def getInfo(self,xlistElements):
         _config_manager = ConfigManager()
@@ -108,59 +121,9 @@ class plot1(FigureCanvas):
         for element in xlistElements:
             descriptionList.append(_config_manager.get_severity_mapping(element))
         return descriptionList
-
-
 #https://matplotlib.org/3.1.1/gallery/lines_bars_and_markers/horizontal_barchart_distribution.html#sphx-glr-gallery-lines-bars-and-markers-horizontal-barchart-distribution-py
 
 class DBWindow(QMainWindow):
-    '''
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(800, 600)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.centralwidget.setObjectName("centralwidget")
-        self.refreshButton = QtWidgets.QPushButton(self.centralwidget)
-        self.refreshButton.setGeometry(QtCore.QRect(490, 400, 75, 23))
-        self.refreshButton.setObjectName("refreshButton")
-        self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
-        self.progressBar.setGeometry(QtCore.QRect(130, 410, 118, 23))
-        self.progressBar.setProperty("value", 24)
-        self.progressBar.setObjectName("progressBar")
-        self.textBrowser = QtWidgets.QTextBrowser(self.centralwidget)
-        self.textBrowser.setGeometry(QtCore.QRect(230, 140, 256, 192))
-        self.textBrowser.setObjectName("textBrowser")
-       # MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
-        self.menubar.setObjectName("menubar")
-        self.menuMain = QtWidgets.QMenu(self.menubar)
-        self.menuMain.setObjectName("menuMain")
-       # MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        #MainWindow.setStatusBar(self.statusbar)
-        self.actionSave = QtWidgets.QAction(MainWindow)
-        self.actionSave.setObjectName("actionSave")
-        self.actionExplore = QtWidgets.QAction(MainWindow)
-        self.actionExplore.setObjectName("actionExplore")
-        self.menuMain.addAction(self.actionSave)
-        self.menuMain.addAction(self.actionExplore)
-        self.menubar.addAction(self.menuMain.menuAction())
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
-    def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.refreshButton.setText(_translate("MainWindow", "Refresh"))
-        self.refreshButton.setStatusTip("refresh from DB")
-        self.refreshButton.triggered.connect(qApp.quit)
-        self.menuMain.setTitle(_translate("MainWindow", "Main"))
-        self.actionSave.setText(_translate("MainWindow", "Save"))
-        self.actionSave.setShortcut(_translate("MainWindow", "Ctrl+S"))
-        self.actionExplore.setText(_translate("MainWindow", "Explore"))
-    '''
-
     def __init__(self, *args, **kwargs):
         super(DBWindow, self).__init__(*args, **kwargs)
         self.title = 'Alarm Table Window'
@@ -170,13 +133,11 @@ class DBWindow(QMainWindow):
         self.height = 700
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-        #self.show()
 
         #creo un widget (praticamente la mia finestra)
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.setCentralWidget(self.centralwidget)
-
 
         #inizializzo il refresh button :QPushButton:https://doc.qt.io/qt-5/qpushbutton.html
         self.refreshButton = QtWidgets.QPushButton(self.centralwidget)
@@ -187,83 +148,47 @@ class DBWindow(QMainWindow):
         self.refreshButton.setCheckable(True) #by default is unchecked
         self.refreshButton.move(600,600)
 
-        self.plotWidget=plot1(self, width=5, height=5, dpi=100)
+        self.plotWidget=plot1(self, width=5, height=5, dpi=100,updateCheck=False)
         self.plotWidget.move(0,0)
-        #self.refreshButton.toggle()
-        '''
-        self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
-        self.progressBar.setGeometry(QtCore.QRect(130, 410, 118, 23))
-        self.progressBar.setProperty("value", 24)
-        self.progressBar.setObjectName("progressBar")
-        self.refreshButton.setText("Refresh")
-        
-        '''
 
         # inizializzo lo spazio dove mettero la tabella
         self.textBrowser = QtWidgets.QTextBrowser(self.centralwidget)
         self.textBrowser.setGeometry(QtCore.QRect(230, 140, 256, 192))
         self.textBrowser.setObjectName("textBrowser")
         self.textBrowser.setText("Empty table")
-        '''
-        self.menubar = QtWidgets.QMenuBar(self)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
-        self.menubar.setObjectName("menubar")
-        self.menuMain = QtWidgets.QMenu(self.menubar)
-        self.menuMain.setObjectName("menuMain")
-
-        self.setMenuBar(self.menubar)
-
-        self.statusbar = QtWidgets.QStatusBar(self)
-        self.statusbar.setObjectName("statusbar")
-        self.setStatusBar(self.statusbar)
-        self.actionSave = QtWidgets.QAction(self)
-        self.actionSave.setObjectName("actionSave")
-        self.actionExplore = QtWidgets.QAction(self)
-        self.actionExplore.setObjectName("actionExplore")
-        self.menuMain.addAction(self.actionSave)
-        self.menuMain.addAction(self.actionExplore)
-        self.menubar.addAction(self.menuMain.menuAction())
-        '''
         #self.retranslateUi(self)
         QtCore.QMetaObject.connectSlotsByName(self)
-
-
+    def reStartGui(self):
+        self.plotWidget.axes.cla()
+        self.plotWidget.updateCheck=True
+        self.plotWidget.reStart()
+        self.plotWidget.draw()
 
 def redoRefresh():
-    updatedAlarmTable = DBHandler()
-    updatedAlarmTable.open_connection()
-    results = updatedAlarmTable.select_all()
-    updatedAlarmTable.close_connection()
-
+    results = fetchDataFromDB()
     print("Here I need to implement the refresh code")
-    #plt.savefig("image.png")--->toolbar?
     alarmsPerHost.clear()
     totalAlarmsPerSeverity.clear()
-
-    fetchData(results)
-    newPlot=plot1()
-    Gui.plotWidget.axes.cla()
-    print(Gui.plotWidget.axes, " ", type(Gui.plotWidget.axes))
-    newPlot.position(Gui.plotWidget.axes)
+    organizeData(results)
+    Gui.reStartGui()
 
 
-alarmTable=DBHandler()
+def fetchDataFromDB():
+    alarmTable = DBHandler()
+    alarmTable.open_connection()
+    results = alarmTable.select_all()
+    alarmTable.close_connection()
+    return results
 
-alarmTable.open_connection()
-results=alarmTable.select_all()
-alarmTable.close_connection()
-
+results = fetchDataFromDB()
 alarmsPerHost=defaultdict(lambda: defaultdict(int)) #stores IPAddress and the correspondents severity alarms counters
 totalAlarmsPerSeverity=defaultdict(int) #defaultdict(int)=inizializza il dizionario a 0
 
-fetchData(results)
+organizeData(results)
 
 app = QtWidgets.QApplication([])
 Gui = DBWindow()
 Gui.refreshButton.clicked.connect(redoRefresh)
-
-
-
 
 Gui.show()
 
@@ -272,14 +197,6 @@ app.exec_()
 
 sys.exit(app.exec())
 
-'''app = QtWidgets.QApplication([])
-
-win = uic.loadUi("input.ui") #specify the location of your .ui file
-
-win.show()
-
-sys.exit(app.exec())
-'''
 
 
 
