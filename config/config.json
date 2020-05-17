@@ -10,7 +10,7 @@
     "SMTP_SERVER": "smtp.office365.com",
     "SMTP_PORT": "587",
     "Send_email": "True",
-    "Send_message": "False",
+    "Send_message": "True",
     "Severity_notification_threshold": 3
 
   },

@@ -69,6 +69,7 @@ def _detail_dummy_data_fetch() -> str:
 
     filename = os.path.join(os.path.dirname(__file__), 'dummy_data.xml')
     string_result = ''
+
     with open(filename, 'r') as _file:
         for _line in _file:
             # if "<?xml " in line:  # remove the xml prolog
@@ -98,8 +99,6 @@ def _thread_get_alarms(device):
     #_check_if_alarm_has_ceased(host, alarms_metadata) # to be implemented
 
     _thread_save_to_db(device.ip, alarms_metadata)  # finally save the information in DB
-
-    return
 
 
 def _thread_save_to_db(host, parsed_metadata):
@@ -184,7 +183,7 @@ def __filter_if_alarm_exists_in_db(host, array) -> List:
     """
     helper method to avoid the repetition of inserting existing alarms in db.
     It is used due to not having the possibility to create alarms ourselves.
-    By not using this filter, every new alarms fetched through netconf will be seen as 'new' alarms.
+    By not using this filter, every new alarms fetched through netconf will be seen as a 'new' alarm.
 
     @param host: device ip
     @param array: list of dict where each dict is an alarm

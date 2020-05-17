@@ -3,7 +3,7 @@ Copyright (c) Emanuele Gallone 05-2020.
 Author Emanuele Gallone
 
 Wrapper class to implement a custom XML parser.
-The only method exposed to the extern is parse_all_alarms_xml()
+The only method exposed to the outside is parse_all_alarms_xml()
 """
 from io import BytesIO
 from typing import List

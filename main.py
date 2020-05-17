@@ -25,7 +25,6 @@ def main():
 
     # starting the notifier thread
     notifier = NotificationManager().start()
-
     threads.append(notifier)
 
     try:

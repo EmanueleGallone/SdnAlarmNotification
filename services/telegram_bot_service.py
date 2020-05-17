@@ -122,7 +122,7 @@ def summary(update, context):
         count = res[0]
         msg += f'Severity: {mapping}, #: {count}\n'
 
-    update.message.reply_text('Summary:\n' + msg)
+    update.message.reply_text('Alarms\' Summary:\n' + msg)
 
 def error(update, context):
     """Log Errors caused by Updates."""
