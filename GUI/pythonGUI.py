@@ -25,23 +25,26 @@ import random
 def organizeData(results):
     for row in results:
         alarmsPerHost[row[1]][row[2]] += 1
-        totalAlarmsPerSeverity[row[2]] += 1
+        totalAlarmsPerSeverity[int(row[2])] += 1
     config_manager = ConfigManager()
     severity_levels = config_manager.get_severity_levels()
     for key, item in severity_levels.items():
         for host in alarmsPerHost:
             if str(item) not in alarmsPerHost[host]:
                 alarmsPerHost[host][str(item)]=0
-
+        if item not in totalAlarmsPerSeverity:
+            totalAlarmsPerSeverity[item]=0
 class plot1(FigureCanvas):
     def __init__(self, parent=None, width=5, height=5, dpi=100,updateCheck=False):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
+        #self.axes = self.fig.add_subplot(221)
+        #self.axes2 = self.fig.add_subplot(222)
         FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
         self.updateCheck=updateCheck
         self.plotCode(self.axes,True)
-
+        #self.plotCode(self.axes2, True)
     def position(self,ax):
         width=0.25
         i=0
@@ -76,21 +79,22 @@ class plot1(FigureCanvas):
                     ylistElements.append(alarmsPerHost[host][severity])
 
                 ax.annotate(alarmsPerHost[host][severity],xy=(int(severity) + deltaPosition - width / 5, alarmsPerHost[host][severity] + 0.15))
-                plt.annotate(alarmsPerHost[host][severity], xy=(int(severity) +deltaPosition-width/5, alarmsPerHost[host][severity]+0.15))
+                #plt.annotate(alarmsPerHost[host][severity], xy=(int(severity) +deltaPosition-width/5, alarmsPerHost[host][severity]+0.15))
             #plt.plot(xlistElements, ylistElements,'-',label=lbl,marker='o')
             ax.bar(loc, ylistElements, label=lbl, width=0.2)
-            plt.bar(loc, ylistElements, label=lbl, width=0.2)
-            print("position ")
+            #plt.bar(loc, ylistElements, label=lbl, width=0.2)
+            #print("position ")
             descriptionList=self.getInfo(xlistElements)
             #print(descriptionList)
             ax.set_xticks(xlistElements)
             ax.set_xticklabels(descriptionList)
-            plt.xticks(xlistElements,descriptionList)
+            #plt.xticks(xlistElements,descriptionList)
             #plt.setp(ax,xlistElements,descriptionList,ylistElements)
             if odd and even:
                 i=i+1
                 odd=False
                 even=False
+
 
     def plotCode(self,ax,new):
         if(new==True):
@@ -98,12 +102,25 @@ class plot1(FigureCanvas):
             ax.set_ylabel("Number of alarms")
             ax.set_title("Alarms received per host ")
         self.position(ax)
-        print("plotcode ")
+
+        #print("plotcode ")
+
+
+        yAverageList=[]
+        xAverageList=[]
+        for key, item in sorted(totalAlarmsPerSeverity.items()):
+            avg=item/len(totalAlarmsPerSeverity)
+            yAverageList.append(avg)
+            xAverageList.append(int(key))
+            ax.annotate(avg,xy=(key, avg + 0.15))
+
+        ax.plot(xAverageList,yAverageList, color='red', linestyle='--', label="Average number of alarms per severity")
+        
 
         ax.axhline(7, color='black', linestyle='--',label="num threshold")
-        plt.axhline(7, color='black', linestyle='--', label="num threshold")
+        #plt.axhline(7, color='black', linestyle='--', label="num threshold")
         ax.legend()
-        plt.legend()
+        #plt.legend()
 
         #plt.show()
 
@@ -153,6 +170,9 @@ class DBWindow(QMainWindow):
 
         self.plotWidget=plot1(self, width=5, height=5, dpi=100,updateCheck=False)
         self.plotWidget.move(0,0)
+
+        #self.plotWidget2=plot1(self, width=5, height=5, dpi=100,updateCheck=False)
+        #self.plotWidget2.move(3,3)
 
         # inizializzo lo spazio dove mettero la tabella
         self.textBrowser = QtWidgets.QTextBrowser(self.centralwidget)
