@@ -3,9 +3,9 @@ Copyright (c) Emanuele Gallone 05-2020.
 Author Emanuele Gallone
 
 This class is responsible for notifying the user about alarms. It uses a singleton architecture.
-I created this class to decouple the notification handling from the rest of the program.
+I created this class to decouple the notification handling from the rest of the application.
 If you want to add new notification methods (e.g. sending SMS) simply create a private method
-and call it inside the notify()
+and call it inside the notify() method.
 """
 import logging
 import threading
@@ -68,6 +68,7 @@ class NotificationManager(object, metaclass=Singleton):
         helper method that build the msg to be notified
 
         @param _list: list of dictionaries. each dictionary is an alarm
+        @return a message formatted with all the information
         """
 
         self.message = 'New Alarm(s): \n'
@@ -89,6 +90,7 @@ class NotificationManager(object, metaclass=Singleton):
         """
         method used to update the DB's table. It sets the notified attribute to 1 to all
         the alarms that were notified.
+        @param _list: list of alarms
         """
 
         ids = []
@@ -102,7 +104,7 @@ class NotificationManager(object, metaclass=Singleton):
     def __notificationThread(self, _delay):
 
         """
-        worker definition notification task. It query the DB and chooses what alarms to notify.
+        worker definition for notification task. It queries the DB and chooses what alarms to notify.
 
         @param _delay: it specifies the delay in which the task will be performed
         @return: void
