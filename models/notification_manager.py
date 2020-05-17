@@ -33,6 +33,7 @@ class NotificationManager(object, metaclass=Singleton):
     def __init__(self):
         self._config_manager = ConfigManager()
         self.msg = ''
+        self._worker = None
 
     def notify(self, msg="DEBUG FROM NOTIFICATION MANAGER!"):
         """ method that broadcast the alarm through all the technologies defined here (eg. email, messages...)"""
@@ -55,11 +56,12 @@ class NotificationManager(object, metaclass=Singleton):
 
     def start(self):
         """method available on the outside. It just starts the thread responsible to deliver notifications to users."""
+        # TODO make the delay of notification available on the config.json
+        if self._worker is None:
+            self._worker = threading.Thread(target=lambda: self.__notificationThread(5))
+            self._worker.start()
 
-        notifier = threading.Thread(target=lambda: self.__notificationThread(5))
-        notifier.start()
-
-        return notifier
+        return self._worker
 
     def __build_new_alarm_msg(self, _list) -> str:
         """
