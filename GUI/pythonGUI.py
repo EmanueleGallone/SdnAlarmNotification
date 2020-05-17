@@ -18,6 +18,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import numpy as np
 import time
+import random
 
 #plt.ion()
 
@@ -46,6 +47,7 @@ class plot1(FigureCanvas):
         i=0
         odd=True
         even=False
+
         for host in alarmsPerHost:
             xlistElements, ylistElements,descriptionList,loc = [], [],[],[]
             lbl = "Host:{0}".format(host)  # Labels: (s1, s2), (s2,s3), etc.
@@ -67,7 +69,7 @@ class plot1(FigureCanvas):
                 loc.append(int(severity) +deltaPosition)
                 xlistElements.append(int(severity))
                 if self.updateCheck==True:
-                    tot=alarmsPerHost[host][severity]+100
+                    tot=alarmsPerHost[host][severity]+random.randint(10,100)
                     ylistElements.append(tot)
                     print(tot,"ooo",alarmsPerHost[host][severity])
                 else:
@@ -103,7 +105,8 @@ class plot1(FigureCanvas):
         ax.legend()
         plt.legend()
 
-        plt.show()
+        #plt.show()
+
 
     def reStart(self):
         #self.clearFigure(self.fig)
