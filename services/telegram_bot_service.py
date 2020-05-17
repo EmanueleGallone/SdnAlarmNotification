@@ -10,6 +10,10 @@ import logging
 import json
 import requests
 import os
+
+from models.database_handler import DBHandler
+from models.config_manager import ConfigManager
+
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 # Enable logging
@@ -94,13 +98,31 @@ def help(update, context):
                               ' Of course this is a testing bot, but further commands'
                               ' can be developed in future such as \'unsubscribe\' method or \'seeHistory\' '
                               'Commands Available:\n\n'
-                              '/status -> It prints the status of the bot')
+                              '/status -> It prints the status of the bot\n'
+                              '/summary -> prints a summary of the overall alarms\n')
+
 
 def status(update, context):
     """Echo the user the bot status."""
     sunglasses_emoji = '\U0001F60E'
     update.message.reply_text("I'm Up and Running! " + sunglasses_emoji)
 
+
+def summary(update, context):
+    """gives the user a summary of alarms"""
+    db = DBHandler().open_connection()
+    manager = ConfigManager()
+    msg = ''
+
+    result = db.count_alarms()
+    db.close_connection()
+
+    for res in result:
+        mapping = manager.get_severity_mapping(int(res[1]))
+        count = res[0]
+        msg += f'Severity: {mapping}, #: {count}\n'
+
+    update.message.reply_text('Summary:\n' + msg)
 
 def error(update, context):
     """Log Errors caused by Updates."""
@@ -121,6 +143,7 @@ def main():
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("status", status))
+    dp.add_handler(CommandHandler("summary", summary))
 
     # log all errors
     dp.add_error_handler(error)

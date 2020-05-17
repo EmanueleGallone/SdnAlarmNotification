@@ -160,6 +160,16 @@ class DBHandler(object):
 
         lock.release()
 
+    def count_alarms(self):
+        lock.acquire()
+
+        self._cursor.execute('''SELECT count(ID), severity FROM alarm GROUP BY severity''')
+        _result = self._cursor.fetchall()
+
+        lock.release()
+
+        return _result
+
     def update_ceased_alarms(self, ID):
         lock.acquire()
 
@@ -190,4 +200,7 @@ if __name__ == '__main__':
     # create local.db script
     db = DBHandler().open_connection()
     db.create_alarm_table()
+
+    db = DBHandler().open_connection()
+    result = db.count_alarms()
     db.close_connection()
