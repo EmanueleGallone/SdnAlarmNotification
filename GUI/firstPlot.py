@@ -91,10 +91,12 @@ class Plot1(FigureCanvas):
         yAverageList = []
         xAverageList = []
         for key, item in sorted(self.totalAlarmsPerSeverity.items()):
-            avg = item / len(self.totalAlarmsPerSeverity)
+
+            avg = item / len(self.alarmsPerHost)#TO do HOST
+            #print(round(avg,1))
             yAverageList.append(avg)
             xAverageList.append(int(key))
-            ax.annotate(avg, xy=(key, avg + 0.15))
+            ax.annotate(round(avg,1), xy=(key, avg + 0.15))
 
         ax.plot(xAverageList, yAverageList, color='red', linestyle='--', label="Average number of alarms per severity")
 
@@ -108,13 +110,13 @@ class Plot1(FigureCanvas):
     def reStartPlot1(self):
         # self.clearFigure(self.fig)
         self.plotCode(self.axes)
-
+    '''
     def clearFigure(self, oldFigure):
         fig = oldFigure
         fig.canvas.draw_idle()
         time.sleep(0.01)  # sleep + flush_events invece che pause, secondo stackOverflow e' meglio, piu' efficiente
         fig.canvas.flush_events()
-
+    '''
     def getInfo(self, xlistElements):
         _config_manager = ConfigManager()
         descriptionList = []
