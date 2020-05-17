@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QVB
 import sys
 from models.database_handler import DBHandler
 from models.config_manager import ConfigManager
+from GUI.commonPlotFunctions import CommonFunctions
 from collections import defaultdict
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -15,19 +16,17 @@ dirname = os.path.dirname(__file__)
 logging.basicConfig(filename="../../log.log", level=logging.ERROR)
 
 class Plot1(FigureCanvas):
-    def __init__(self, parent=None, width=5, height=5, dpi=100, updateCheck=False,alarmsPerHost=defaultdict(lambda: defaultdict(int)),totalAlarmsPerSeverity=defaultdict(int)):
+    def __init__(self, parent=None, width=5, height=5, dpi=100, updateCheck=False):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
         # self.axes = self.fig.add_subplot(221)
         # self.axes2 = self.fig.add_subplot(222)
         FigureCanvas.__init__(self, self.fig)
+        self.alarmsPerHost = defaultdict(lambda: defaultdict(int)) #stores IPAddress and the correspondents severity alarms counters
+        self.totalAlarmsPerSeverity = defaultdict(int) #defaultdict(int)=inizializza il dizionario a 0
         self.setParent(parent)
         self.updateCheck = updateCheck
-        self.alarmsPerHost=alarmsPerHost
-        self.totalAlarmsPerSeverity=totalAlarmsPerSeverity
-        self.plotCode(self.axes)
-
-        # self.plotCode(self.axes2, True)
+        #self.plotCode(self.axes)
 
     def position(self, ax):
         width = 0.25
@@ -58,13 +57,13 @@ class Plot1(FigureCanvas):
                 if self.updateCheck == True:
                     tot = self.alarmsPerHost[host][severity] + random.randint(10, 100)
                     ylistElements.append(tot)
-                    # print(tot,"ooo",alarmsPerHost[host][severity])
+                    # print(tot,"ooo",self.alarmsPerHost[host][severity])
                 else:
                     ylistElements.append(self.alarmsPerHost[host][severity])
 
                 ax.annotate(self.alarmsPerHost[host][severity],
                             xy=(int(severity) + deltaPosition - width / 5, self.alarmsPerHost[host][severity] + 0.15))
-                # plt.annotate(alarmsPerHost[host][severity], xy=(int(severity) +deltaPosition-width/5, alarmsPerHost[host][severity]+0.15))
+                # plt.annotate(self.alarmsPerHost[host][severity], xy=(int(severity) +deltaPosition-width/5, self.alarmsPerHost[host][severity]+0.15))
             # plt.plot(xlistElements, ylistElements,'-',label=lbl,marker='o')
             ax.bar(loc, ylistElements, label=lbl, width=0.2)
             # plt.bar(loc, ylistElements, label=lbl, width=0.2)
@@ -100,7 +99,7 @@ class Plot1(FigureCanvas):
 
         ax.plot(xAverageList, yAverageList, color='red', linestyle='--', label="Average number of alarms per severity")
 
-        ax.axhline(7, color='black', linestyle='--', label="num threshold")
+        #ax.axhline(7, color='black', linestyle='--', label="num threshold")
         # plt.axhline(7, color='black', linestyle='--', label="num threshold")
         ax.legend()
         # plt.legend()
@@ -108,19 +107,33 @@ class Plot1(FigureCanvas):
         # plt.show()
 
     def reStartPlot1(self):
-        # self.clearFigure(self.fig)
+        self.alarmsPerHost.clear()
+        self.totalAlarmsPerSeverity.clear()
+
+        getData = CommonFunctions()
+        results = getData.fetchDataFromDB()
+
+        self.organizeData(results)
         self.plotCode(self.axes)
-    '''
-    def clearFigure(self, oldFigure):
-        fig = oldFigure
-        fig.canvas.draw_idle()
-        time.sleep(0.01)  # sleep + flush_events invece che pause, secondo stackOverflow e' meglio, piu' efficiente
-        fig.canvas.flush_events()
-    '''
+
     def getInfo(self, xlistElements):
         _config_manager = ConfigManager()
         descriptionList = []
         for element in xlistElements:
             descriptionList.append(_config_manager.get_severity_mapping(element))
         return descriptionList
+
 # https://matplotlib.org/3.1.1/gallery/lines_bars_and_markers/horizontal_barchart_distribution.html#sphx-glr-gallery-lines-bars-and-markers-horizontal-barchart-distribution-py
+
+    def organizeData(self,results):
+        for row in results:
+            self.alarmsPerHost[row[1]][row[2]] += 1
+            self.totalAlarmsPerSeverity[int(row[2])] += 1
+        config_manager = ConfigManager()
+        severity_levels = config_manager.get_severity_levels()
+        for key, item in severity_levels.items():
+            for host in self.alarmsPerHost:
+                if str(item) not in self.alarmsPerHost[host]:
+                    self.alarmsPerHost[host][str(item)] = 0
+            if item not in self.totalAlarmsPerSeverity:
+                self.totalAlarmsPerSeverity[item] = 0
