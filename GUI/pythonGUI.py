@@ -84,13 +84,15 @@ class DBWindow(QMainWindow):
         self.plotWidget.axes.cla()
         self.plotWidget.updateCheck=True
         self.plotWidget.reStartPlot1()
-        self.plotWidget.draw()
+
         self.plotWidget.alarmsPerHost=alarmsPerHostDict
         self.plotWidget.totalAlarmsPerSeverity=totalAlarmsPerSeverityDict
 
         self.plotWidget2.axes.cla()
         self.plotWidget2.updateCheck=True
         self.plotWidget2.reStartPlot2()
+
+        self.plotWidget.draw()
         self.plotWidget2.draw()
 
 class plot2(FigureCanvas):
@@ -130,28 +132,31 @@ class plot2(FigureCanvas):
                     query = "SELECT COUNT() FROM "+"alarm WHERE DESCRIPTION=? AND deviceIP='"+str(ip)+"'"
                     result = connection.execute(query, t)
                     for column_number, data in enumerate(result):
-                        means.append(data[0])
+
+                        if self.updateCheck == True:
+                            means.append(data[0]+random.randint(3,10))
+                        else:
+                            means.append(data[0])
+
                 rects.append(means)
 
             #print(alarms_description)
-            #print(rects)
+            print(rects)
 
             x = np.arange(len(labels))  # the label locations
             width = 0.2  # the width of the bars
-
+            i=0
             for i in range(0, len(rects)):
-                if self.updateCheck == True:
-                    rects[i]=rects[i]+random.randint(2, 5)
-                    print("redo")
+
                 bar= axes.bar(x + (i-(len(rects)-1)/2) * width / 2, rects[i], width/2, label=list(alarms_description)[i])
                 autolabel(bar,axes)
-
+                print(rects[i])
             # Add some text for labels, title and custom x-axis tick labels, etc.
             axes.set_ylabel('Number of Alarms')
             axes.set_title('Alarms by IP')
             axes.set_xticks(x)
             axes.set_xticklabels(labels)
-            axes.legend(loc='lower center')
+            axes.legend(loc='best', bbox_to_anchor= (0.5,0.,0.5,0.5))
             connection.close()
             #plt.show()
         except Exception as e:
