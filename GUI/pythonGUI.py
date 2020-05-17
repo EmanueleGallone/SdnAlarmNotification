@@ -13,6 +13,7 @@ import sys
 from models.database_handler import DBHandler
 from models.config_manager import ConfigManager
 from GUI.firstPlot import Plot1
+from GUI.secondPlot import Plot2
 from collections import defaultdict
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -66,7 +67,7 @@ class DBWindow(QMainWindow):
         self.plotWidget=Plot1(self, width=5.5, height=5.5, dpi=100,updateCheck=False,alarmsPerHost=alarmsPerHostDict,totalAlarmsPerSeverity=totalAlarmsPerSeverityDict)
         self.plotWidget.move(0,30)
 
-        self.plotWidget2=plot2(self, width=8, height=6, dpi=100,updateCheck=False)
+        self.plotWidget2=Plot2(self, width=6, height=6, dpi=100,updateCheck=False)
         self.plotWidget2.move(560,30)
 
         #self.plotWidget2=plot1(self, width=5, height=5, dpi=100,updateCheck=False)
@@ -94,85 +95,6 @@ class DBWindow(QMainWindow):
 
         self.plotWidget.draw()
         self.plotWidget2.draw()
-
-class plot2(FigureCanvas):
-    def __init__(self, parent=None, width=5, height=5, dpi=100,updateCheck=False):
-        self.fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = self.fig.add_subplot(111)
-        #self.fig.tight_layout()
-        FigureCanvas.__init__(self, self.fig)
-        self.setParent(parent)
-        self.updateCheck=updateCheck #TODO
-        self.barGraph(self.axes)
-
-    def barGraph(self,axes):
-        print("here")
-        try:
-            print("dhere")
-            connection = sqlite3.connect('local.db')
-            query = "SELECT deviceIP FROM alarm"
-            result = connection.execute(query)
-            alarms_ip = []
-            for column_number, data in enumerate(result):
-                alarms_ip.append(data[0])
-            labels = set(alarms_ip)
-
-            query = "SELECT description FROM alarm"
-            result = connection.execute(query)
-            alarms_desc = []
-            for column_number, data in enumerate(result):
-                alarms_desc.append(data[0])
-            alarms_description = set(alarms_desc)
-
-            rects=[]
-            for alarms in alarms_description:
-                means = []
-                for ip in labels:
-                    t=(alarms,)
-                    query = "SELECT COUNT() FROM "+"alarm WHERE DESCRIPTION=? AND deviceIP='"+str(ip)+"'"
-                    result = connection.execute(query, t)
-                    for column_number, data in enumerate(result):
-
-                        if self.updateCheck == True:
-                            means.append(data[0]+random.randint(3,10))
-                        else:
-                            means.append(data[0])
-
-                rects.append(means)
-
-            #print(alarms_description)
-            print(rects)
-
-            x = np.arange(len(labels))  # the label locations
-            width = 0.2  # the width of the bars
-            i=0
-            for i in range(0, len(rects)):
-
-                bar= axes.bar(x + (i-(len(rects)-1)/2) * width / 2, rects[i], width/2, label=list(alarms_description)[i])
-                autolabel(bar,axes)
-                print(rects[i])
-            # Add some text for labels, title and custom x-axis tick labels, etc.
-            axes.set_ylabel('Number of Alarms')
-            axes.set_title('Alarms by IP')
-            axes.set_xticks(x)
-            axes.set_xticklabels(labels)
-            axes.legend(loc='best', bbox_to_anchor= (0.5,0.,0.5,0.5))
-            connection.close()
-            #plt.show()
-        except Exception as e:
-            logging.log(logging.ERROR, "something wrong opening the Data Base" + str(e))
-    def reStartPlot2(self):
-        self.barGraph(self.axes)
-
-def autolabel(rects,axes):
-    """Attach a text label above each bar in *rects*, displaying its height."""
-    for rect in rects:
-        height = rect.get_height()
-        axes.annotate('{}'.format(height),
-                    xy=(rect.get_x() + rect.get_width() / 2, height),
-                    xytext=(0, 3),  # 3 points vertical offset
-                    textcoords="offset points",
-                    ha='center', va='bottom')
 
 
 def redoRefresh():
