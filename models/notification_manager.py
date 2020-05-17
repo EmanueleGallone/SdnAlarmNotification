@@ -11,12 +11,14 @@ import logging
 import threading
 import time
 import traceback
+import os
 
 from models.database_handler import DBHandler
 from services import telegram_bot_service, mail_sender_service
 from models.config_manager import ConfigManager
 
-logging.basicConfig(filename="../log.log", level=logging.ERROR)
+logfile = os.path.join(os.path.dirname(__file__), '../log.log')
+logging.basicConfig(filename=logfile, level=logging.ERROR)
 
 
 class Singleton(type):

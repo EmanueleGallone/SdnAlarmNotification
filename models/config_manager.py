@@ -11,12 +11,14 @@ but python's bool is 'True'; this was the simplest workaround.
 
 import json
 import logging
+import os
+
 from typing import Dict, List
 
-import os
 dirname = os.path.dirname(__file__)
 
-logging.basicConfig(filename="../log.log", level=logging.ERROR)
+logfile = os.path.join(dirname, '../log.log')
+logging.basicConfig(filename=logfile, level=logging.ERROR)
 
 
 def _read_config_file() -> Dict:  # creating static method to read config file

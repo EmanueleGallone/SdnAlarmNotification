@@ -1,7 +1,7 @@
 {
   "Debug_Mode": "True",
   "Do_not_save_existing_alarms" : "True",
-  "Version": "0.0.1",
+  "Version": "0.5.0",
 
   "Notification_config": {
     "Sender_email": "",

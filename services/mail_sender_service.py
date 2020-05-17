@@ -17,7 +17,8 @@ dirname = os.path.dirname(__file__)
 
 # todo: I know. it all needs a refactor.
 
-logging.basicConfig(filename="../log.log", level=logging.ERROR)
+logfile = os.path.join(dirname, '../log.log')
+logging.basicConfig(filename=logfile, level=logging.ERROR)
 
 
 def send_mail(msg_body, msg_subject='SDN Alarm notification'):
