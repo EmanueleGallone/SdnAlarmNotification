@@ -67,7 +67,7 @@ class DBWindow(QMainWindow):
         self.plotWidget=Plot1(self, width=5.5, height=5.5, dpi=100,updateCheck=False,alarmsPerHost=alarmsPerHostDict,totalAlarmsPerSeverity=totalAlarmsPerSeverityDict)
         self.plotWidget.move(0,30)
 
-        self.plotWidget2=Plot2(self, width=6, height=6, dpi=100,updateCheck=False)
+        self.plotWidget2=Plot2(self, width=7, height=6, dpi=100,updateCheck=False)
         self.plotWidget2.move(560,30)
 
         #self.plotWidget2=plot1(self, width=5, height=5, dpi=100,updateCheck=False)
@@ -95,6 +95,7 @@ class DBWindow(QMainWindow):
 
         self.plotWidget.draw()
         self.plotWidget2.draw()
+
 
 
 def redoRefresh():
