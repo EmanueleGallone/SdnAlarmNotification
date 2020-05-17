@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QVB
 import sys
 from models.database_handler import DBHandler
 from models.config_manager import ConfigManager
+from GUI.firstPlot import Plot1
 from collections import defaultdict
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -26,16 +27,16 @@ import logging
 
 def organizeData(results):
     for row in results:
-        alarmsPerHost[row[1]][row[2]] += 1
-        totalAlarmsPerSeverity[int(row[2])] += 1
+        alarmsPerHostDict[row[1]][row[2]] += 1
+        totalAlarmsPerSeverityDict[int(row[2])] += 1
     config_manager = ConfigManager()
     severity_levels = config_manager.get_severity_levels()
     for key, item in severity_levels.items():
-        for host in alarmsPerHost:
-            if str(item) not in alarmsPerHost[host]:
-                alarmsPerHost[host][str(item)]=0
-        if item not in totalAlarmsPerSeverity:
-            totalAlarmsPerSeverity[item]=0
+        for host in alarmsPerHostDict:
+            if str(item) not in alarmsPerHostDict[host]:
+                alarmsPerHostDict[host][str(item)]=0
+        if item not in totalAlarmsPerSeverityDict:
+            totalAlarmsPerSeverityDict[item]=0
 
 class DBWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
@@ -62,7 +63,7 @@ class DBWindow(QMainWindow):
         self.refreshButton.setCheckable(True) #by default is unchecked
         self.refreshButton.move(650,5)
 
-        self.plotWidget=plot1(self, width=5.5, height=5.5, dpi=100,updateCheck=False)
+        self.plotWidget=Plot1(self, width=5.5, height=5.5, dpi=100,updateCheck=False,alarmsPerHost=alarmsPerHostDict,totalAlarmsPerSeverity=totalAlarmsPerSeverityDict)
         self.plotWidget.move(0,30)
 
         self.plotWidget2=plot2(self, width=8, height=6, dpi=100,updateCheck=False)
@@ -84,6 +85,8 @@ class DBWindow(QMainWindow):
         self.plotWidget.updateCheck=True
         self.plotWidget.reStartPlot1()
         self.plotWidget.draw()
+        self.plotWidget.alarmsPerHost=alarmsPerHostDict
+        self.plotWidget.totalAlarmsPerSeverity=totalAlarmsPerSeverityDict
 
         self.plotWidget2.axes.cla()
         self.plotWidget2.updateCheck=True
@@ -170,8 +173,8 @@ def autolabel(rects,axes):
 def redoRefresh():
     results = fetchDataFromDB()
     print("Here I need to implement the refresh code")
-    alarmsPerHost.clear()
-    totalAlarmsPerSeverity.clear()
+    alarmsPerHostDict.clear()
+    totalAlarmsPerSeverityDict.clear()
     organizeData(results)
     Gui.reFresh()
 
@@ -184,8 +187,8 @@ def fetchDataFromDB():
     return results
 
 results = fetchDataFromDB()
-alarmsPerHost=defaultdict(lambda: defaultdict(int)) #stores IPAddress and the correspondents severity alarms counters
-totalAlarmsPerSeverity=defaultdict(int) #defaultdict(int)=inizializza il dizionario a 0
+alarmsPerHostDict=defaultdict(lambda: defaultdict(int)) #stores IPAddress and the correspondents severity alarms counters
+totalAlarmsPerSeverityDict=defaultdict(int) #defaultdict(int)=inizializza il dizionario a 0
 
 organizeData(results)
 
@@ -232,19 +235,19 @@ def plot1():
     #ax.set_xlabel("Severity Level")
     #ax.set_ylabel("Number of alarms")
 
-    for host in alarmsPerHost:
+    for host in alarmsPerHostDict:
         print(host)
         xlistElements, ylistElements = [], []
         #lbl = "Host:s{0}".format(host)  # Labels: (s1, s2), (s2,s3), etc.
-        for severity in sorted(alarmsPerHost[host].keys()):
+        for severity in sorted(alarmsPerHostDict[host].keys()):
 
             #x_max = len(sedge_stats[host].src_port_stats['throughputs_array'])
 
             #links_labels.append(lbl)
-            #print(alarmsPerHost[host]," ",alarmsPerHost[host][severity],"  ",severity)
+            #print(alarmsPerHostDict[host]," ",alarmsPerHostDict[host][severity],"  ",severity)
 
             xlistElements.append(int(severity))
-            ylistElements.append(alarmsPerHost[host][severity])
+            ylistElements.append(alarmsPerHostDict[host][severity])
             # ax.legend(fancybox=True, framealpha=0.5)        # Slows down the program
             #tmp_links_usg.append(self.edge_stats[link].src_port_stats['throughputs_array'])  # To print the peak
         plt.plot(xlistElements, ylistElements,'-',label=host,marker='o')
