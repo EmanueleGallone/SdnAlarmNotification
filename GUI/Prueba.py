@@ -32,7 +32,7 @@ from PyQt5.QtCore import QFile, QTextStream
 from GUI.BreezeStyleSheets import breeze_resources
 
 Notification=['']*6
-Ip=['']*4
+Ip=['']*5
 
 class Ui_MainWindow(object):
 #######################################################################
@@ -97,15 +97,18 @@ class Ui_MainWindow(object):
         self.Message_Button.setChecked(False)
         #print(Notification)
     def get_Network(self):
-        Ip[0]=(self.Ip_19.isChecked())
-        self.Ip_19.setChecked(False)
-        Ip[1]=(self.Ip_21.isChecked())
-        self.Ip_21.setChecked(False)
-        Ip[2]=(self.Ip_23.isChecked())
-        self.Ip_23.setChecked(False)
-        Ip[3]=(int(self.Fetch_sec.value()))
+        Ip[0] = (self.device_ip.displayText())
+        self.device_ip.clear()
+        Ip[1] = (self.Fetch_sec.value())
         self.Fetch_sec.clear()
-        #print(Ip)
+        Ip[2] = (self.netconf_password.text())
+        self.netconf_password.clear()
+        Ip[3] = (int(self.netconf_port.value()))
+        self.netconf_port.clear()
+        Ip[4] = (self.netconf_admin.displayText())
+        self.netconf_admin.clear()
+        print(Ip)
+        self.modify_json_network()
 ########################################################################################
     def modify_json(self):
         try:
@@ -115,7 +118,7 @@ class Ui_MainWindow(object):
             with open(filename, 'r') as json_file:
                 data = json.load(json_file)
                 try:
-                    with open('config.json', 'w') as json_file:
+                    with open(filename, 'w') as json_file:
 
                         data['Notification_config']['Sender_email'] = Notification[0]
                         data['Notification_config']['Sender_email_password'] = Notification[1]
@@ -124,15 +127,33 @@ class Ui_MainWindow(object):
                         data['Notification_config']['Send_email'] = Notification[4]
                         data['Notification_config']['Send_message'] = Notification[5]
 
-                        for i in range(len(Ip)-2,-1,-1):
-                            if Ip[i]:
-                                data['Network'][i]['netconf_fetch_rate_in_sec'] = Ip[3]
-                            else:
-                                data['Network'].pop(i)
-
                         json.dump(data, json_file, indent=4, sort_keys=True)
 
                         self.Run()
+                except Exception as e:
+                    logging.log(logging.CRITICAL, "Error writing config.json file! -> " + str(e))
+        except Exception as e:
+            logging.log(logging.CRITICAL, "Error reading config.json file! -> " + str(e))
+########################################################################################
+    def modify_json_network(self):
+        try:
+            import os
+            filename = os.path.join(os.path.dirname(__file__), '../config/config.json')
+
+            with open(filename, 'r') as json_file:
+                data = json.load(json_file)
+                try:
+                    with open(filename, 'w') as json_file:
+                        new_device ={
+                            "device_ip": Ip[0],
+                            "netconf_fetch_rate_in_sec": Ip[1],
+                            "netconf_password": Ip[2],
+                            "netconf_port": Ip[3],
+                            "netconf_user": Ip[4]
+                        }
+                        data['Network'].append(new_device)
+
+                        json.dump(data, json_file, indent=4, sort_keys=True)
                 except Exception as e:
                     logging.log(logging.CRITICAL, "Error writing config.json file! -> " + str(e))
         except Exception as e:
@@ -153,6 +174,7 @@ class Ui_MainWindow(object):
                 msg.setDetailedText("Notification configurations were not selected")
         elif ip:
                 msg.setDetailedText("Network configurations were not selected")
+                self.modify_json()
         msg.exec()
         if msg.clickedButton().text() == "Ignore":
             self.Run()
@@ -177,18 +199,17 @@ class Ui_MainWindow(object):
         self.tab_2.setEnabled(True)
         self.tab_3.setEnabled(True)
         self.tab_4.setEnabled(True)
-        self.tab_5.setEnabled(True)
         self.refreshButton.setEnabled(True)
 
 ################################################################################
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1000, 650)
+        MainWindow.resize(1200, 650)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 ###############################################################################
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(0, 0, 1000, 650))
+        self.tabWidget.setGeometry(QtCore.QRect(0, 0, 1200, 650))
         self.tabWidget.setObjectName("tabWidget")
 
         self.tab = QtWidgets.QWidget()
@@ -209,14 +230,9 @@ class Ui_MainWindow(object):
         self.tab_4.setObjectName("tab_4")
         self.tabWidget.addTab(self.tab_4, "")
         self.tab_4.setEnabled(False)
-
-        self.tab_5 = QtWidgets.QWidget()
-        self.tab_5.setObjectName("tab_5")
-        self.tabWidget.addTab(self.tab_5, "")
-        self.tab_5.setEnabled(False)
 #################################################################################
         self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(310, 10, 400, 50))
+        self.label.setGeometry(QtCore.QRect(410, 10, 400, 50))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(16)
@@ -226,7 +242,7 @@ class Ui_MainWindow(object):
         self.label.setObjectName("label")
 
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_2.setGeometry(QtCore.QRect(440, 50, 181, 51))
+        self.label_2.setGeometry(QtCore.QRect(520, 50, 181, 51))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(14)
@@ -236,30 +252,30 @@ class Ui_MainWindow(object):
         self.label_2.setObjectName("label_2")
 
         self.tableWidget = QtWidgets.QTableWidget(self.tab)
-        self.tableWidget.setGeometry(QtCore.QRect(40, 100, 411, 276))
+        self.tableWidget.setGeometry(QtCore.QRect(420, 100, 720, 350))
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(7)
         self.tableWidget.setRowCount(0)
 
         self.load_db = QtWidgets.QPushButton(self.tab)
-        self.load_db.setGeometry(QtCore.QRect(210, 385, 75, 23))
+        self.load_db.setGeometry(QtCore.QRect(740, 465, 75, 23))
         self.load_db.setObjectName("load_db")
         self.load_db.setEnabled(False)
 
         self.button_credentials = QtWidgets.QPushButton(self.tab)
-        self.button_credentials.setGeometry(QtCore.QRect(730, 270, 110, 20))
+        self.button_credentials.setGeometry(QtCore.QRect(120, 270, 110, 20))
         self.button_credentials.setObjectName("button_credentials")
 
         self.button_Ip = QtWidgets.QPushButton(self.tab)
-        self.button_Ip.setGeometry(QtCore.QRect(730, 415, 110, 20))
+        self.button_Ip.setGeometry(QtCore.QRect(120, 465, 110, 20))
         self.button_Ip.setObjectName("button_Ip")
 
         self.button_Json = QtWidgets.QPushButton(self.tab)
-        self.button_Json.setGeometry(QtCore.QRect(490, 420, 110, 20))
+        self.button_Json.setGeometry(QtCore.QRect(550, 525, 110, 20))
         self.button_Json.setObjectName("button_Json")
 
         self.refreshButton = QtWidgets.QPushButton(self.tab)
-        self.refreshButton.setGeometry(QtCore.QRect(490, 500, 110, 25))
+        self.refreshButton.setGeometry(QtCore.QRect(870, 525, 110, 25))
         self.refreshButton.setObjectName("button_refreash")
         self.refreshButton.setEnabled(False)
 
@@ -277,7 +293,7 @@ class Ui_MainWindow(object):
         self.Message_Button.setAutoExclusive(False)
 
         self.formGroupBox = QGroupBox(self.tab)
-        self.formGroupBox.setGeometry(QtCore.QRect(630, 100, 300, 160))
+        self.formGroupBox.setGeometry(QtCore.QRect(20, 100, 300, 160))
         layout = QFormLayout()
         layout.addRow(QLabel("Sender_email:"), self.Send_Mail)
         layout.addRow(QLabel("Password:"), self.Password)
@@ -289,21 +305,22 @@ class Ui_MainWindow(object):
 
         ##################################################################################
 
-        self.Ip_19 = QCheckBox()
-        self.Ip_19.setAutoExclusive(False)
-        self.Ip_21 = QCheckBox()
-        self.Ip_21.setAutoExclusive(False)
-        self.Ip_23 = QCheckBox()
-        self.Ip_23.setAutoExclusive(False)
+        self.device_ip = QLineEdit()
         self.Fetch_sec = QSpinBox()
         self.Fetch_sec.setMaximum(10)
+        self.netconf_password = QLineEdit()
+        self.netconf_password.setEchoMode(2)
+        self.netconf_port = QSpinBox()
+        self.netconf_port.setMaximum(1000)
+        self.netconf_admin = QLineEdit()
 
         self.formGroupBox2 = QGroupBox(self.tab)
-        self.formGroupBox2.setGeometry(QtCore.QRect(630, 300, 300, 105))
+        self.formGroupBox2.setGeometry(QtCore.QRect(20, 300, 300, 150))
         layout2 = QFormLayout()
-        layout2.addRow(QLabel("10.11.12.19:"), self.Ip_19)
-        layout2.addRow(QLabel("10.11.12.21:"), self.Ip_21)
-        layout2.addRow(QLabel("10.11.12.23:"), self.Ip_23)
+        layout2.addRow(QLabel("Device Ip:"), self.device_ip)
+        layout2.addRow(QLabel("Netconf User:"), self.netconf_admin)
+        layout2.addRow(QLabel("Netconf Password:"), self.netconf_password)
+        layout2.addRow(QLabel("Netconf Port:"), self.netconf_port)
         layout2.addRow(QLabel("Fetch Rate:"), self.Fetch_sec)
         self.formGroupBox2.setLayout(layout2)
 
@@ -318,11 +335,11 @@ class Ui_MainWindow(object):
         self.button_Json.clicked.connect(self.Verification)
         self.refreshButton.clicked.connect(self.reFresh)
 
-        self.plotWidget = Plot1(self.tab_2, width=10, height=4.5, dpi=100, updateCheck=False)
+        self.plotWidget = Plot1(self.tab_2, width=12, height=4.5, dpi=100, updateCheck=False)
         self.plotWidget.move(0, 100)
-        self.plotWidget2 = Plot2(self.tab_3, width=10, height=5.8, dpi=100, updateCheck=False)
+        self.plotWidget2 = Plot2(self.tab_3, width=12, height=5.8, dpi=100, updateCheck=False)
         self.plotWidget2.move(0, 35)
-        self.plotWidget3 = HorizontalGraph(self.tab_4, width=10, height=4.5, dpi=100, updateCheck=False)
+        self.plotWidget3 = HorizontalGraph(self.tab_4, width=12, height=4.5, dpi=100, updateCheck=False)
         self.plotWidget3.move(20, 100)
         ###########################
         MainWindow.setCentralWidget(self.centralwidget)
@@ -345,7 +362,7 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "Alarm Management"))
         self.load_db.setText(_translate("MainWindow", "Load Table"))
         self.button_credentials.setText(_translate("MainWindow", "Notification"))
-        self.button_Ip.setText(_translate("MainWindow", "Network"))
+        self.button_Ip.setText(_translate("MainWindow", "Insert Device"))
         self.button_Json.setText(_translate("MainWindow", "Run"))
         self.refreshButton.setText(_translate("MainWindow", "Refresh ALL graphs"))
 
@@ -353,7 +370,6 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Graph 1"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Graph 2"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "Graph 3"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), _translate("MainWindow", "Graph 4"))
 
 
 if __name__ == "__main__":
