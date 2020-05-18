@@ -41,20 +41,20 @@ class DBWindow(QMainWindow):
         self.refreshButton.setCheckable(True) #by default is unchecked
         self.refreshButton.move(650,5)
 
-        '''
+
         self.plotWidget=Plot1(self, width=5.5, height=5.5, dpi=100,updateCheck=False)
         self.plotWidget.move(0,30)
 
         self.plotWidget2=Plot2(self, width=7, height=6, dpi=100,updateCheck=False)
         self.plotWidget2.move(560,30)
-        '''
-        self.plotWidget3=HorizontalGraph(self, width=13, height=7, dpi=100,updateCheck=False)
+
+        self.plotWidget3=HorizontalGraph(self, width=13, height=5, dpi=100,updateCheck=False)
         self.plotWidget3.move(0,50)
 
         QtCore.QMetaObject.connectSlotsByName(self)
 
     def reFresh(self):
-        '''
+
         self.plotWidget.axes.cla()
         self.plotWidget.updateCheck=True
         self.plotWidget.reStartPlot1()
@@ -63,9 +63,16 @@ class DBWindow(QMainWindow):
         self.plotWidget2.updateCheck=True
         self.plotWidget2.reStartPlot2()
 
+
+
+        self.plotWidget3.axes.cla()
+        self.plotWidget3.updateCheck = True
+        self.plotWidget3.reStartPlot3()
+
+
         self.plotWidget.draw()
         self.plotWidget2.draw()
-        '''
+        self.plotWidget3.draw()
 
 def clickRefreshButtonEvent():
     Gui.reFresh()
