@@ -11,6 +11,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import os
 import random
+import datetime
 dirname = os.path.dirname(__file__)
 
 logging.basicConfig(filename="../../log.log", level=logging.ERROR)
@@ -70,6 +71,7 @@ class Plot1(FigureCanvas):
 
                 ax.annotate(self.alarmsPerHost[host][severity],
                             xy=(int(severity) + deltaPosition - width / 5, self.alarmsPerHost[host][severity] + 0.15))
+
                 # plt.annotate(self.alarmsPerHost[host][severity], xy=(int(severity) +deltaPosition-width/5, self.alarmsPerHost[host][severity]+0.15))
             # plt.plot(xlistElements, ylistElements,'-',label=lbl,marker='o')
             ax.bar(loc, ylistElements, label=lbl, width=0.2)
@@ -85,6 +87,8 @@ class Plot1(FigureCanvas):
                 i = i + 1
                 odd = False
                 even = False
+        ax.text(0, -0.1, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), verticalalignment='center',
+                transform=ax.transAxes)
 
     def plotCode(self, ax):
         ax.set_xlabel("Severity Level")

@@ -13,7 +13,7 @@ import random
 dirname = os.path.dirname(__file__)
 import numpy as np
 import sqlite3
-
+import datetime
 
 logging.basicConfig(filename="../../log.log", level=logging.ERROR)
 class Plot2(FigureCanvas):
@@ -24,8 +24,10 @@ class Plot2(FigureCanvas):
         FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
         self.updateCheck=updateCheck
-        self.barGraph(self.axes)
-
+        #self.barGraph(self.axes)
+        self.axes.set_xlabel('IP addresses of the hosts')
+        self.axes.set_ylabel('Number of Alarms')
+        self.axes.set_title('Alarms by IP')
     def barGraph(self,axes):
         print("here")
         try:
@@ -72,17 +74,21 @@ class Plot2(FigureCanvas):
                 self.autolabel(bar,axes)
                 #print(rects[i])
             # Add some text for labels, title and custom x-axis tick labels, etc.
-            axes.set_ylabel('Number of Alarms')
-            axes.set_title('Alarms by IP')
+
             axes.set_xticks(x)
             axes.set_xticklabels(labels)
             axes.legend(bbox_to_anchor= (0,-0.5),loc='lower left')
             connection.close()
-            plt.show()
+            axes.text(0, -0.1, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), verticalalignment='center',
+                    transform=axes.transAxes)
+            #plt.show()
         except Exception as e:
             logging.log(logging.ERROR, "something wrong opening the Data Base" + str(e))
 
     def reStartPlot2(self):
+        self.axes.set_xlabel('IP addresses of the hosts')
+        self.axes.set_ylabel('Number of Alarms')
+        self.axes.set_title('Alarms by IP')
         self.barGraph(self.axes)
 
 

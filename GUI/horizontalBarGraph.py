@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from GUI.commonPlotFunctions import CommonFunctions
-
+import datetime
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
@@ -95,6 +95,8 @@ class HorizontalGraph(FigureCanvas):
 
         ax.legend(ncol=len(descriptionList), bbox_to_anchor=(0, -0.1),
                   loc='lower left', fontsize='small')
+        ax.text(0, -0.1, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), verticalalignment='center',
+                transform=ax.transAxes)
 
     def reStartPlot3(self):
         self.alarmsPerHost.clear()
