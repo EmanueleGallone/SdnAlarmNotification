@@ -23,13 +23,12 @@ class Plot2(FigureCanvas):
         #self.fig.tight_layout()
         FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
-        self.updateCheck=updateCheck #TODO
+        self.updateCheck=updateCheck
         self.barGraph(self.axes)
 
     def barGraph(self,axes):
         print("here")
         try:
-            print("dhere")
             connection = sqlite3.connect('local.db')
             query = "SELECT deviceIP FROM alarm"
             result = connection.execute(query)
@@ -82,6 +81,7 @@ class Plot2(FigureCanvas):
             plt.show()
         except Exception as e:
             logging.log(logging.ERROR, "something wrong opening the Data Base" + str(e))
+
     def reStartPlot2(self):
         self.barGraph(self.axes)
 
