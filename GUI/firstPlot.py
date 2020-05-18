@@ -87,7 +87,8 @@ class Plot1(FigureCanvas):
                 i = i + 1
                 odd = False
                 even = False
-        ax.text(0, -0.1, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), verticalalignment='center',
+        infoRefresh = "Last reFresh at time:" + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        ax.text(0, -0.12, infoRefresh, verticalalignment='center',
                 transform=ax.transAxes)
 
     def plotCode(self, ax):

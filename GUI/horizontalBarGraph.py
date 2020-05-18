@@ -95,7 +95,8 @@ class HorizontalGraph(FigureCanvas):
 
         ax.legend(ncol=len(descriptionList), bbox_to_anchor=(0, -0.1),
                   loc='lower left', fontsize='small')
-        ax.text(0, -0.1, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), verticalalignment='center',
+        infoRefresh="Last reFresh at time:"+datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        ax.text(0, -0.12, infoRefresh, verticalalignment='center',
                 transform=ax.transAxes)
 
     def reStartPlot3(self):

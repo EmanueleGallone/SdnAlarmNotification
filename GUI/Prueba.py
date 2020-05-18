@@ -170,7 +170,7 @@ class Ui_MainWindow(object):
         self.button_Ip.setEnabled(False)
         self.button_Json.setEnabled(False)
         self.load_db.setEnabled(True)
-        self.button_pie_chart.setEnabled(True)
+        #self.button_pie_chart.setEnabled(True)
         #self.button_bar_graph.setEnabled(True)
         self.tab_2.setEnabled(True)
         self.tab_3.setEnabled(True)
@@ -257,7 +257,7 @@ class Ui_MainWindow(object):
         self.button_Json.setObjectName("button_Json")
 
         self.refreshButton = QtWidgets.QPushButton(self.tab)
-        self.refreshButton.setGeometry(QtCore.QRect(490, 500, 110, 20))
+        self.refreshButton.setGeometry(QtCore.QRect(490, 500, 110, 25))
         self.refreshButton.setObjectName("button_refreash")
         self.refreshButton.setEnabled(False)
 
@@ -316,11 +316,11 @@ class Ui_MainWindow(object):
         self.button_Json.clicked.connect(self.Verification)
         self.refreshButton.clicked.connect(self.reFresh)
 
-        self.plotWidget = Plot1(self.tab_2, width=10, height=4, dpi=100, updateCheck=False)
+        self.plotWidget = Plot1(self.tab_2, width=10, height=4.5, dpi=100, updateCheck=False)
         self.plotWidget.move(0, 30)
-        self.plotWidget2 = Plot2(self.tab_3, width=10, height=4, dpi=100, updateCheck=False)
+        self.plotWidget2 = Plot2(self.tab_3, width=10, height=4.5, dpi=100, updateCheck=False)
         self.plotWidget2.move(0, 30)
-        self.plotWidget3 = HorizontalGraph(self.tab_4, width=10, height=4, dpi=100, updateCheck=False)
+        self.plotWidget3 = HorizontalGraph(self.tab_4, width=10, height=4.5, dpi=100, updateCheck=False)
         self.plotWidget3.move(20, 30)
         ###########################
         MainWindow.setCentralWidget(self.centralwidget)
