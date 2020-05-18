@@ -48,8 +48,8 @@ class DBWindow(QMainWindow):
         self.plotWidget2=Plot2(self, width=7, height=6, dpi=100,updateCheck=False)
         self.plotWidget2.move(560,30)
         '''
-        self.plotWidget3=HorizontalGraph(self, width=7, height=6, dpi=100,updateCheck=False)
-        self.plotWidget3.move(360,30)
+        self.plotWidget3=HorizontalGraph(self, width=13, height=7, dpi=100,updateCheck=False)
+        self.plotWidget3.move(0,50)
 
         QtCore.QMetaObject.connectSlotsByName(self)
 

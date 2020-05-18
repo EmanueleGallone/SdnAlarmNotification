@@ -23,7 +23,6 @@ class HorizontalGraph(FigureCanvas):
         self.alarmsPerHost = defaultdict(lambda: defaultdict(int))
         self.totalAlarmsPerSeverity = defaultdict(lambda: [])
         self.percentage=defaultdict(int)# TODO CLEAR IT WHEN UPDATE IS DONE
-
         self.setParent(parent)
         self.updateCheck = updateCheck
         #self.plotCode(self.axes)
@@ -35,26 +34,40 @@ class HorizontalGraph(FigureCanvas):
 
         #self.axes.margins(0)
         self.plotHOrizontalGraph(self.axes)
+
     def plotHOrizontalGraph(self,ax):
         getData = CommonFunctions()
         results = getData.fetchDataFromDB()
         self.alarmsPerHost = getData.organizeAlarmsPerHost(results)
         self.totalAlarmsPerSeverity = getData.organizeTotalAlarmsPerSeverity(results)
 
-        descriptionList = []
-        totAlarms=0
+        descriptionList,totalFractions = [],[]
+
+        totAlarms=getData.countAlarms(self.totalAlarmsPerSeverity)
+
+
         for key, item in sorted(self.totalAlarmsPerSeverity.items()):
-            getData = CommonFunctions()
             descriptionList.append(getData.getInfo(key))
-            totAlarms=totAlarms+item
+            totFraction=item/totAlarms
+            totalFractions.append(totFraction*100)
 
-        fractions=[]
-        for key, item in sorted(self.totalAlarmsPerSeverity.items()):
-            fraction=item/totAlarms
-            fractions.append(fraction*100)
 
-        self.percentage['Cumulative Error']=fractions
-        self.percentage['h1']=fractions
+        self.percentage['Cumulative Error']=totalFractions
+        self.percentage['Cumulative Error'] = totalFractions
+
+        for host in sorted(self.alarmsPerHost):
+            singleFractions = []
+            totPerHostAlarms=getData.countAlarms(self.alarmsPerHost[host])
+            print(totPerHostAlarms,"  ", self.alarmsPerHost[host])
+            for ele in sorted(self.alarmsPerHost[host]):
+                print(self.alarmsPerHost[host][ele])
+                singleFractions.append((self.alarmsPerHost[host][ele]/totPerHostAlarms)*100)
+            self.percentage[host] = singleFractions
+
+
+        #for host in self.alarmsPerHost:
+        #self.singlePercentages[host]=
+
 
         labels = list(self.percentage.keys())
 
@@ -63,7 +76,7 @@ class HorizontalGraph(FigureCanvas):
 
         colors_list = ['yellowgreen','orange','dodgerblue','red','rebeccapurple','black']
         try:
-            colors = colors_list[0:len(fractions)]
+            colors = colors_list[0:len(totalFractions)]
         except IndexError:
             self.logger.info("Cannot plot. If you want to plot, you have to define more colors in the colors_list")
 
@@ -80,7 +93,10 @@ class HorizontalGraph(FigureCanvas):
             xcenters = starts + widths / 2
 
             for y, (x, c) in enumerate(zip(xcenters, widths)):
-                ax.text(x, y, str(int(c)), ha='center', va='center'
-                        )#color=text_color)
+
+                cString=str(round(c,1))
+                showPercentage=cString+"%"
+                ax.text(x, y, showPercentage, ha='center', va='center')#color=text_color)
+
         ax.legend(ncol=len(descriptionList), bbox_to_anchor=(0, -0.1),
                   loc='lower left', fontsize='small')

@@ -97,7 +97,6 @@ class Plot1(FigureCanvas):
         yAverageList = []
         xAverageList = []
         for key, item in sorted(self.totalAlarmsPerSeverity.items()):
-
             avg = item / len(self.alarmsPerHost)#TO do HOST
             #print(round(avg,1))
             yAverageList.append(avg)

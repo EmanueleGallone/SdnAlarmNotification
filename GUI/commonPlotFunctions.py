@@ -47,3 +47,9 @@ class CommonFunctions(object):
         _config_manager = ConfigManager()
         description=_config_manager.get_severity_mapping(element)
         return description
+
+    def countAlarms(self,dict):
+        totAlarms=0
+        for key, item in sorted(dict.items()):
+            totAlarms = totAlarms + item
+        return totAlarms
