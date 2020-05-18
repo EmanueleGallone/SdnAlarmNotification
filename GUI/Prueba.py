@@ -23,8 +23,8 @@ import json
 import sqlite3
 import logging
 
-Notification=[""]*6
-Ip=[""]*4
+Notification=['']*6
+Ip=['']*4
 
 class Ui_MainWindow(object):
 #######################################################################
@@ -123,8 +123,8 @@ class Ui_MainWindow(object):
             for alarms in alarms_description:
                 means = []
                 for ip in labels:
-                    t=(alarms,)
-                    query = "SELECT COUNT() FROM "+"alarm WHERE DESCRIPTION=? AND deviceIP='"+str(ip)+"'"
+                    t=(alarms,ip)
+                    query = "SELECT COUNT() FROM alarm WHERE DESCRIPTION=? AND deviceIP=?"
                     result = connection.execute(query, t)
                     for column_number, data in enumerate(result):
                         means.append(data[0])
@@ -176,7 +176,7 @@ class Ui_MainWindow(object):
         self.Mail_Button.setChecked(False)
         Notification[5]=(self.Message_Button.isChecked())
         self.Message_Button.setChecked(False)
-        print(Notification)
+        #print(Notification)
     def get_Network(self):
         Ip[0]=(self.Ip_19.isChecked())
         self.Ip_19.setChecked(False)
@@ -186,7 +186,7 @@ class Ui_MainWindow(object):
         self.Ip_23.setChecked(False)
         Ip[3]=(int(self.Fetch_sec.value()))
         self.Fetch_sec.clear()
-        print(Ip)
+        #print(Ip)
 ########################################################################################
     def modify_json(self):
         try:
@@ -201,23 +201,73 @@ class Ui_MainWindow(object):
                         data['Notification_config']['Severity_notification_threshold'] = Notification[3]
                         data['Notification_config']['Send_email'] = Notification[4]
                         data['Notification_config']['Send_message'] = Notification[5]
-                        data['Network'][0]['netconf_fetch_rate_in_sec']=Ip[3]
-                        data['Network'][1]['netconf_fetch_rate_in_sec'] = Ip[3]
-                        data['Network'][2]['netconf_fetch_rate_in_sec'] = Ip[3]
+
+                        for i in range(len(Ip)-2,-1,-1):
+                            if Ip[i]:
+                                data['Network'][i]['netconf_fetch_rate_in_sec'] = Ip[3]
+                            else:
+                                data['Network'].pop(i)
+
                         json.dump(data, json_file, indent=4, sort_keys=True)
+
+                        self.Run()
                 except Exception as e:
                     logging.log(logging.CRITICAL, "Error writing config.json file! -> " + str(e))
         except Exception as e:
             logging.log(logging.CRITICAL, "Error reading config.json file! -> " + str(e))
 ########################################################################################
-    def Run_All(self):
+    def show_popup(self,notif,ip):
+        msg = QMessageBox()
+        msg.setWindowTitle("Verify Configuration")
+        msg.setText("Configurations where not selected:")
+        msg.setIcon(QMessageBox.Question)
+        msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Retry | QMessageBox.Ignore )
+        msg.setDefaultButton(QMessageBox.Retry)
+        msg.setInformativeText("Press Ignore if you want to use the default configuration")
+        if notif:
+            if ip:
+                msg.setDetailedText("Neither notification or network configurations were selected")
+            else:
+                msg.setDetailedText("Notification configurations were not selected")
+        elif ip:
+                msg.setDetailedText("Network configurations were not selected")
+        msg.exec()
+        if msg.clickedButton().text() == "Ignore":
+            self.Run()
+########################################################################################
+    def Verification(self):
+        notif=all(elem == Notification[0] for elem in Notification)
+        ip=all(elem == Ip[0] for elem in Ip)
+        if notif or ip:
+            self.show_popup(notif,ip)
+        else:
+            self.modify_json()
+##########################################################################################
+    def Run(self):
         print("run")
-        #main.main()
+        # main.main()
+        self.formGroupBox.setEnabled(False)
+        self.button_credentials.setEnabled(False)
+        self.formGroupBox2.setEnabled(False)
+        self.button_Ip.setEnabled(False)
+        self.load_db.setEnabled(True)
+        self.button_pie_chart.setEnabled(True)
+        self.button_bar_graph.setEnabled(True)
+        self.button_Json.setEnabled(False)
+################################################################################
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1000, 600)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+
+        self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
+        self.tabWidget.setGeometry(QtCore.QRect(0, 0, 1000, 600))
+        self.tabWidget.setObjectName("tabWidget")
+        self.tab = QtWidgets.QWidget()
+        self.tab.setObjectName("tab")
+        self.tabWidget.addTab(self.tab, "")
+
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(260, 10, 411, 51))
         font = QtGui.QFont()
@@ -227,6 +277,7 @@ class Ui_MainWindow(object):
         font.setWeight(50)
         self.label.setFont(font)
         self.label.setObjectName("label")
+
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
         self.label_2.setGeometry(QtCore.QRect(380, 40, 181, 51))
         font = QtGui.QFont()
@@ -237,39 +288,38 @@ class Ui_MainWindow(object):
         self.label_2.setFont(font)
         self.label_2.setObjectName("label_2")
 
-        self.tableWidget = QtWidgets.QTableWidget(self.centralwidget)
+        self.tableWidget = QtWidgets.QTableWidget(self.tab)
         self.tableWidget.setGeometry(QtCore.QRect(40, 100, 411, 276))
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(7)
         self.tableWidget.setRowCount(0)
 
-        self.load_db = QtWidgets.QPushButton(self.centralwidget)
+        self.load_db = QtWidgets.QPushButton(self.tab)
         self.load_db.setGeometry(QtCore.QRect(210, 385, 75, 23))
         self.load_db.setObjectName("load_db")
+        self.load_db.setEnabled(False)
 
-        self.button_pie_chart = QtWidgets.QPushButton(self.centralwidget)
+        self.button_pie_chart = QtWidgets.QPushButton(self.tab)
         self.button_pie_chart.setGeometry(QtCore.QRect(490, 100, 110, 20))
         self.button_pie_chart.setObjectName("button_pie_chart")
+        self.button_pie_chart.setEnabled(False)
 
-        self.button_bar_graph = QtWidgets.QPushButton(self.centralwidget)
+        self.button_bar_graph = QtWidgets.QPushButton(self.tab)
         self.button_bar_graph.setGeometry(QtCore.QRect(490, 130, 110, 20))
         self.button_bar_graph.setObjectName("button_bar_graph")
+        self.button_bar_graph.setEnabled(False)
 
-        self.button_credentials = QtWidgets.QPushButton(self.centralwidget)
+        self.button_credentials = QtWidgets.QPushButton(self.tab)
         self.button_credentials.setGeometry(QtCore.QRect(730, 270, 110, 20))
         self.button_credentials.setObjectName("button_credentials")
 
-        self.button_Ip = QtWidgets.QPushButton(self.centralwidget)
+        self.button_Ip = QtWidgets.QPushButton(self.tab)
         self.button_Ip.setGeometry(QtCore.QRect(730, 415, 110, 20))
         self.button_Ip.setObjectName("button_Ip")
 
-        self.button_Json = QtWidgets.QPushButton(self.centralwidget)
+        self.button_Json = QtWidgets.QPushButton(self.tab)
         self.button_Json.setGeometry(QtCore.QRect(490, 420, 110, 20))
         self.button_Json.setObjectName("button_Json")
-
-        self.Run = QtWidgets.QPushButton(self.centralwidget)
-        self.Run.setGeometry(QtCore.QRect(490, 450, 110, 20))
-        self.Run.setObjectName("Run")
 
         ##################################################################################
 
@@ -279,12 +329,12 @@ class Ui_MainWindow(object):
         self.Reciver_Mail = QLineEdit()
         self.Severity = QSpinBox()
         self.Severity.setMaximum(3)
-        self.Mail_Button= QRadioButton()
+        self.Mail_Button= QCheckBox()
         self.Mail_Button.setAutoExclusive(False)
-        self.Message_Button = QRadioButton()
+        self.Message_Button = QCheckBox()
         self.Message_Button.setAutoExclusive(False)
 
-        self.formGroupBox = QGroupBox(self.centralwidget)
+        self.formGroupBox = QGroupBox(self.tab)
         self.formGroupBox.setGeometry(QtCore.QRect(630, 100, 300, 160))
         layout = QFormLayout()
         layout.addRow(QLabel("Sender_email:"), self.Send_Mail)
@@ -297,16 +347,16 @@ class Ui_MainWindow(object):
 
         ##################################################################################
 
-        self.Ip_19 = QRadioButton()
+        self.Ip_19 = QCheckBox()
         self.Ip_19.setAutoExclusive(False)
-        self.Ip_21 = QRadioButton()
+        self.Ip_21 = QCheckBox()
         self.Ip_21.setAutoExclusive(False)
-        self.Ip_23 = QRadioButton()
+        self.Ip_23 = QCheckBox()
         self.Ip_23.setAutoExclusive(False)
         self.Fetch_sec = QSpinBox()
         self.Fetch_sec.setMaximum(10)
 
-        self.formGroupBox2 = QGroupBox(self.centralwidget)
+        self.formGroupBox2 = QGroupBox(self.tab)
         self.formGroupBox2.setGeometry(QtCore.QRect(630, 300, 300, 105))
         layout2 = QFormLayout()
         layout2.addRow(QLabel("10.11.12.19:"), self.Ip_19)
@@ -325,8 +375,7 @@ class Ui_MainWindow(object):
         self.button_bar_graph.clicked.connect(self.Bar_Graph)
         self.button_credentials.clicked.connect(self.get_credentials)
         self.button_Ip.clicked.connect(self.get_Network)
-        self.button_Json.clicked.connect(self.modify_json)
-        self.Run.clicked.connect(self.Run_All)
+        self.button_Json.clicked.connect(self.Verification)
 
         ###########################
         MainWindow.setCentralWidget(self.centralwidget)
@@ -339,6 +388,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -349,10 +399,11 @@ class Ui_MainWindow(object):
         self.load_db.setText(_translate("MainWindow", "Load Table"))
         self.button_pie_chart.setText(_translate("MainWindow", "Generate Pie Chart"))
         self.button_bar_graph.setText(_translate("MainWindow", "Generate Bar Graph"))
-        self.button_credentials.setText(_translate("MainWindow", "Insert Credentials"))
-        self.button_Ip.setText(_translate("MainWindow", "Select Terminals"))
-        self.button_Json.setText(_translate("MainWindow", "Modify Jason"))
-        self.Run.setText(_translate("MainWindow", "Run"))
+        self.button_credentials.setText(_translate("MainWindow", "Notification"))
+        self.button_Ip.setText(_translate("MainWindow", "Network"))
+        self.button_Json.setText(_translate("MainWindow", "Run"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Tab 1"))
+        #self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Tab 2"))
 
 if __name__ == "__main__":
     import sys
