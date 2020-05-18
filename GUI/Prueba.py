@@ -23,6 +23,10 @@ import json
 import sqlite3
 import logging
 
+from GUI.firstPlot import Plot1
+from GUI.secondPlot import Plot2
+from GUI.horizontalBarGraph import HorizontalGraph
+
 Notification=['']*6
 Ip=['']*4
 
@@ -30,9 +34,14 @@ class Ui_MainWindow(object):
 #######################################################################
     def loadDataB(self):
         try:
-            connection = sqlite3.connect('local.db')
-            query = "SELECT * FROM alarm"
-            result = connection.execute(query)
+            from models import database_handler
+            db = database_handler.DBHandler().open_connection()
+            result = [tuple for tuple in db.select_all()]
+
+            # connection = sqlite3.connect('local.db')
+            # query = "SELECT * FROM alarm"
+            # result = connection.execute(query)
+
             self.tableWidget.setRowCount(0)
             self.tableWidget.setVisible(True)
             self.tableWidget.horizontalHeader().setVisible(True)
@@ -44,124 +53,30 @@ class Ui_MainWindow(object):
                 for column_number, data in enumerate(row_data):
                     self.tableWidget.setItem(row_number, column_number, QtWidgets.QTableWidgetItem(str(data)))
 
-            connection.close()
+            db.close_connection()
         except Exception as e:
             logging.log(logging.ERROR, "something wrong opening the Data Base" + str(e))
-    ##############################################################################
-    def Pie_chart(self):
-        try:
-            connection = sqlite3.connect('local.db')
-            query = "SELECT deviceIP FROM alarm"
-            result = connection.execute(query)
-            alarms_ip = []
-            for column_number, data in enumerate(result):
-                alarms_ip.append(data[0])
-            labels = set(alarms_ip)
-            sizes = [alarms_ip.count(i) for i in labels]
+########################################################################################
+    def reFresh(self):
 
-            # make figure and assign axis objects
-            fig = plt.figure(figsize=(11, 4))
-            ax1 = fig.add_subplot(121)
-            ax2 = fig.add_subplot(122)
-            fig.subplots_adjust(wspace=0)
+        self.plotWidget.axes.cla()
+        self.plotWidget.updateCheck=True
+        self.plotWidget.reStartPlot1()
 
-            # pie chart parameters
-            explode = [0, 0, 0]
-            explode[sizes.index(max(sizes))] = 0.1
-            ax1.pie(sizes, autopct='%1.1f%%',
-                    labels=labels, explode=explode)
+        self.plotWidget2.axes.cla()
+        self.plotWidget2.updateCheck=True
+        self.plotWidget2.reStartPlot2()
 
-            # bar chart parameters
-            query = "SELECT description FROM alarm"
-            result = connection.execute(query)
-            alarms_description = []
-            for column_number, data in enumerate(result):
-                alarms_description.append(data[0])
-            labels = set(alarms_description)
-            sizes = [alarms_description.count(i) for i in labels]
 
-            xpos = 0
-            bottom = 0
-            width = .1
 
-            for j in range(len(sizes)):
-                height = sizes[j]
-                ax2.bar(xpos, height, width, bottom=bottom)
-                ypos = bottom + ax2.patches[j].get_height() / 2
-                bottom += height
-                ax2.text(xpos, ypos, str(sizes[j]),
-                         ha='center')
+        self.plotWidget3.axes.cla()
+        self.plotWidget3.updateCheck = True
+        self.plotWidget3.reStartPlot3()
 
-            ax2.set_title('All Alarms Description')
-            ax2.legend(labels)
-            ax2.axis('off')
-            ax2.set_xlim(-width, 5*width)
 
-            plt.show()
-            connection.close()
-        except Exception as e:
-            logging.log(logging.ERROR, "something wrong opening the Data Base" + str(e))
-    ###################################################################################
-    def Bar_Graph(self):
-        try:
-            connection = sqlite3.connect('local.db')
-            query = "SELECT deviceIP FROM alarm"
-            result = connection.execute(query)
-            alarms_ip = []
-            for column_number, data in enumerate(result):
-                alarms_ip.append(data[0])
-            labels = set(alarms_ip)
-
-            query = "SELECT description FROM alarm"
-            result = connection.execute(query)
-            alarms_desc = []
-            for column_number, data in enumerate(result):
-                alarms_desc.append(data[0])
-            alarms_description = set(alarms_desc)
-
-            rects=[]
-            for alarms in alarms_description:
-                means = []
-                for ip in labels:
-                    t=(alarms,ip)
-                    query = "SELECT COUNT() FROM alarm WHERE DESCRIPTION=? AND deviceIP=?"
-                    result = connection.execute(query, t)
-                    for column_number, data in enumerate(result):
-                        means.append(data[0])
-                rects.append(means)
-
-            #print(alarms_description)
-            #print(rects)
-
-            x = np.arange(len(labels))  # the label locations
-            width = 0.2  # the width of the bars
-            fig, ax = plt.subplots()
-
-            def autolabel(rects):
-                """Attach a text label above each bar in *rects*, displaying its height."""
-                for rect in rects:
-                    height = rect.get_height()
-                    ax.annotate('{}'.format(height),
-                                xy=(rect.get_x() + rect.get_width() / 2, height),
-                                xytext=(0, 3),  # 3 points vertical offset
-                                textcoords="offset points",
-                                ha='center', va='bottom')
-
-            for i in range(0, len(rects)):
-                bar= ax.bar(x + (i-(len(rects)-1)/2) * width / 2, rects[i], width/2, label=list(alarms_description)[i])
-                autolabel(bar)
-
-            # Add some text for labels, title and custom x-axis tick labels, etc.
-            ax.set_ylabel('Number of Alarms')
-            ax.set_title('Alarms by IP')
-            ax.set_xticks(x)
-            ax.set_xticklabels(labels)
-            ax.legend()
-            fig.tight_layout()
-            connection.close()
-            plt.show()
-        except Exception as e:
-            logging.log(logging.ERROR, "something wrong opening the Data Base" + str(e))
+        self.plotWidget.draw()
+        self.plotWidget2.draw()
+        self.plotWidget3.draw()
 ########################################################################################
     def get_credentials(self):
         Notification[0]=(self.Send_Mail.displayText())
@@ -190,7 +105,10 @@ class Ui_MainWindow(object):
 ########################################################################################
     def modify_json(self):
         try:
-            with open('config.json', 'r') as json_file:
+            import os
+            filename = os.path.join(os.path.dirname(__file__), '../config/config.json')
+
+            with open(filename, 'r') as json_file:
                 data = json.load(json_file)
                 try:
                     with open('config.json', 'w') as json_file:
@@ -250,26 +168,53 @@ class Ui_MainWindow(object):
         self.button_credentials.setEnabled(False)
         self.formGroupBox2.setEnabled(False)
         self.button_Ip.setEnabled(False)
+        self.button_Json.setEnabled(False)
         self.load_db.setEnabled(True)
         self.button_pie_chart.setEnabled(True)
-        self.button_bar_graph.setEnabled(True)
-        self.button_Json.setEnabled(False)
+        #self.button_bar_graph.setEnabled(True)
+        self.tab_2.setEnabled(True)
+        self.tab_3.setEnabled(True)
+        self.tab_4.setEnabled(True)
+        self.tab_5.setEnabled(True)
+        self.refreshButton.setEnabled(True)
+
 ################################################################################
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1000, 600)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-
+###############################################################################
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setGeometry(QtCore.QRect(0, 0, 1000, 600))
         self.tabWidget.setObjectName("tabWidget")
+
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
         self.tabWidget.addTab(self.tab, "")
 
+        self.tab_2 = QtWidgets.QWidget()
+        self.tab_2.setObjectName("tab_2")
+        self.tabWidget.addTab(self.tab_2, "")
+        self.tab_2.setEnabled(False)
+
+        self.tab_3 = QtWidgets.QWidget()
+        self.tab_3.setObjectName("tab_3")
+        self.tabWidget.addTab(self.tab_3, "")
+        self.tab_3.setEnabled(False)
+
+        self.tab_4 = QtWidgets.QWidget()
+        self.tab_4.setObjectName("tab_4")
+        self.tabWidget.addTab(self.tab_4, "")
+        self.tab_4.setEnabled(False)
+
+        self.tab_5 = QtWidgets.QWidget()
+        self.tab_5.setObjectName("tab_5")
+        self.tabWidget.addTab(self.tab_5, "")
+        self.tab_5.setEnabled(False)
+#################################################################################
         self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(260, 10, 411, 51))
+        self.label.setGeometry(QtCore.QRect(310, 10, 400, 50))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(16)
@@ -279,7 +224,7 @@ class Ui_MainWindow(object):
         self.label.setObjectName("label")
 
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_2.setGeometry(QtCore.QRect(380, 40, 181, 51))
+        self.label_2.setGeometry(QtCore.QRect(440, 40, 181, 51))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(14)
@@ -299,16 +244,6 @@ class Ui_MainWindow(object):
         self.load_db.setObjectName("load_db")
         self.load_db.setEnabled(False)
 
-        self.button_pie_chart = QtWidgets.QPushButton(self.tab)
-        self.button_pie_chart.setGeometry(QtCore.QRect(490, 100, 110, 20))
-        self.button_pie_chart.setObjectName("button_pie_chart")
-        self.button_pie_chart.setEnabled(False)
-
-        self.button_bar_graph = QtWidgets.QPushButton(self.tab)
-        self.button_bar_graph.setGeometry(QtCore.QRect(490, 130, 110, 20))
-        self.button_bar_graph.setObjectName("button_bar_graph")
-        self.button_bar_graph.setEnabled(False)
-
         self.button_credentials = QtWidgets.QPushButton(self.tab)
         self.button_credentials.setGeometry(QtCore.QRect(730, 270, 110, 20))
         self.button_credentials.setObjectName("button_credentials")
@@ -320,6 +255,11 @@ class Ui_MainWindow(object):
         self.button_Json = QtWidgets.QPushButton(self.tab)
         self.button_Json.setGeometry(QtCore.QRect(490, 420, 110, 20))
         self.button_Json.setObjectName("button_Json")
+
+        self.refreshButton = QtWidgets.QPushButton(self.tab)
+        self.refreshButton.setGeometry(QtCore.QRect(490, 500, 110, 20))
+        self.refreshButton.setObjectName("button_refreash")
+        self.refreshButton.setEnabled(False)
 
         ##################################################################################
 
@@ -371,12 +311,17 @@ class Ui_MainWindow(object):
         self.tableWidget.horizontalHeader().hide()
         self.load_db.clicked.connect(self.loadDataB)
 
-        self.button_pie_chart.clicked.connect(self.Pie_chart)
-        self.button_bar_graph.clicked.connect(self.Bar_Graph)
         self.button_credentials.clicked.connect(self.get_credentials)
         self.button_Ip.clicked.connect(self.get_Network)
         self.button_Json.clicked.connect(self.Verification)
+        self.refreshButton.clicked.connect(self.reFresh)
 
+        self.plotWidget = Plot1(self.tab_2, width=10, height=4, dpi=100, updateCheck=False)
+        self.plotWidget.move(0, 30)
+        self.plotWidget2 = Plot2(self.tab_3, width=10, height=4, dpi=100, updateCheck=False)
+        self.plotWidget2.move(0, 30)
+        self.plotWidget3 = HorizontalGraph(self.tab_4, width=10, height=4, dpi=100, updateCheck=False)
+        self.plotWidget3.move(20, 30)
         ###########################
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -388,7 +333,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -397,13 +342,17 @@ class Ui_MainWindow(object):
         self.label.setText(_translate("MainWindow", "Smart Networks and Service Orchestration"))
         self.label_2.setText(_translate("MainWindow", "Alarm Management"))
         self.load_db.setText(_translate("MainWindow", "Load Table"))
-        self.button_pie_chart.setText(_translate("MainWindow", "Generate Pie Chart"))
-        self.button_bar_graph.setText(_translate("MainWindow", "Generate Bar Graph"))
         self.button_credentials.setText(_translate("MainWindow", "Notification"))
         self.button_Ip.setText(_translate("MainWindow", "Network"))
         self.button_Json.setText(_translate("MainWindow", "Run"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Tab 1"))
-        #self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Tab 2"))
+        self.refreshButton.setText(_translate("MainWindow", "Refresh ALL graphs"))
+
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Home"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Graph 1"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Graph 2"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "Graph 3"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), _translate("MainWindow", "Graph 4"))
+
 
 if __name__ == "__main__":
     import sys
