@@ -170,8 +170,6 @@ class Ui_MainWindow(object):
         self.button_Ip.setEnabled(False)
         self.button_Json.setEnabled(False)
         self.load_db.setEnabled(True)
-        self.button_pie_chart.setEnabled(True)
-        #self.button_bar_graph.setEnabled(True)
         self.tab_2.setEnabled(True)
         self.tab_3.setEnabled(True)
         self.tab_4.setEnabled(True)
@@ -317,11 +315,11 @@ class Ui_MainWindow(object):
         self.refreshButton.clicked.connect(self.reFresh)
 
         self.plotWidget = Plot1(self.tab_2, width=10, height=4, dpi=100, updateCheck=False)
-        self.plotWidget.move(0, 30)
+        self.plotWidget.move(0, 50)
         self.plotWidget2 = Plot2(self.tab_3, width=10, height=4, dpi=100, updateCheck=False)
-        self.plotWidget2.move(0, 30)
+        self.plotWidget2.move(0, 50)
         self.plotWidget3 = HorizontalGraph(self.tab_4, width=10, height=4, dpi=100, updateCheck=False)
-        self.plotWidget3.move(20, 30)
+        self.plotWidget3.move(30, 50)
         ###########################
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
