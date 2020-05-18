@@ -27,6 +27,10 @@ from GUI.firstPlot import Plot1
 from GUI.secondPlot import Plot2
 from GUI.horizontalBarGraph import HorizontalGraph
 
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import QFile, QTextStream
+from GUI.BreezeStyleSheets import breeze_resources
+
 Notification=['']*6
 Ip=['']*4
 
@@ -179,12 +183,12 @@ class Ui_MainWindow(object):
 ################################################################################
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1000, 600)
+        MainWindow.resize(1000, 650)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 ###############################################################################
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(0, 0, 1000, 600))
+        self.tabWidget.setGeometry(QtCore.QRect(0, 0, 1000, 650))
         self.tabWidget.setObjectName("tabWidget")
 
         self.tab = QtWidgets.QWidget()
@@ -222,7 +226,7 @@ class Ui_MainWindow(object):
         self.label.setObjectName("label")
 
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_2.setGeometry(QtCore.QRect(440, 40, 181, 51))
+        self.label_2.setGeometry(QtCore.QRect(440, 50, 181, 51))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(14)
@@ -255,7 +259,7 @@ class Ui_MainWindow(object):
         self.button_Json.setObjectName("button_Json")
 
         self.refreshButton = QtWidgets.QPushButton(self.tab)
-        self.refreshButton.setGeometry(QtCore.QRect(490, 500, 110, 20))
+        self.refreshButton.setGeometry(QtCore.QRect(490, 500, 110, 25))
         self.refreshButton.setObjectName("button_refreash")
         self.refreshButton.setEnabled(False)
 
@@ -314,12 +318,12 @@ class Ui_MainWindow(object):
         self.button_Json.clicked.connect(self.Verification)
         self.refreshButton.clicked.connect(self.reFresh)
 
-        self.plotWidget = Plot1(self.tab_2, width=10, height=4, dpi=100, updateCheck=False)
-        self.plotWidget.move(0, 50)
-        self.plotWidget2 = Plot2(self.tab_3, width=10, height=4, dpi=100, updateCheck=False)
-        self.plotWidget2.move(0, 50)
-        self.plotWidget3 = HorizontalGraph(self.tab_4, width=10, height=4, dpi=100, updateCheck=False)
-        self.plotWidget3.move(30, 50)
+        self.plotWidget = Plot1(self.tab_2, width=10, height=4.5, dpi=100, updateCheck=False)
+        self.plotWidget.move(0, 100)
+        self.plotWidget2 = Plot2(self.tab_3, width=10, height=5.8, dpi=100, updateCheck=False)
+        self.plotWidget2.move(0, 35)
+        self.plotWidget3 = HorizontalGraph(self.tab_4, width=10, height=4.5, dpi=100, updateCheck=False)
+        self.plotWidget3.move(20, 100)
         ###########################
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -355,6 +359,15 @@ class Ui_MainWindow(object):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
+
+    # set stylesheet
+    file = QFile(":/dark.qss")
+    file.open(QFile.ReadOnly | QFile.Text)
+    stream = QTextStream(file)
+    app.setStyleSheet(stream.readAll())
+
+
+
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)

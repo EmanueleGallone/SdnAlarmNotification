@@ -19,6 +19,7 @@ logging.basicConfig(filename="../../log.log", level=logging.ERROR)
 class Plot1(FigureCanvas):
     def __init__(self, parent=None, width=5, height=5, dpi=100, updateCheck=False):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
+        self.fig.patch.set_visible(False)
         self.axes = self.fig.add_subplot(111)
         # self.axes = self.fig.add_subplot(221)
         # self.axes2 = self.fig.add_subplot(222)
@@ -28,9 +29,11 @@ class Plot1(FigureCanvas):
         self.setParent(parent)
         self.updateCheck = updateCheck
         #self.plotCode(self.axes)
-        self.axes.set_xlabel("Severity Level")
-        self.axes.set_ylabel("Number of alarms")
-        self.axes.set_title("Alarms received per host ")
+        self.axes.set_xlabel("Severity Level",color='white')
+        self.axes.set_ylabel("Number of alarms",color='white')
+        self.axes.set_title("Alarms received per host ",color='white')
+        self.axes.tick_params(axis='x', colors='white')
+        self.axes.tick_params(axis='y', colors='white')
 
     def position(self, ax):
         width = 0.25
@@ -70,7 +73,7 @@ class Plot1(FigureCanvas):
                     ylistElements.append(self.alarmsPerHost[host][severity])
 
                 ax.annotate(self.alarmsPerHost[host][severity],
-                            xy=(int(severity) + deltaPosition - width / 5, self.alarmsPerHost[host][severity] + 0.15))
+                            xy=(int(severity) + deltaPosition - width / 5, self.alarmsPerHost[host][severity] + 0.15),color='white')
 
                 # plt.annotate(self.alarmsPerHost[host][severity], xy=(int(severity) +deltaPosition-width/5, self.alarmsPerHost[host][severity]+0.15))
             # plt.plot(xlistElements, ylistElements,'-',label=lbl,marker='o')
@@ -89,12 +92,13 @@ class Plot1(FigureCanvas):
                 even = False
         infoRefresh = "Last reFresh at time:" + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         ax.text(0, -0.12, infoRefresh, verticalalignment='center',
-                transform=ax.transAxes)
+                transform=ax.transAxes,color='white')
+
 
     def plotCode(self, ax):
-        ax.set_xlabel("Severity Level")
-        ax.set_ylabel("Number of alarms")
-        ax.set_title("Alarms received per host ")
+        ax.set_xlabel("Severity Level",color='white')
+        ax.set_ylabel("Number of alarms",color='white')
+        ax.set_title("Alarms received per host ",color='white')
         self.position(ax)
 
         # print("plotcode ")

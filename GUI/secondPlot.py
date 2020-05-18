@@ -18,20 +18,23 @@ from models import database_handler
 
 logging.basicConfig(filename="../../log.log", level=logging.ERROR)
 class Plot2(FigureCanvas):
-    def __init__(self, parent=None, width=7, height=5, dpi=100,updateCheck=False):
+    def __init__(self, parent=None, width=10, height=4, dpi=100,updateCheck=False):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
+        self.fig.patch.set_visible(False)
         self.axes = self.fig.add_subplot(111)
         #self.fig.tight_layout()
         FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
         self.updateCheck=updateCheck
         #self.barGraph(self.axes)
-        self.axes.set_xlabel('IP addresses of the hosts')
-        self.axes.set_ylabel('Number of Alarms')
-        self.axes.set_title('Alarms by IP')
-
+        self.axes.set_xlabel('IP addresses of the hosts',color='white')
+        self.axes.set_ylabel('Number of Alarms',color='white')
+        self.axes.set_title('Alarms by IP',color='white')
+        self.axes.tick_params(axis='x', colors='white')
+        self.axes.tick_params(axis='y', colors='white')
+        #print("create plot 2")
     def barGraph(self,axes):
-        print("here")
+        #print("here")
         try:
             db = database_handler.DBHandler().open_connection()
             result = [tuple[1] for tuple in db.select_all()]
@@ -53,36 +56,37 @@ class Plot2(FigureCanvas):
 
             x = np.arange(len(labels))  # the label locations
             width = 1.5/len(alarms_description)  # the width of the bars
-            fig, ax = plt.subplots()
+            #fig, ax = plt.subplots()
 
             for i in range(0, len(rects)):
-                bar = ax.bar(x + (i - (len(rects) - 1) / 2) * width / 2, rects[i], width / 2,
+                bar = axes.bar(x + (i - (len(rects) - 1) / 2) * width / 2, rects[i], width / 2,
                              label=list(alarms_description)[i])
-                self.autolabel(bar,ax)
+                self.autolabel(bar,axes)
 
             # Fabio aiutami qua
             axes.set_xticks(x)
             axes.set_xticklabels(labels)
             axes.legend(bbox_to_anchor= (0,-0.5),loc='lower left')
-            axes.text(0, -0.1, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), verticalalignment='center',
-                   transform=axes.transAxes)
+            infoRefresh = "Last reFresh at time:" + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            axes.text(0, -0.12, infoRefresh, verticalalignment='center',
+                   transform=axes.transAxes,color='white')
             ###############################################
-            ax.set_ylabel('Number of Alarms')
-            ax.set_title('Alarms by IP')
-            ax.set_xticks(x)
-            ax.set_xticklabels(labels)
-            ax.legend()
-            fig.tight_layout()
-            plt.show()
+            axes.set_ylabel('Number of Alarms')
+            axes.set_title('Alarms by IP')
+            axes.set_xticks(x)
+            axes.set_xticklabels(labels)
+            axes.legend(bbox_to_anchor=(0, 0),loc='upper left', fontsize='small')
+            #fig.tight_layout()
+            #plt.show()
             ##############################################
             db.close_connection()
         except Exception as e:
             logging.log(logging.ERROR, "something wrong opening the Data Base" + str(e))
 
     def reStartPlot2(self):
-        self.axes.set_xlabel('IP addresses of the hosts')
-        self.axes.set_ylabel('Number of Alarms')
-        self.axes.set_title('Alarms by IP')
+        self.axes.set_xlabel('IP addresses of the hosts',color='white')
+        self.axes.set_ylabel('Number of Alarms',color='white')
+        self.axes.set_title('Alarms by IP',color='white')
         self.barGraph(self.axes)
 
 

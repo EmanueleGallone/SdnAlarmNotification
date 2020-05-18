@@ -16,9 +16,12 @@ dirname = os.path.dirname(__file__)
 logging.basicConfig(filename="../../log.log", level=logging.ERROR)
 #https://matplotlib.org/3.1.1/gallery/lines_bars_and_markers/horizontal_barchart_distribution.html#sphx-glr-gallery-lines-bars-and-markers-horizontal-barchart-distribution-py
 class HorizontalGraph(FigureCanvas):
-    def __init__(self, parent=None, width=7, height=5, dpi=100, updateCheck=False):
+    def __init__(self, parent=None, width=7.5, height=5, dpi=100, updateCheck=False):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
+
         self.axes = self.fig.add_subplot(111)
+
+        self.fig.patch.set_visible(False)
         FigureCanvas.__init__(self, self.fig)
         self.alarmsPerHost = defaultdict(lambda: defaultdict(int))
         self.totalAlarmsPerSeverity = defaultdict(lambda: [])
@@ -29,7 +32,7 @@ class HorizontalGraph(FigureCanvas):
         self.axes.invert_yaxis()
         self.axes.xaxis.set_visible(False)
         #self.axes.set_xlim(0,38)
-        self.axes.set_title("Percentage of the various alarms ")
+        self.axes.set_title("Percentage of the various alarms ",color='white')
 
 
     def plotHOrizontalGraph(self,ax):
@@ -45,7 +48,7 @@ class HorizontalGraph(FigureCanvas):
             totalFractions.append(totFraction*100)
 
 
-        self.percentage['Cumulative Alarms'] = totalFractions
+        self.percentage['Overall Alarms'] = totalFractions
 
         for host in sorted(self.alarmsPerHost):
             singleFractions = []
@@ -96,7 +99,7 @@ class HorizontalGraph(FigureCanvas):
         ax.legend(ncol=len(descriptionList), bbox_to_anchor=(0, -0.1),
                   loc='lower left', fontsize='small')
         infoRefresh="Last reFresh at time:"+datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        ax.text(0, -0.12, infoRefresh, verticalalignment='center',
+        ax.text(0, -0.12, infoRefresh, verticalalignment='center',color='white',
                 transform=ax.transAxes)
 
     def reStartPlot3(self):
@@ -105,7 +108,9 @@ class HorizontalGraph(FigureCanvas):
         self.percentage.clear()
         self.axes.invert_yaxis()
         self.axes.xaxis.set_visible(False)
-        self.axes.set_title("Percentage of the various alarms ")
+        self.axes.set_title("Percentage of the various alarms ",color='white')
+        self.axes.tick_params(axis='x', colors='white')
+        self.axes.tick_params(axis='y', colors='white')
 
         getNewData = CommonFunctions()
         results = getNewData.fetchDataFromDB()
