@@ -16,9 +16,11 @@
   },
 
   "Severity_levels": {
-    "critical": 3,
-    "major": 2,
-    "minor": 1,
+    "critical": 5,
+    "major": 4,
+    "minor": 3,
+    "warning": 2,
+    "not-alarmed": 1,
     "not-reported": 0
   },
 
