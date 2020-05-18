@@ -13,6 +13,7 @@ import sys
 from GUI.commonPlotFunctions import CommonFunctions
 from GUI.firstPlot import Plot1
 from GUI.secondPlot import Plot2
+from GUI.horizontalBarGraph import HorizontalGraph
 from collections import defaultdict
 
 class DBWindow(QMainWindow):
@@ -40,15 +41,20 @@ class DBWindow(QMainWindow):
         self.refreshButton.setCheckable(True) #by default is unchecked
         self.refreshButton.move(650,5)
 
-        #self.plotWidget=Plot1(self, width=5.5, height=5.5, dpi=100,updateCheck=False)
-        #self.plotWidget.move(0,30)
+        '''
+        self.plotWidget=Plot1(self, width=5.5, height=5.5, dpi=100,updateCheck=False)
+        self.plotWidget.move(0,30)
 
         self.plotWidget2=Plot2(self, width=7, height=6, dpi=100,updateCheck=False)
         self.plotWidget2.move(560,30)
+        '''
+        self.plotWidget3=HorizontalGraph(self, width=7, height=6, dpi=100,updateCheck=False)
+        self.plotWidget3.move(360,30)
 
         QtCore.QMetaObject.connectSlotsByName(self)
 
     def reFresh(self):
+        '''
         self.plotWidget.axes.cla()
         self.plotWidget.updateCheck=True
         self.plotWidget.reStartPlot1()
@@ -59,7 +65,7 @@ class DBWindow(QMainWindow):
 
         self.plotWidget.draw()
         self.plotWidget2.draw()
-
+        '''
 
 def clickRefreshButtonEvent():
     Gui.reFresh()

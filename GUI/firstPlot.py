@@ -27,6 +27,9 @@ class Plot1(FigureCanvas):
         self.setParent(parent)
         self.updateCheck = updateCheck
         #self.plotCode(self.axes)
+        self.axes.set_xlabel("Severity Level")
+        self.axes.set_ylabel("Number of alarms")
+        self.axes.set_title("Alarms received per host ")
 
     def position(self, ax):
         width = 0.25
@@ -51,9 +54,13 @@ class Plot1(FigureCanvas):
                 else:
                     deltaPosition = +width * i
                     even = True
+            getData = CommonFunctions()
             for severity in sorted(self.alarmsPerHost[host].keys()):
                 loc.append(int(severity) + deltaPosition)
                 xlistElements.append(int(severity))
+
+                descriptionList.append(getData.getInfo(int(severity)))
+
                 if self.updateCheck == True:
                     tot = self.alarmsPerHost[host][severity] + random.randint(10, 100)
                     ylistElements.append(tot)
@@ -68,7 +75,7 @@ class Plot1(FigureCanvas):
             ax.bar(loc, ylistElements, label=lbl, width=0.2)
             # plt.bar(loc, ylistElements, label=lbl, width=0.2)
             # print("position ")
-            descriptionList = self.getInfo(xlistElements)
+
             # print(descriptionList)
             ax.set_xticks(xlistElements)
             ax.set_xticklabels(descriptionList)
@@ -112,28 +119,14 @@ class Plot1(FigureCanvas):
 
         getData = CommonFunctions()
         results = getData.fetchDataFromDB()
+        self.alarmsPerHost=getData.organizeAlarmsPerHost(results)
+        self.totalAlarmsPerSeverity = getData.organizeTotalAlarmsPerSeverity(results)
 
-        self.organizeData(results)
+
         self.plotCode(self.axes)
 
-    def getInfo(self, xlistElements):
-        _config_manager = ConfigManager()
-        descriptionList = []
-        for element in xlistElements:
-            descriptionList.append(_config_manager.get_severity_mapping(element))
-        return descriptionList
+
 
 # https://matplotlib.org/3.1.1/gallery/lines_bars_and_markers/horizontal_barchart_distribution.html#sphx-glr-gallery-lines-bars-and-markers-horizontal-barchart-distribution-py
 
-    def organizeData(self,results):
-        for row in results:
-            self.alarmsPerHost[row[1]][row[2]] += 1
-            self.totalAlarmsPerSeverity[int(row[2])] += 1
-        config_manager = ConfigManager()
-        severity_levels = config_manager.get_severity_levels()
-        for key, item in severity_levels.items():
-            for host in self.alarmsPerHost:
-                if str(item) not in self.alarmsPerHost[host]:
-                    self.alarmsPerHost[host][str(item)] = 0
-            if item not in self.totalAlarmsPerSeverity:
-                self.totalAlarmsPerSeverity[item] = 0
+
