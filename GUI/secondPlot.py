@@ -14,6 +14,7 @@ dirname = os.path.dirname(__file__)
 import numpy as np
 import sqlite3
 import datetime
+from models import database_handler
 
 logging.basicConfig(filename="../../log.log", level=logging.ERROR)
 class Plot2(FigureCanvas):
@@ -28,60 +29,53 @@ class Plot2(FigureCanvas):
         self.axes.set_xlabel('IP addresses of the hosts')
         self.axes.set_ylabel('Number of Alarms')
         self.axes.set_title('Alarms by IP')
+
     def barGraph(self,axes):
         print("here")
         try:
-            connection = sqlite3.connect('local.db')
-            query = "SELECT deviceIP FROM alarm"
-            result = connection.execute(query)
-            alarms_ip = []
-            for column_number, data in enumerate(result):
-                alarms_ip.append(data[0])
-            labels = set(alarms_ip)
+            db = database_handler.DBHandler().open_connection()
+            result = [tuple[1] for tuple in db.select_all()]
+            labels = set(result)
+            #print(labels)
 
-            query = "SELECT description FROM alarm"
-            result = connection.execute(query)
-            alarms_desc = []
-            for column_number, data in enumerate(result):
-                alarms_desc.append(data[0])
-            alarms_description = set(alarms_desc)
+            result = [tuple[3] for tuple in db.select_all()]
+            alarms_description = set(result)
+            #print(alarms_description)
 
-            rects=[]
+            rects = []
             for alarms in alarms_description:
                 means = []
                 for ip in labels:
-                    t=(alarms,)
-                    query = "SELECT COUNT() FROM "+"alarm WHERE DESCRIPTION=? AND deviceIP='"+str(ip)+"'"
-                    result = connection.execute(query, t)
-                    for column_number, data in enumerate(result):
-
-                        if self.updateCheck == True:
-                            means.append(data[0]+random.randint(3,10))
-                        else:
-                            means.append(data[0])
-
+                    result = db.select_count_by_device_ip(alarms,ip)
+                    means.append(result[0][0])
                 rects.append(means)
-
-            #print(alarms_description)
             #print(rects)
 
             x = np.arange(len(labels))  # the label locations
-            width = 0.2  # the width of the bars
-            i=0
+            width = 1.5/len(alarms_description)  # the width of the bars
+            fig, ax = plt.subplots()
+
             for i in range(0, len(rects)):
+                bar = ax.bar(x + (i - (len(rects) - 1) / 2) * width / 2, rects[i], width / 2,
+                             label=list(alarms_description)[i])
+                self.autolabel(bar,ax)
 
-                bar= axes.bar(x + (i-(len(rects)-1)/2) * width / 2, rects[i], width/2, label=list(alarms_description)[i])
-                self.autolabel(bar,axes)
-                #print(rects[i])
-            # Add some text for labels, title and custom x-axis tick labels, etc.
-
+            # Fabio aiutami qua
             axes.set_xticks(x)
             axes.set_xticklabels(labels)
             axes.legend(bbox_to_anchor= (0,-0.5),loc='lower left')
-            connection.close()
             axes.text(0, -0.1, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), verticalalignment='center',
-                    transform=axes.transAxes)
-            #plt.show()
+                   transform=axes.transAxes)
+            ###############################################
+            ax.set_ylabel('Number of Alarms')
+            ax.set_title('Alarms by IP')
+            ax.set_xticks(x)
+            ax.set_xticklabels(labels)
+            ax.legend()
+            fig.tight_layout()
+            plt.show()
+            ##############################################
+            db.close_connection()
         except Exception as e:
             logging.log(logging.ERROR, "something wrong opening the Data Base" + str(e))
 
@@ -97,8 +91,7 @@ class Plot2(FigureCanvas):
         for rect in rects:
             height = rect.get_height()
             axes.annotate('{}'.format(height),
-                          xy=(rect.get_x() + rect.get_width() / 2, height),
-                          xytext=(0, 3),  # 3 points vertical offset
-                          textcoords="offset points",
-                          ha='center', va='bottom')
-
+            xy=(rect.get_x() + rect.get_width() / 2, height),
+                xytext=(0, 3),  # 3 points vertical offset
+                textcoords="offset points",
+                ha='center', va='bottom')
