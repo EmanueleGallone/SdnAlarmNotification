@@ -99,6 +99,22 @@ class DBHandler(object):
 
         return result
 
+    def select_count_by_device_ip(self, description, host):
+        lock.acquire()
+
+        if description or host is None:
+            description=''
+            host=''
+
+        t =(description, host)
+
+        self._cursor.execute('SELECT COUNT(*) FROM alarm WHERE DESCRIPTION=? AND deviceIP=?', t)
+        result = self._cursor.fetchone()
+
+        lock.release()
+
+        return result
+
     def select_alarm_by_host_time_severity(self, host, timestamp, severity):
         lock.acquire()
 
