@@ -202,6 +202,16 @@ class Ui_MainWindow(object):
         self.refreshButton.setEnabled(True)
 
 ################################################################################
+    def Exit(self):
+        MainWindow.close()
+################################################################################
+    def About(self):
+        msg = QMessageBox()
+        msg.setWindowTitle("About")
+        msg.setText("Authors:")
+        msg.setInformativeText("Fabio Carminati\nEmanuele Gallone\nAndrés Rodríguez")
+        msg.exec()
+################################################################################
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1200, 650)
@@ -230,7 +240,9 @@ class Ui_MainWindow(object):
         self.tab_4.setObjectName("tab_4")
         self.tabWidget.addTab(self.tab_4, "")
         self.tab_4.setEnabled(False)
+
 #################################################################################
+
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(410, 10, 400, 50))
         font = QtGui.QFont()
@@ -341,23 +353,42 @@ class Ui_MainWindow(object):
         self.plotWidget2.move(0, 35)
         self.plotWidget3 = HorizontalGraph(self.tab_4, width=12, height=4.5, dpi=100, updateCheck=False)
         self.plotWidget3.move(20, 100)
-        ###########################
+
+        ########################################
         MainWindow.setCentralWidget(self.centralwidget)
+
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 918, 21))
         self.menubar.setObjectName("menubar")
+        self.menuFile = QtWidgets.QMenu(self.menubar)
+        self.menuFile.setObjectName("menuFile")
+        self.menuAbout = QtWidgets.QMenu(self.menubar)
+        self.menuAbout.setObjectName("menuAbout")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        self.actionExit = QtWidgets.QAction(MainWindow)
+        self.actionExit.setObjectName("actionExit")
 
+        self.actionExit.triggered.connect(self.Exit)
+
+        self.actionAbout = QtWidgets.QAction(MainWindow)
+        self.actionAbout.setObjectName("actionAbout")
+
+        self.actionAbout.triggered.connect(self.About)
+
+        self.menuFile.addAction(self.actionExit)
+        self.menuAbout.addAction(self.actionAbout)
+        self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.menuAbout.menuAction())
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Alarm Management Tool"))
         self.label.setText(_translate("MainWindow", "Smart Networks and Service Orchestration"))
         self.label_2.setText(_translate("MainWindow", "Alarm Management"))
         self.load_db.setText(_translate("MainWindow", "Load Table"))
@@ -370,6 +401,12 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Graph 1"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Graph 2"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "Graph 3"))
+
+
+        self.menuFile.setTitle(_translate("MainWindow", "File"))
+        self.menuAbout.setTitle(_translate("MainWindow", "?"))
+        self.actionExit.setText(_translate("MainWindow", "Exit"))
+        self.actionAbout.setText(_translate("MainWindow", "About"))
 
 
 if __name__ == "__main__":
@@ -389,3 +426,4 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
+
