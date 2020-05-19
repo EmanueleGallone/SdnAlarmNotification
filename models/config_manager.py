@@ -73,7 +73,13 @@ class ConfigManager(object):
         """
         if severity is not None:
             levels = self.data['Severity_levels']
-            return [k for k, v in levels.items() if v == severity][0]
+            result = ''
+            try:
+                result = [k for k, v in levels.items() if v == severity][0]
+            except Exception as e:
+                logging.log(logging.ERROR, 'Cannot find Severity in mapping!' + str(e))
+            finally:
+                return result
 
 
 if __name__ == '__main__':
@@ -83,5 +89,5 @@ if __name__ == '__main__':
     print(c.get_network_params())
     print(c.get_notification_config())
     print(c.get_debug_mode())
-    print(c.get_severity_mapping(0))
+    print(c.get_severity_mapping(6))
     print(c.get_version())
