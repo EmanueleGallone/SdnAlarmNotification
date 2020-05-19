@@ -3,12 +3,13 @@ import alarm_library
 from models.notification_manager import NotificationManager
 from models.database_manager import DBHandler
 
-import logging
+import logging, os
 
-logging.basicConfig(filename="log.log", level=logging.WARNING)
+logfile = os.path.join(os.path.dirname(__file__), 'log.log')
+logging.basicConfig(filename=logfile, level=logging.WARNING)
 
 try:
-    from services import telegram_bot_service, mail_sender_service
+    from services import telegram_bot_service
 
 except ImportError as e:
     logging.log(logging.WARNING, 'Could not find the telegram bot' + str(e))
