@@ -1,6 +1,5 @@
 """
-Copyright (c) Emanuele Gallone 05-2020.
-Author Emanuele Gallone
+Author Emanuele Gallone, 05-2020
 
 Unfortunately I discovered that the python implementation of SQLITE is not thread safe.
 To cope with this issue, I created a wrapper class that is thread-safe (hopefully)

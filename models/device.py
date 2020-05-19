@@ -1,6 +1,5 @@
 """
-Copyright (c) Emanuele Gallone 05-2020.
-Author Emanuele Gallone
+Author Emanuele Gallone, 05-2020
 
 Definition of device model.
 """

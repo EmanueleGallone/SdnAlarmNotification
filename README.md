@@ -66,7 +66,7 @@ To keep the things as simple as we could, we opted for sqlite, that is a DB on f
 **Notification Manager:** <br>
 The **notification manager** is responsible of notifying the users about the alarms that are coming from the SDN devices.
 Inside the notification manager there's a thread that every second queries the DB to see if there are new alarms to be notified.<br>
-We could've avoided this approach if we could've used the *SQL Trigger* mechanism but
+We could've used the *SQL Trigger* mechanism but
 after experiencing sqlite's performances we opted for the thread that repeatedly queries the Database.
 
 **NB**: Only the alarms with severity greater or equal than the '*Severity_notification_threshold*' (specified inside the config.json) will be notified to the users! <br>

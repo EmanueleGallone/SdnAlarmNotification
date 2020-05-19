@@ -1,6 +1,5 @@
 """
-Copyright (c) Emanuele Gallone 05-2020.
-Author Emanuele Gallone
+Author Emanuele Gallone, 05-2020
 
 Simple wrapper class to decouple the reading of the config.json file
 from the rest of the program.

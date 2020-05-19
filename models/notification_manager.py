@@ -1,6 +1,5 @@
 """
-Copyright (c) Emanuele Gallone 05-2020.
-Author Emanuele Gallone
+Author Emanuele Gallone, 05-2020
 
 This class is responsible for notifying the user about alarms. It uses a singleton architecture.
 I created this class to decouple the notification handling from the rest of the application.

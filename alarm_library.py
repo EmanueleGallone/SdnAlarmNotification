@@ -1,6 +1,5 @@
 """
-Copyright (c) Emanuele Gallone 05-2020.
-Author Emanuele Gallone
+Author Emanuele Gallone, 05-2020
 
 a bunch of useful methods retrieving alarms from SDN devices using NETCONF.
 uses a façade pattern exposing only one method.
