@@ -212,6 +212,9 @@ class Ui_MainWindow(object):
         msg.setInformativeText("Fabio Carminati\nEmanuele Gallone\nAndrés Rodríguez")
         msg.exec()
 ################################################################################
+    def Save_graphs(self):
+        print("save")
+################################################################################
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1200, 650)
@@ -378,7 +381,13 @@ class Ui_MainWindow(object):
 
         self.actionAbout.triggered.connect(self.About)
 
+        self.actionSave = QtWidgets.QAction(MainWindow)
+        self.actionSave.setObjectName("actionSave")
+
+        self.actionSave.triggered.connect(self.Save_graphs)
+
         self.menuFile.addAction(self.actionExit)
+        self.menuFile.addAction(self.actionSave)
         self.menuAbout.addAction(self.actionAbout)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuAbout.menuAction())
@@ -407,6 +416,7 @@ class Ui_MainWindow(object):
         self.menuAbout.setTitle(_translate("MainWindow", "?"))
         self.actionExit.setText(_translate("MainWindow", "Exit"))
         self.actionAbout.setText(_translate("MainWindow", "About"))
+        self.actionSave.setText(_translate("MainWindow", "Save Graphs"))
 
 
 if __name__ == "__main__":
@@ -426,4 +436,3 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-
