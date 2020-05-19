@@ -53,3 +53,19 @@ class CommonFunctions(object):
         for key, item in sorted(dict.items()):
             totAlarms = totAlarms + item
         return totAlarms
+
+    def saveSingleGraph(self, path,fig,graphID):
+        try:
+            fig.savefig(path)
+        except Exception as e:
+            logging.log(logging.CRITICAL, str(e) + ": we cannot save the graph "+str(graphID))
+
+    def autolabel(self, rects, axes):
+        """Attach a text label above each bar in *rects*, displaying its height."""
+        for rect in rects:
+            height = rect.get_height()
+            axes.annotate('{}'.format(height),
+            xy=(rect.get_x() + rect.get_width() / 2, height),
+                xytext=(0, 3),  # 3 points vertical offset
+                textcoords="offset points",
+                ha='center', va='bottom')

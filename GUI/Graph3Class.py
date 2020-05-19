@@ -10,7 +10,7 @@ dirname = os.path.dirname(__file__)
 
 logging.basicConfig(filename="../log.log", level=logging.ERROR)
 class Graph3(FigureCanvas):
-    def __init__(self, parent=None, width=7.5, height=5, dpi=100, updateCheck=False):
+    def __init__(self, parent=None, width=7.5, height=5, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
         self.fig.patch.set_visible(False)
@@ -19,7 +19,6 @@ class Graph3(FigureCanvas):
         self.totalAlarmsPerSeverity = defaultdict(lambda: [])
         self.percentage=defaultdict(int)
         self.setParent(parent)
-        self.updateCheck = updateCheck
         self.axes.invert_yaxis()
         self.axes.xaxis.set_visible(False)
         self.axes.set_title("Percentage of the various alarms ",color='white')
@@ -102,9 +101,7 @@ class Graph3(FigureCanvas):
         except Exception as e:
             logging.log(logging.ERROR, "The alarm table is empty: " + str(e))
 
-    def saveGraph3(self,directory):
-        path = directory + "\Graph3.png"
-        try:
-            self.fig.savefig(path)
-        except Exception as e:
-            logging.log(logging.CRITICAL, str(e)+": we cannot save the graph 3 invalid: ")
+    def saveGraph3(self, directory):
+        path = directory + "\graph3.png"
+        saveObject = CommonFunctions()
+        saveObject.saveSingleGraph(path, self.fig,3)

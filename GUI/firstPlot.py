@@ -116,7 +116,7 @@ class Plot1(FigureCanvas):
 
         #ax.axhline(7, color='black', linestyle='--', label="num threshold")
         # plt.axhline(7, color='black', linestyle='--', label="num threshold")
-        ax.legend()
+        ax.legend(fancybox=True,framealpha=0.5)
         self.fig.savefig('Graph1.png')
         # plt.legend()
 
@@ -134,6 +134,10 @@ class Plot1(FigureCanvas):
 
         self.plotCode(self.axes)
 
+    def saveGraph1(self, directory):
+        path=directory+"\graph1.png"
+        saveObject=CommonFunctions()
+        saveObject.saveSingleGraph(path,self.fig,1)
 
 
 # https://matplotlib.org/3.1.1/gallery/lines_bars_and_markers/horizontal_barchart_distribution.html#sphx-glr-gallery-lines-bars-and-markers-horizontal-barchart-distribution-py
