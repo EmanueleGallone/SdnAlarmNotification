@@ -1,6 +1,6 @@
 {
-  "Debug_Mode": "True",
-  "Do_not_save_existing_alarms" : "True",
+  "Debug_Mode": false,
+  "Do_not_save_existing_alarms" : true,
   "Version": "0.5.0",
 
   "Notification_config": {
@@ -9,8 +9,8 @@
     "Receiver_Email": "",
     "SMTP_SERVER": "smtp.office365.com",
     "SMTP_PORT": "587",
-    "Send_email": "True",
-    "Send_message": "True",
+    "Send_email": true,
+    "Send_message": true,
     "Severity_notification_threshold": 4
 
   },

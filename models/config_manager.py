@@ -46,13 +46,13 @@ class ConfigManager(object):
         return self.data['Notification_config']
 
     def get_email_notification_flag(self) -> bool:
-        return True if self.get_notification_config()['Send_email'] == 'True' else False
+        return self.get_notification_config()['Send_email']
 
     def get_message_notification_flag(self) -> bool:
-        return True if self.get_notification_config()['Send_message'] == 'True' else False
+        return self.get_notification_config()['Send_message']
 
     def get_debug_mode(self) -> bool:
-        return True if self.data['Debug_Mode'] == "True" else False
+        return  self.data['Debug_Mode']
 
     def get_severity_levels(self) -> Dict:
         return self.data['Severity_levels']
@@ -61,7 +61,7 @@ class ConfigManager(object):
         return self.get_notification_config()['Severity_notification_threshold']
 
     def get_alarm_dummy_data_flag(self) -> bool:
-        return True if self.data['Do_not_save_existing_alarms'] == "True" else False
+        return self.data['Do_not_save_existing_alarms']
 
     def get_version(self) -> str:
         return self.data['Version']
@@ -88,6 +88,11 @@ if __name__ == '__main__':
 
     print(c.get_network_params())
     print(c.get_notification_config())
-    print(c.get_debug_mode())
+    print(c.get_debug_mode(),
+          c.get_alarm_dummy_data_flag(),
+          c.get_email_notification_flag(),
+          c.get_message_notification_flag(),
+          )
+
     print(c.get_severity_mapping(6))
     print(c.get_version())
