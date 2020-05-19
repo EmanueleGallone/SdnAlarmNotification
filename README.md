@@ -28,21 +28,25 @@ and then run the following command to install all the python packages required t
 pip install -r requirements.txt
 ```
 
-Make sure that all the packages are correctly installed.
+Make sure that all the packages are correctly installed. <br>
+you should be now able to run the application.
 
 ## Running the application
 
 open the *config.json* file and change the parameters to your liking inside the *Notification_config*. <br>
-Set the *DEBUG_MODE* to "False" to make the application use your parameters
+Set the *DEBUG_MODE* to "false" to make the application use your parameters. <br>
+**NB**: make sure to fill the right parameters under *Notification_config* otherwise the *mail sender service* will throw exceptions! <br><br>
 
-Start main.py to start only the service
+Start main.py to start only the service to build the DB and starting sending notifications
 
 ``` 
 python main.py
 ```
 
-If you want to start the GUI /TODO
-
+<br>If you want to start the GUI (things will change. The gui will automatically start the service) just go inside the GUI folder and run
+``` 
+python GUI_main.py
+```
 ## Under the hood
 The following image shows an overview of the underlying software architecture:
 
@@ -60,7 +64,7 @@ As you can see, the DB is abstracted from the rest of the application. This allo
 To keep the things as simple as we could, we opted for sqlite, that is a DB on file, even though sqlite is not suited for a multi-threading environment like ours.
 
 **Notification Manager:** <br>
-The **notification manager** is the object responsible of notifying the users about the alarms that are coming from the SDN devices.
+The **notification manager** is responsible of notifying the users about the alarms that are coming from the SDN devices.
 Inside the notification manager there's a thread that every second queries the DB to see if there are new alarms to be notified.<br>
 We could've avoided this approach if we could've used the *SQL Trigger* mechanism but
 after experiencing sqlite's performances we opted for the thread that repeatedly queries the Database.
@@ -68,7 +72,7 @@ after experiencing sqlite's performances we opted for the thread that repeatedly
 **NB**: Only the alarms with severity greater or equal than the '*Severity_notification_threshold*' (specified inside the config.json) will be notified to the users! <br>
 The severities are mapped inside the config.json under *Severity_levels*.
 
-
+yes, we will notify the user directly on his phone on a later version
 ## Running the tests
 
 Sorry, no formal tests so far. We know that TDD is the best approach for software development 
@@ -96,4 +100,3 @@ solving all of our issues on gitlab. Vielen dank for your patience! :)
  code even tough I pressured them to learn to use new libraries and
  assigning them a lot of tasks. I hope you learned a lot while doing this project together!
  * Thanks to [Alexhuszagh](https://github.com/Alexhuszagh) for providing the [style sheets](https://github.com/Alexhuszagh/BreezeStyleSheets) to improve the *look & feel* of our GUI.
-* etc

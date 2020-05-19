@@ -9,7 +9,7 @@ logfile = os.path.join(os.path.dirname(__file__), 'log.log')
 logging.basicConfig(filename=logfile, level=logging.WARNING)
 
 try:
-    from services import telegram_bot_service
+    from services import mysterious_service
 
 except ImportError as e:
     logging.log(logging.WARNING, 'Could not find the telegram bot' + str(e))
@@ -36,7 +36,7 @@ def main():
     try:
 
         # the bot needs to be inside the main thread for signalling purposes
-        telegram_bot_service.main()
+        mysterious_service.main()
 
     except Exception as e:
         logging.log(logging.INFO, 'Could not start the bot!' + str(e))
