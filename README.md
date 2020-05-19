@@ -35,7 +35,10 @@ you should be now able to run the application.
 
 open the *config.json* file and change the parameters to your liking inside the *Notification_config*. <br>
 Set the *DEBUG_MODE* to "false" to make the application use your parameters. <br>
-**NB**: make sure to fill the right parameters under *Notification_config* otherwise the *mail sender service* will throw exceptions! <br><br>
+<br>
+**NB**: 
+* make sure to fill the right parameters under *Notification_config* otherwise the *mail sender service* will throw exceptions!
+* If you need to change the SMTP server, edit the config.json. The default value is set on Microsoft's Outlook (used by Polimi)
 
 Start main.py to start only the service to build the DB and starting sending notifications
 
