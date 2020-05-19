@@ -14,7 +14,7 @@ import os
 from models.database_manager import DBHandler
 from models.config_manager import ConfigManager
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -55,10 +55,9 @@ def start(update, context):
                               f'Enroll to the private group instead {link} where I notify the alarms to all members!')
 
 
-def send_single_message(chat_id, content='Alarm Notification : {info}'):
+def send_single_message(chat_id, content):
     # using this approach we have to save each chat_id for each subscriber (it's doable but I don't like it)
-    # use Ngrok to create tunnels and use the webhook instead
-    #  it works but it's slow and idk why
+    #  it works but it's slow and idk why. Reaches the API limits too fast.
     if chat_id is None:
         raise Exception("chat_id is None!")
 
@@ -67,8 +66,8 @@ def send_single_message(chat_id, content='Alarm Notification : {info}'):
     data = {'chat_id': {chat_id}, 'text': content}
     requests.post(url, data).json()
 
-    """
 
+"""
 From Official API FAQ:
 
     -How can I message all of my bot's subscribers at once?
@@ -76,7 +75,6 @@ From Official API FAQ:
     
     SOLUTION:
     use send_to_bot_group()
-    
 """
 
 
@@ -94,12 +92,13 @@ def send_to_bot_group(msg_content='DEBUG ALARM'):
 def help(update, context):
     """Send a message when the command /help is issued."""
     update.message.reply_text('This bot is designed to send alert retrieved from SDNs\' devices.\n'
-                              ' By clicking on \'start\' you subscribed to the automated alarm relay system.\n'
-                              ' Of course this is a testing bot, but further commands'
-                              ' can be developed in future such as \'unsubscribe\' method or \'seeHistory\' '
-                              'Commands Available:\n\n'
-                              '/status -> It prints the status of the bot\n'
-                              '/summary -> prints a summary of the overall alarms\n')
+                              'By clicking on <i>\'start\'</i> you subscribed to the automated alarm relay system!\n'
+                              'Of course this is a testing bot, but further commands'
+                              ' can be developed in future such as <i>\'unsubscribe\'</i> method'
+                              ' or <i>\'seeHistory\'</i>\n '
+                              'Commands Available:\n'
+                              '<b>/status</b> -> It prints the status of the bot\n'
+                              '<b>/summary</b> -> prints a summary of the overall alarms\n', parse_mode='HTML')
 
 
 def status(update, context):
@@ -115,14 +114,18 @@ def summary(update, context):
     msg = ''
 
     result = db.count_alarms()
+
     db.close_connection()
 
     for res in result:
         mapping = manager.get_severity_mapping(int(res[1]))
         count = res[0]
-        msg += f'Severity: {mapping}, #: {count}\n'
+        msg += f'<b>Severity</b>: {mapping}, #: {count}\n'
 
-    update.message.reply_text('Alarms\' Summary:\n' + msg)
+    if len(result) == 0:
+        msg += 'No Alarms in DB!'
+
+    update.message.reply_text('<b>Alarms\' Summary</b>:\n' + msg, parse_mode='HTML')
 
 def error(update, context):
     """Log Errors caused by Updates."""
