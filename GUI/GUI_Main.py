@@ -184,7 +184,7 @@ class MainWindow(QtWidgets.QMainWindow):
         msg = QMessageBox()
         msg.setWindowTitle("Warning                                                                                                        ")
         msg.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
-        msg.setIcon(QMessageBox.Question)
+        msg.setIcon(QMessageBox.Warning)
         msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msg.setText("Are you sure you want to exit?")
         msg.setInformativeText("Press Yes for exit")
