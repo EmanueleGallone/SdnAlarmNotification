@@ -23,7 +23,7 @@ import json
 import sqlite3
 import logging
 
-from GUI.firstPlot import Plot1
+from GUI.Graph1Class import Graph1
 from GUI.Graph2Class import Graph2
 from GUI.Graph3Class import Graph3
 
@@ -64,19 +64,13 @@ class Ui_MainWindow(object):
     def reFresh(self):
 
         self.plotWidget1.axes.cla()
-        self.plotWidget1.updateCheck=True
-        self.plotWidget1.reStartPlot1()
+        self.plotWidget1.reFreshGraph1()
 
         self.plotWidget2.axes.cla()
-        self.plotWidget2.updateCheck=True
-        self.plotWidget2.reStartPlot2()
-
-
+        self.plotWidget2.reFreshGraph2()
 
         self.plotWidget3.axes.cla()
-        self.plotWidget3.updateCheck = True
-        self.plotWidget3.reStartPlot3()
-
+        self.plotWidget3.reFreshGraph3()
 
         self.plotWidget1.draw()
         self.plotWidget2.draw()
@@ -162,7 +156,7 @@ class Ui_MainWindow(object):
     def show_popup(self,notif,ip):
         msg = QMessageBox()
         msg.setWindowTitle("Verify Configuration")
-        msg.setText("Configurations where not selected:")
+        msg.setText("Configurations where not selected:                                                                                 ")
         msg.setIcon(QMessageBox.Question)
         msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Retry | QMessageBox.Ignore )
         msg.setDefaultButton(QMessageBox.Retry)
@@ -425,10 +419,10 @@ class Ui_MainWindow(object):
         self.button_Json.clicked.connect(self.Verification)
         self.refreshButton.clicked.connect(self.reFresh)
 
-        self.plotWidget1 = Plot1(self.tab_2, width=12, height=4.5, dpi=100, updateCheck=False)
+        self.plotWidget1 = Graph1(self.tab_2, width=12, height=4.5, dpi=100)
         self.plotWidget1.move(0, 100)
         self.plotWidget2 = Graph2(self.tab_3, width=12, height=5, dpi=100)
-        self.plotWidget2.move(0, 25)
+        self.plotWidget2.move(0, 80)
         self.plotWidget3 = Graph3(self.tab_4, width=12, height=4.5, dpi=100)
         self.plotWidget3.move(20, 100)
 

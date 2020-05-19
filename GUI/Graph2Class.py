@@ -2,13 +2,14 @@ import logging
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import os
-dirname = os.path.dirname(__file__)
 import numpy as np
 import datetime
 from models import database_handler
 from GUI.commonPlotFunctions import CommonFunctions
+dirname = os.path.dirname(__file__)
 
 logging.basicConfig(filename="../../log.log", level=logging.ERROR)
+
 class Graph2(FigureCanvas):
     def __init__(self, parent=None, width=10, height=4, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
@@ -22,7 +23,15 @@ class Graph2(FigureCanvas):
         self.axes.tick_params(axis='x', colors='white')
         self.axes.tick_params(axis='y', colors='white')
 
-    def barGraph(self,axes):
+    def reFreshGraph2(self):
+
+        self.plotGraph2(self.axes)
+
+    def plotGraph2(self,axes):
+        axes.set_xlabel('IP addresses of the hosts',color='white')
+        axes.set_ylabel('Number of Alarms',color='white')
+        axes.set_title('Alarms by IP',color='white')
+
         try:
             db = database_handler.DBHandler().open_connection()
             result = [tuple[1] for tuple in db.select_all()]
@@ -65,12 +74,6 @@ class Graph2(FigureCanvas):
 
         except Exception as e:
             logging.log(logging.ERROR, "something wrong opening the Data Base" + str(e))
-
-    def reStartPlot2(self):
-        self.axes.set_xlabel('IP addresses of the hosts',color='white')
-        self.axes.set_ylabel('Number of Alarms',color='white')
-        self.axes.set_title('Alarms by IP',color='white')
-        self.barGraph(self.axes)
 
     def saveGraph2(self, directory):
         path=directory+"\graph2.png"

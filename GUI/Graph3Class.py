@@ -9,6 +9,7 @@ import logging
 dirname = os.path.dirname(__file__)
 
 logging.basicConfig(filename="../log.log", level=logging.ERROR)
+
 class Graph3(FigureCanvas):
     def __init__(self, parent=None, width=7.5, height=5, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
@@ -23,7 +24,29 @@ class Graph3(FigureCanvas):
         self.axes.xaxis.set_visible(False)
         self.axes.set_title("Percentage of the various alarms ",color='white')
 
-    def plotHOrizontalGraph(self,ax):
+    def reFreshGraph3(self):
+        self.alarmsPerHost.clear()
+        self.totalAlarmsPerSeverity.clear()
+        self.percentage.clear()
+
+        getNewData = CommonFunctions()
+        results = getNewData.fetchDataFromDB()
+        try:
+            if (len(results)==0):
+                raise Exception("No plot of graph 3")
+            self.alarmsPerHost = getNewData.organizeAlarmsPerHost(results)
+            self.totalAlarmsPerSeverity = getNewData.organizeTotalAlarmsPerSeverity(results)
+            self.plotGraph3(self.axes)
+        except Exception as e:
+            logging.log(logging.ERROR, "The alarm table is empty: " + str(e))
+
+    def plotGraph3(self,ax):
+        ax.invert_yaxis()
+        ax.xaxis.set_visible(False)
+        ax.set_title("Percentage of the various alarms ", color='white')
+        ax.tick_params(axis='x', colors='white')
+        ax.tick_params(axis='y', colors='white')
+
         getData = CommonFunctions()
         descriptionList,totalFractions = [],[]
         totAlarms=getData.countAlarms(self.totalAlarmsPerSeverity)
@@ -79,27 +102,6 @@ class Graph3(FigureCanvas):
 
         except Exception as e:
             logging.log(logging.ERROR, "Cannot plot: " +str(e))
-
-    def reStartPlot3(self):
-        self.alarmsPerHost.clear()
-        self.totalAlarmsPerSeverity.clear()
-        self.percentage.clear()
-        self.axes.invert_yaxis()
-        self.axes.xaxis.set_visible(False)
-        self.axes.set_title("Percentage of the various alarms ",color='white')
-        self.axes.tick_params(axis='x', colors='white')
-        self.axes.tick_params(axis='y', colors='white')
-
-        getNewData = CommonFunctions()
-        results = getNewData.fetchDataFromDB()
-        try:
-            if (len(results)==0):
-                raise Exception("No plot of graph 3")
-            self.alarmsPerHost = getNewData.organizeAlarmsPerHost(results)
-            self.totalAlarmsPerSeverity = getNewData.organizeTotalAlarmsPerSeverity(results)
-            self.plotHOrizontalGraph(self.axes)
-        except Exception as e:
-            logging.log(logging.ERROR, "The alarm table is empty: " + str(e))
 
     def saveGraph3(self, directory):
         path = directory + "\graph3.png"
