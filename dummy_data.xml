@@ -10,7 +10,7 @@
         <ne-condition-timestamp>2018-03-28T21:41:35.2749Z</ne-condition-timestamp>
         <entity-display-name>node 1 date-time time ntp</entity-display-name>
         <service-affecting>acor-fmt:nsa</service-affecting>
-        <notification-code>acor-fmt:minor</notification-code>
+        <notification-code>acor-fmt:not-alarmed</notification-code>
         <ne-notification-timestamp>2018-03-28T21:41:35.2769Z</ne-notification-timestamp>
       </alarm>
       <alarm xmlns:acor-factt="http://www.advaoptical.com/aos/netconf/aos-core-facility-types" xmlns:acor-fmt="http://www.advaoptical.com/aos/netconf/aos-core-fm-types">
