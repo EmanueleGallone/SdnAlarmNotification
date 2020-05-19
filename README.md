@@ -29,7 +29,7 @@ pip install -r requirements.txt
 ```
 
 Make sure that all the packages are correctly installed. <br>
-you should be now able to run the application.
+you should be now able to run the application, but before doing so, read the next section.
 
 ## Running the application
 
