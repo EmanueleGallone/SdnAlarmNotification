@@ -2,11 +2,16 @@ import alarm_library
 
 from models.notification_manager import NotificationManager
 from models.database_manager import DBHandler
-from services import telegram_bot_service
 
 import logging
 
-logging.basicConfig(filename="log.log", level=logging.ERROR)
+logging.basicConfig(filename="log.log", level=logging.WARNING)
+
+try:
+    from services import telegram_bot_service, mail_sender_service
+
+except ImportError as e:
+    logging.log(logging.WARNING, 'Could not find the telegram bot' + str(e))
 
 
 def _create_db():

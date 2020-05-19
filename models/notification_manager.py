@@ -14,11 +14,17 @@ import traceback
 import os
 
 from models.database_manager import DBHandler
-from services import telegram_bot_service, mail_sender_service
 from models.config_manager import ConfigManager
+from services import mail_sender_service
+
 
 logfile = os.path.join(os.path.dirname(__file__), '../log.log')
-logging.basicConfig(filename=logfile, level=logging.ERROR)
+logging.basicConfig(filename=logfile, level=logging.WARNING)
+
+try:
+    from services import telegram_bot_service
+except ImportError as e:
+    logging.log(logging.WARNING, 'Could not find the telegram bot' + str(e))
 
 
 class Singleton(type):
@@ -53,8 +59,12 @@ class NotificationManager(object, metaclass=Singleton):
         """ broadcast the alarm using the bot"""
         send_message_flag = self._config_manager.get_message_notification_flag()
 
-        if send_message_flag:
-            telegram_bot_service.send_to_bot_group(msg)
+        try:
+            if send_message_flag:
+                telegram_bot_service.send_to_bot_group(msg)
+
+        except Exception as e:
+            logging.log(logging.ERROR, 'Failed to send a broadcast message' + str(e))
 
     def start(self):
         """method available on the outside. It just starts the thread responsible to deliver notifications to users."""
