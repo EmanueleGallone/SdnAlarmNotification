@@ -2,7 +2,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets,uic
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout
 import sys
-from models.database_handler import DBHandler
+from models.database_manager import DBHandler
 from models.config_manager import ConfigManager
 from GUI.commonPlotFunctions import CommonFunctions
 from collections import defaultdict

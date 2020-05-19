@@ -13,7 +13,7 @@ import time
 import traceback
 import os
 
-from models.database_handler import DBHandler
+from models.database_manager import DBHandler
 from services import telegram_bot_service, mail_sender_service
 from models.config_manager import ConfigManager
 

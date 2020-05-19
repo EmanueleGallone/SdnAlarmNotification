@@ -1,7 +1,7 @@
 import alarm_library
 
 from models.notification_manager import NotificationManager
-from models.database_handler import DBHandler
+from models.database_manager import DBHandler
 from services import telegram_bot_service
 
 import logging

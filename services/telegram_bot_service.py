@@ -11,7 +11,7 @@ import json
 import requests
 import os
 
-from models.database_handler import DBHandler
+from models.database_manager import DBHandler
 from models.config_manager import ConfigManager
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters

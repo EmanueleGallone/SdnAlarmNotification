@@ -38,8 +38,8 @@ class Ui_MainWindow(object):
 #######################################################################
     def loadDataB(self):
         try:
-            from models import database_handler
-            db = database_handler.DBHandler().open_connection()
+            from models import database_manager
+            db = database_manager.DBHandler().open_connection()
             result = [tuple for tuple in db.select_all()]
 
             # connection = sqlite3.connect('local.db')

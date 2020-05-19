@@ -1,4 +1,4 @@
-from models.database_handler import DBHandler
+from models.database_manager import DBHandler
 from models.config_manager import ConfigManager
 from collections import defaultdict
 import logging

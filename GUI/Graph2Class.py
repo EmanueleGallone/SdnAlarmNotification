@@ -4,7 +4,7 @@ from matplotlib.figure import Figure
 import os
 import numpy as np
 import datetime
-from models import database_handler
+from models import database_manager
 from GUI.commonPlotFunctions import CommonFunctions
 dirname = os.path.dirname(__file__)
 
@@ -33,7 +33,7 @@ class Graph2(FigureCanvas):
         axes.set_title('Alarms by IP',color='white')
 
         try:
-            db = database_handler.DBHandler().open_connection()
+            db = database_manager.DBHandler().open_connection()
             result = [tuple[1] for tuple in db.select_all()]
             labels = set(result)
 

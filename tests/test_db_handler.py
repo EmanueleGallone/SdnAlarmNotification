@@ -1,4 +1,4 @@
-from models.database_handler import DBHandler
+from models.database_manager import DBHandler
 
 if __name__ == '__main__':
     db = DBHandler('../local.db')

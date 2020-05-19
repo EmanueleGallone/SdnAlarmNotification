@@ -9,7 +9,7 @@ uses a façade pattern exposing only one method.
 
 import threading, time, traceback, logging, os
 
-from models.database_handler import DBHandler
+from models.database_manager import DBHandler
 from models.config_manager import ConfigManager
 from models.device import Device
 from models.customXMLParser import CustomXMLParser
@@ -23,6 +23,7 @@ logging.basicConfig(filename="log.log", level=logging.ERROR)
 
 config_m = ConfigManager()
 
+# reading the config.json and creating the devices
 devices = [Device(d['device_ip'],
                   d['netconf_fetch_rate_in_sec'],
                   d['netconf_port'],
