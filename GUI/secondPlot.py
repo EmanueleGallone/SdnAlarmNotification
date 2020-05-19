@@ -76,6 +76,7 @@ class Plot2(FigureCanvas):
             axes.set_xticks(x)
             axes.set_xticklabels(labels)
             axes.legend(bbox_to_anchor=(0, 0),loc='upper left', fontsize='small')
+            self.fig.savefig('Graph2.png')
             #fig.tight_layout()
             #plt.show()
             ##############################################

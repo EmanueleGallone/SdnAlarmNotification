@@ -1,4 +1,4 @@
-import logging
+
 from PyQt5 import QtCore, QtGui, QtWidgets,uic
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout
 import sys
@@ -14,7 +14,7 @@ import random
 import datetime
 dirname = os.path.dirname(__file__)
 
-logging.basicConfig(filename="../../log.log", level=logging.ERROR)
+
 
 class Plot1(FigureCanvas):
     def __init__(self, parent=None, width=5, height=5, dpi=100, updateCheck=False):
@@ -117,6 +117,7 @@ class Plot1(FigureCanvas):
         #ax.axhline(7, color='black', linestyle='--', label="num threshold")
         # plt.axhline(7, color='black', linestyle='--', label="num threshold")
         ax.legend()
+        self.fig.savefig('Graph1.png')
         # plt.legend()
 
         # plt.show()

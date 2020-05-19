@@ -7,7 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets,Qt
 from PyQt5.QtWidgets import *
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -25,7 +25,7 @@ import logging
 
 from GUI.firstPlot import Plot1
 from GUI.secondPlot import Plot2
-from GUI.horizontalBarGraph import HorizontalGraph
+from GUI.Graph3Class import Graph3
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QFile, QTextStream
@@ -188,7 +188,6 @@ class Ui_MainWindow(object):
             self.modify_json()
 ##########################################################################################
     def Run(self):
-        print("run")
         # main.main()
         self.formGroupBox.setEnabled(False)
         self.button_credentials.setEnabled(False)
@@ -207,17 +206,34 @@ class Ui_MainWindow(object):
 ################################################################################
     def About(self):
         msg = QMessageBox()
-        msg.setWindowTitle("About")
+        msg.setWindowTitle("About                                                                                                        ")
         msg.setText("Authors:")
         msg.setInformativeText("Fabio Carminati\nEmanuele Gallone\nAndrés Rodríguez")
         msg.exec()
 ################################################################################
-    def Save_graphs(self):
-        print("save")
+    def saveClicked(self):
+        msg = QMessageBox()
+        msg.setWindowTitle("Select the directory path where you want to store the graphs")
+
+        msg.setText("                                                                                                                               ")
+        msg.setIcon(QMessageBox.Information)
+        msg.setStandardButtons(QMessageBox.Save | QMessageBox.Cancel)
+        msg.setDefaultButton(QMessageBox.Save)
+
+        self.textbox = QLineEdit(msg)
+        self.textbox.move(50, 20)
+        self.textbox.resize(280,20)
+
+        msg.exec()
+        if msg.clickedButton().text() == "Save":
+            directory = self.textbox.text()
+            self.saveGraphs(directory)
+
 ################################################################################
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1200, 650)
+        MainWindow.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 ###############################################################################
@@ -354,7 +370,7 @@ class Ui_MainWindow(object):
         self.plotWidget.move(0, 100)
         self.plotWidget2 = Plot2(self.tab_3, width=12, height=5.8, dpi=100, updateCheck=False)
         self.plotWidget2.move(0, 35)
-        self.plotWidget3 = HorizontalGraph(self.tab_4, width=12, height=4.5, dpi=100, updateCheck=False)
+        self.plotWidget3 = Graph3(self.tab_4, width=12, height=4.5, dpi=100, updateCheck=False)
         self.plotWidget3.move(20, 100)
 
         ########################################
@@ -384,10 +400,11 @@ class Ui_MainWindow(object):
         self.actionSave = QtWidgets.QAction(MainWindow)
         self.actionSave.setObjectName("actionSave")
 
-        self.actionSave.triggered.connect(self.Save_graphs)
+        self.actionSave.triggered.connect(self.saveClicked)
 
-        self.menuFile.addAction(self.actionExit)
+
         self.menuFile.addAction(self.actionSave)
+        self.menuFile.addAction(self.actionExit)
         self.menuAbout.addAction(self.actionAbout)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuAbout.menuAction())
@@ -418,6 +435,8 @@ class Ui_MainWindow(object):
         self.actionAbout.setText(_translate("MainWindow", "About"))
         self.actionSave.setText(_translate("MainWindow", "Save Graphs"))
 
+    def saveGraphs(self,directory):
+        self.plotWidget3.saveGraph3(directory)
 
 if __name__ == "__main__":
     import sys
