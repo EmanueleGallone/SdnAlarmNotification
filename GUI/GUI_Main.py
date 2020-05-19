@@ -1,57 +1,40 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'Prueba.ui'
-#
-# Created by: PyQt5 UI code generator 5.14.2
-#
-# WARNING! All changes made in this file will be lost!
-
-
-from PyQt5 import QtCore, QtGui, QtWidgets,Qt
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QFile, QTextStream
 from PyQt5.QtWidgets import *
-
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
-
-import numpy as np
-import random
-import json
-
-#from main import main
-
-import sqlite3
-import logging
 
 from GUI.Graph1Class import Graph1
 from GUI.Graph2Class import Graph2
 from GUI.Graph3Class import Graph3
-
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import QFile, QTextStream
 from GUI.BreezeStyleSheets import breeze_resources
 
+import json
+import logging
+from models import config_manager
+#from main import main
+
+#Global Variables for modify Json
 Notification=['']*6
 Ip=['']*5
 
-class Ui_MainWindow(object):
-#######################################################################
+class MainWindow(QtWidgets.QMainWindow):
+
+    def __init__(self, *args, **kwargs):
+        super(MainWindow, self).__init__(*args, **kwargs)
+        self.setupUi(MainWindow)
+    #Load Table Button
     def loadDataB(self):
         try:
+            #Import Data Base
             from models import database_manager
             db = database_manager.DBHandler().open_connection()
             result = [tuple for tuple in db.select_all()]
-
-            # connection = sqlite3.connect('local.db')
-            # query = "SELECT * FROM alarm"
-            # result = connection.execute(query)
-
+            #Defining table widget
             self.tableWidget.setRowCount(0)
             self.tableWidget.setVisible(True)
             self.tableWidget.horizontalHeader().setVisible(True)
             self.tableWidget.setHorizontalHeaderLabels(
                 ["Alarm", "DeviceIP", "Severity", "Description", "Time", "Notified", "Ceased"])
-
+            #Insert Data on table
             for row_number, row_data in enumerate(result):
                 self.tableWidget.insertRow(row_number)
                 for column_number, data in enumerate(row_data):
@@ -60,7 +43,7 @@ class Ui_MainWindow(object):
             db.close_connection()
         except Exception as e:
             logging.log(logging.ERROR, "something wrong opening the Data Base" + str(e))
-########################################################################################
+    #Refresh Button
     def reFresh(self):
 
         self.plotWidget1.axes.cla()
@@ -75,8 +58,8 @@ class Ui_MainWindow(object):
         self.plotWidget1.draw()
         self.plotWidget2.draw()
         self.plotWidget3.draw()
-########################################################################################
-    def get_credentials(self):
+    #Save Notification information
+    def Json_Notification(self):
         Notification[0]=(self.Send_Mail.displayText())
         self.Send_Mail.clear()
         Notification[1]=(self.Password.text())
@@ -89,8 +72,8 @@ class Ui_MainWindow(object):
         self.Mail_Button.setChecked(False)
         Notification[5]=(self.Message_Button.isChecked())
         self.Message_Button.setChecked(False)
-        #print(Notification)
-    def get_Network(self):
+    # Save Notification information
+    def Json_Network(self):
         Ip[0] = (self.device_ip.displayText())
         self.device_ip.clear()
         Ip[1] = (self.Fetch_sec.value())
@@ -101,9 +84,8 @@ class Ui_MainWindow(object):
         self.netconf_port.clear()
         Ip[4] = (self.netconf_admin.displayText())
         self.netconf_admin.clear()
-        print(Ip)
         self.modify_json_network()
-########################################################################################
+    #Include Notification changes in config.jason file
     def modify_json(self):
         try:
             import os
@@ -128,7 +110,7 @@ class Ui_MainWindow(object):
                     logging.log(logging.CRITICAL, "Error writing config.json file! -> " + str(e))
         except Exception as e:
             logging.log(logging.CRITICAL, "Error reading config.json file! -> " + str(e))
-########################################################################################
+    # Include Network changes in config.jason file
     def modify_json_network(self):
         try:
             import os
@@ -152,10 +134,11 @@ class Ui_MainWindow(object):
                     logging.log(logging.CRITICAL, "Error writing config.json file! -> " + str(e))
         except Exception as e:
             logging.log(logging.CRITICAL, "Error reading config.json file! -> " + str(e))
-########################################################################################
-    def show_popup(self,notif,ip):
+    #Window in case information is not provided
+    def json_changes_window(self,notif,ip):
         msg = QMessageBox()
         msg.setWindowTitle("Verify Configuration")
+        msg.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
         msg.setText("Configurations where not selected:                                                                                 ")
         msg.setIcon(QMessageBox.Question)
         msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Retry | QMessageBox.Ignore )
@@ -172,15 +155,15 @@ class Ui_MainWindow(object):
         msg.exec()
         if msg.clickedButton().text() == "Ignore":
             self.Run()
-########################################################################################
-    def Verification(self):
+    #Verify if information was included
+    def Verification_changes(self):
         notif=all(elem == Notification[0] for elem in Notification)
         ip=all(elem == Ip[0] for elem in Ip)
         if notif or ip:
-            self.show_popup(notif,ip)
+            self.json_changes_window(notif,ip)
         else:
             self.modify_json()
-##########################################################################################
+    #Enable Graphs and Table
     def Run(self):
         # main.main()
         self.formGroupBox.setEnabled(False)
@@ -193,22 +176,38 @@ class Ui_MainWindow(object):
         self.tab_3.setEnabled(True)
         self.tab_4.setEnabled(True)
         self.refreshButton.setEnabled(True)
-
-################################################################################
+    #Exit toolbar triggered
     def Exit(self):
-        MainWindow.close()
-################################################################################
+        self.close()
+
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        msg = QMessageBox()
+        msg.setWindowTitle("Warning                                                                                                        ")
+        msg.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
+        msg.setIcon(QMessageBox.Question)
+        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msg.setText("Are you sure you want to exit?")
+        msg.setInformativeText("Press Yes for exit")
+        msg.exec()
+        if msg.clickedButton().text() == "&Yes":
+            a0.accept()
+        else:
+            a0.ignore()
+
     def About(self):
         msg = QMessageBox()
         msg.setWindowTitle("About                                                                                                        ")
+        msg.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
+        msg.setIcon(QMessageBox.Information)
         msg.setText("Authors:")
-        msg.setInformativeText("Fabio Carminati\nEmanuele Gallone\nAndrés Rodríguez")
+        version = config_manager.ConfigManager().get_version()
+        msg.setInformativeText("Fabio Carminati\nEmanuele Gallone\nAndrés Rodríguez\n\n Version: " + version)
         msg.exec()
-################################################################################
+
     def saveAllClicked(self):
         msg = QMessageBox()
         msg.setWindowTitle("Select the directory path where you want to store all the graphs")
-
+        msg.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
         msg.setText("                                                                                                                               ")
         msg.setIcon(QMessageBox.Information)
         msg.setStandardButtons(QMessageBox.Save | QMessageBox.Cancel)
@@ -228,7 +227,7 @@ class Ui_MainWindow(object):
     def save1Clicked(self):
         msg = QMessageBox()
         msg.setWindowTitle("Select the directory path where you want to store graph 1")
-
+        msg.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
         msg.setText("                                                                                                                               ")
         msg.setIcon(QMessageBox.Information)
         msg.setStandardButtons(QMessageBox.Save | QMessageBox.Cancel)
@@ -243,11 +242,10 @@ class Ui_MainWindow(object):
             directory = self.textbox.text()
             self.plotWidget1.saveGraph1(directory)
 
-
     def save2Clicked(self):
         msg = QMessageBox()
         msg.setWindowTitle("Select the directory path where you want to store graph 2")
-
+        msg.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
         msg.setText(
             "                                                                                                                               ")
         msg.setIcon(QMessageBox.Information)
@@ -266,7 +264,7 @@ class Ui_MainWindow(object):
     def save3Clicked(self):
         msg = QMessageBox()
         msg.setWindowTitle("Select the directory path where you want to store graph 3")
-
+        msg.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
         msg.setText(
             "                                                                                                                               ")
         msg.setIcon(QMessageBox.Information)
@@ -282,14 +280,13 @@ class Ui_MainWindow(object):
             directory = self.textbox.text()
             self.plotWidget3.saveGraph3(directory)
 
-    ################################################################################
     def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1200, 650)
-        MainWindow.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.setObjectName("MainWindow")
+        self.resize(1200, 650)
+        self.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
+        self.centralwidget = QtWidgets.QWidget()
         self.centralwidget.setObjectName("centralwidget")
-###############################################################################
+
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setGeometry(QtCore.QRect(0, 0, 1200, 650))
         self.tabWidget.setObjectName("tabWidget")
@@ -312,8 +309,6 @@ class Ui_MainWindow(object):
         self.tab_4.setObjectName("tab_4")
         self.tabWidget.addTab(self.tab_4, "")
         self.tab_4.setEnabled(False)
-
-#################################################################################
 
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(410, 10, 400, 50))
@@ -363,8 +358,6 @@ class Ui_MainWindow(object):
         self.refreshButton.setObjectName("button_refreash")
         self.refreshButton.setEnabled(False)
 
-        ##################################################################################
-
         self.Send_Mail = QLineEdit()
         self.Password = QLineEdit()
         self.Password.setEchoMode(2)
@@ -387,8 +380,6 @@ class Ui_MainWindow(object):
         layout.addRow(QLabel("Send Message:"), self.Message_Button)
         self.formGroupBox.setLayout(layout)
 
-        ##################################################################################
-
         self.device_ip = QLineEdit()
         self.Fetch_sec = QSpinBox()
         self.Fetch_sec.setMaximum(10)
@@ -408,15 +399,13 @@ class Ui_MainWindow(object):
         layout2.addRow(QLabel("Fetch Rate:"), self.Fetch_sec)
         self.formGroupBox2.setLayout(layout2)
 
-        ######################################################################################3
-
         self.tableWidget.verticalHeader().hide()
         self.tableWidget.horizontalHeader().hide()
         self.load_db.clicked.connect(self.loadDataB)
 
-        self.button_credentials.clicked.connect(self.get_credentials)
-        self.button_Ip.clicked.connect(self.get_Network)
-        self.button_Json.clicked.connect(self.Verification)
+        self.button_credentials.clicked.connect(self.Json_Notification)
+        self.button_Ip.clicked.connect(self.Json_Network)
+        self.button_Json.clicked.connect(self.Verification_changes)
         self.refreshButton.clicked.connect(self.reFresh)
 
         self.plotWidget1 = Graph1(self.tab_2, width=12, height=4.5, dpi=100)
@@ -426,47 +415,45 @@ class Ui_MainWindow(object):
         self.plotWidget3 = Graph3(self.tab_4, width=12, height=4.5, dpi=100)
         self.plotWidget3.move(20, 100)
 
-        ########################################
-        MainWindow.setCentralWidget(self.centralwidget)
+        self.setCentralWidget(self.centralwidget)
 
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.menubar = QtWidgets.QMenuBar()
         self.menubar.setGeometry(QtCore.QRect(0, 0, 918, 21))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
         self.menuAbout = QtWidgets.QMenu(self.menubar)
         self.menuAbout.setObjectName("menuAbout")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar()
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
-        self.actionExit = QtWidgets.QAction(MainWindow)
+        self.setStatusBar(self.statusbar)
+        self.actionExit = QtWidgets.QAction()
         self.actionExit.setObjectName("actionExit")
 
         self.actionExit.triggered.connect(self.Exit)
 
-        self.actionAbout = QtWidgets.QAction(MainWindow)
+        self.actionAbout = QtWidgets.QAction()
         self.actionAbout.setObjectName("actionAbout")
 
         self.actionAbout.triggered.connect(self.About)
 
-        self.actionSaveAll = QtWidgets.QAction(MainWindow)
+        self.actionSaveAll = QtWidgets.QAction()
         self.actionSaveAll.setObjectName("actionSaveAll")
 
-        self.actionSave1 = QtWidgets.QAction(MainWindow)
+        self.actionSave1 = QtWidgets.QAction()
         self.actionSave1.setObjectName("actionSave1")
 
-        self.actionSave2 = QtWidgets.QAction(MainWindow)
+        self.actionSave2 = QtWidgets.QAction()
         self.actionSave2.setObjectName("actionSave2")
 
-        self.actionSave3 = QtWidgets.QAction(MainWindow)
+        self.actionSave3 = QtWidgets.QAction()
         self.actionSave3.setObjectName("actionSave3")
 
         self.actionSaveAll.triggered.connect(self.saveAllClicked)
         self.actionSave1.triggered.connect(self.save1Clicked)
         self.actionSave2.triggered.connect(self.save2Clicked)
         self.actionSave3.triggered.connect(self.save3Clicked)
-
 
         self.menuFile.addAction(self.actionSaveAll)
         self.menuFile.addAction(self.actionSave1)
@@ -477,13 +464,13 @@ class Ui_MainWindow(object):
         self.menuAbout.addAction(self.actionAbout)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuAbout.menuAction())
-        self.retranslateUi(MainWindow)
+        self.retranslateUi(self)
         self.tabWidget.setCurrentIndex(0)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(self)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Alarm Management Tool"))
+        self.setWindowTitle(_translate("MainWindow", "Alarm Management Tool"))
         self.label.setText(_translate("MainWindow", "Smart Networks and Service Orchestration"))
         self.label_2.setText(_translate("MainWindow", "Alarm Management"))
         self.load_db.setText(_translate("MainWindow", "Load Table"))
@@ -497,7 +484,6 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Graph 2"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "Graph 3"))
 
-
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuAbout.setTitle(_translate("MainWindow", "?"))
         self.actionExit.setText(_translate("MainWindow", "Exit"))
@@ -506,8 +492,6 @@ class Ui_MainWindow(object):
         self.actionSave1.setText(_translate("MainWindow", "Save Graph 1"))
         self.actionSave2.setText(_translate("MainWindow", "Save Graph 2"))
         self.actionSave3.setText(_translate("MainWindow", "Save Graph 3"))
-
-
 
 if __name__ == "__main__":
     import sys
@@ -519,10 +503,6 @@ if __name__ == "__main__":
     stream = QTextStream(file)
     app.setStyleSheet(stream.readAll())
 
-
-
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
+    MainWindow = MainWindow()
     MainWindow.show()
     sys.exit(app.exec_())
