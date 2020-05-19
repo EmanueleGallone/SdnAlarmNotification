@@ -72,7 +72,7 @@ after experiencing sqlite's performances we opted for the thread that repeatedly
 **NB**: Only the alarms with severity greater or equal than the '*Severity_notification_threshold*' (specified inside the config.json) will be notified to the users! <br>
 The severities are mapped inside the config.json under *Severity_levels*.
 
-yes, we will notify the user directly on his phone on a later version
+**yes, we will notify the user directly on his phone on a later version.**
 ## Running the tests
 
 Sorry, no formal tests so far. We know that TDD is the best approach for software development 
