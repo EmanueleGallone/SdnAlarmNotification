@@ -63,6 +63,9 @@ class ConfigManager(object):
     def get_alarm_dummy_data_flag(self) -> bool:
         return True if self.data['Do_not_save_existing_alarms'] == "True" else False
 
+    def get_version(self) -> str:
+        return self.data['Version']
+
     def get_severity_mapping(self, severity) -> str:
         """
         returns the dict mapping of severity levels (see in config.json)
@@ -81,3 +84,4 @@ if __name__ == '__main__':
     print(c.get_notification_config())
     print(c.get_debug_mode())
     print(c.get_severity_mapping(0))
+    print(c.get_version())
