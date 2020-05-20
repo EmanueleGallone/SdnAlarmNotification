@@ -18,8 +18,8 @@ import logging
 import os
 from datetime import datetime
 
-MAX_NUM_OF_THREAD_PER_OPERATION = 1
-semaphore = threading.Semaphore(MAX_NUM_OF_THREAD_PER_OPERATION)  # creating a global lock mechanism
+MAX_NUM_OF_THREADS_PER_OPERATION = 1
+semaphore = threading.Semaphore(MAX_NUM_OF_THREADS_PER_OPERATION)  # creating a global lock mechanism
 
 dirname = os.path.dirname(__file__)
 default_url = os.path.join(dirname, '../local.db')
