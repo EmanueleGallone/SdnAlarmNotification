@@ -1,3 +1,14 @@
+"""
+Author Fabio Carminati , 05-2020
+Author Andrés Rodriguez
+
+This class defines the second graph: it describes in details the reasons why the various severity alarms have been generated
+by the various hosts
+
+The graph is updated every time the user clicks the RefreshButton on the GUI
+(i.e. we redo the plot with the new data retrieved from the local DB)
+
+"""
 import logging
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -22,7 +33,9 @@ class Graph2(FigureCanvas):
         self.axes.set_title('Alarms by IP',color='white')
         self.axes.tick_params(axis='x', colors='white')
         self.axes.tick_params(axis='y', colors='white')
+        self.axes.text(0.5, 0.5, "No data", horizontalalignment='center', verticalalignment='center', fontsize=20)
 
+    #RefreshButton has been clicked:redo the graph
     def reFreshGraph2(self):
 
         self.plotGraph2(self.axes)
@@ -58,12 +71,9 @@ class Graph2(FigureCanvas):
                 #getData = CommonFunctions()
                 #getData.autolabel(bar,axes)
 
-
-
             axes.set_xticks(x)
             axes.set_xticklabels(labels)
             axes.legend(fancybox=True,framealpha=0.2)
-
 
             infoRefresh = "Last reFresh at time:" + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             axes.text(0, -0.12, infoRefresh, verticalalignment='center',
@@ -75,6 +85,7 @@ class Graph2(FigureCanvas):
         except Exception as e:
             logging.log(logging.ERROR, "something wrong opening the Data Base" + str(e))
 
+    #The user has required to save either this graph or all the graphs
     def saveGraph2(self, directory):
         path=directory+"\graph2.png"
         saveObject=CommonFunctions()

@@ -1,3 +1,13 @@
+"""
+Author Fabio Carminati , 05-2020
+
+This class defines the third graph: for each host (for all the hosts) we analyze the received alarms: we split them according to their severity
+such that we can show their relative percentages w.r.t. the total alarms received from that host (from all the hosts).
+
+The graph is updated every time the user clicks the RefreshButton on the GUI
+(i.e. we redo the plot with the new data retrieved from the local DB)
+
+"""
 from collections import defaultdict
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -11,19 +21,25 @@ dirname = os.path.dirname(__file__)
 logging.basicConfig(filename="../log.log", level=logging.ERROR)
 
 class Graph3(FigureCanvas):
-    def __init__(self, parent=None, width=7.5, height=5, dpi=100):
+    def __init__(self, parent=None, width=10, height=5, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
         self.fig.patch.set_visible(False)
         FigureCanvas.__init__(self, self.fig)
+        # self.alarmsPerHost: stores IPAddresses of the hosts and the correspondents severity alarms counters
         self.alarmsPerHost = defaultdict(lambda: defaultdict(int))
+        # self.totalAlarmsPerSeverity: keys are the severities while the items are correspondent counters
         self.totalAlarmsPerSeverity = defaultdict(lambda: [])
+        # self.percentage: keys are the host IpAddresses or a key='Overall alarms' for the cumulative scenario, while items
+        # are the various percentages of the severity levels
         self.percentage=defaultdict(int)
         self.setParent(parent)
         self.axes.invert_yaxis()
         self.axes.xaxis.set_visible(False)
         self.axes.set_title("Percentage of the various alarms ",color='white')
+        self.axes.text(0.5, 0.5, "No data", horizontalalignment='center', verticalalignment='center', fontsize=20)
 
+    #RefreshButton has been clicked:redo the graph
     def reFreshGraph3(self):
         self.alarmsPerHost.clear()
         self.totalAlarmsPerSeverity.clear()
@@ -39,6 +55,8 @@ class Graph3(FigureCanvas):
             self.plotGraph3(self.axes)
         except Exception as e:
             logging.log(logging.ERROR, "The alarm table is empty: " + str(e))
+            self.axes.text(0.5, 0.5, "Error loading data", horizontalalignment='center', verticalalignment='center',
+                           fontsize=20)
 
     def plotGraph3(self,ax):
         ax.invert_yaxis()
@@ -49,7 +67,7 @@ class Graph3(FigureCanvas):
 
         getData = CommonFunctions()
         descriptionList,totalFractions = [],[]
-        totAlarms=getData.countAlarms(self.totalAlarmsPerSeverity)
+        totAlarms=self.countAlarms(self.totalAlarmsPerSeverity)
 
         for key, item in sorted(self.totalAlarmsPerSeverity.items()):
             descriptionList.append(getData.getInfo(key))
@@ -60,7 +78,7 @@ class Graph3(FigureCanvas):
 
         for host in sorted(self.alarmsPerHost):
             singleFractions = []
-            totPerHostAlarms=getData.countAlarms(self.alarmsPerHost[host])
+            totPerHostAlarms=self.countAlarms(self.alarmsPerHost[host])
             for ele in sorted(self.alarmsPerHost[host]):
                 singleFractions.append((self.alarmsPerHost[host][ele]/totPerHostAlarms)*100)
             self.percentage[host] = singleFractions
@@ -68,7 +86,7 @@ class Graph3(FigureCanvas):
         labels = list(self.percentage.keys())
         data = np.array(list(self.percentage.values()))
         data_cum = data.cumsum(axis=1)
-        colors_list = ['yellowgreen','orange','dodgerblue','red','rebeccapurple','black']
+        colors_list = ['yellowgreen','orange','red','rebeccapurple','dodgerblue','brown']
 
         try:
             if (len(colors_list)<len(totalFractions)):
@@ -103,7 +121,14 @@ class Graph3(FigureCanvas):
         except Exception as e:
             logging.log(logging.ERROR, "Cannot plot: " +str(e))
 
+    #The user has required to save either this graph or all the graphs
     def saveGraph3(self, directory):
         path = directory + "\graph3.png"
         saveObject = CommonFunctions()
         saveObject.saveSingleGraph(path, self.fig,3)
+
+    def countAlarms(self,dict):
+        totAlarms=0
+        for key, item in sorted(dict.items()):
+            totAlarms = totAlarms + item
+        return totAlarms
