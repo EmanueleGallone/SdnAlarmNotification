@@ -18,7 +18,7 @@ from models import config_manager
 
 #ICONS
 alarm_icon = os.path.join(os.path.dirname(__file__), 'alarm_icon.png')
-exit_icon = os.path.join(os.path.dirname(__file__), 'exit.pgn')
+exit_icon = os.path.join(os.path.dirname(__file__), 'exit.png')
 floppy_icon = os.path.join(os.path.dirname(__file__), 'floppy_disk.png')
 
 
