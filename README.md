@@ -76,6 +76,32 @@ after experiencing sqlite's performances we opted for the thread that repeatedly
 The severities are mapped inside the config.json under *Severity_levels*.
 
 **yes, we will notify the user directly on his phone on a later version.**
+
+## GUI 
+The management but also the interaction with this software architecture could be tricky therefore, in order to overcome this, we decide to provide an intuitive and user-friendly tool: in other words a  ***Graphical User Interface***. 
+
+![alt text](docu/img/home.png?raw=true)
+
+1. Here the user can edit the content of the *config.json* file either by modifying the notification part or by adding new devices
+2. Here the user can move amid tabs and see the various graphs computed fetching the relevant information from the DB
+3. The user can see the actual content of the DB: until the **Run** *button* is clicked no information can be found on the DB that's why here we have an empty space 
+
+
+Once the **Run** *button* is clicked:
+4. We can see the actual content of the table by **Load Table** *button*:
+
+![alt text](docu/img/table.png?raw=true)
+
+5. Generate the graphs clicking on the **Refresh** *button* and see them in the proper tab
+
+![alt text](docu/img/graph1Steps.png?raw=true)
+
+6. Keep track about the time when the last refresh has been done 
+
+7. Save the graph for post-analysis and evaluations
+
+![alt text](docu/img/saveGraph1.png?raw=true)
+
 ## Running the tests
 
 Sorry, no formal tests so far. We know that TDD is the best approach for software development 
