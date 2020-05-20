@@ -1,12 +1,13 @@
+#Import Pyqt5 Tools
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QFile, QTextStream
 from PyQt5.QtWidgets import *
-
+#Import Graphic files
 from GUI.Graph1Class import Graph1
 from GUI.Graph2Class import Graph2
 from GUI.Graph3Class import Graph3
 from GUI.BreezeStyleSheets import breeze_resources
-
+#Connecting with the main code
 from services.main_service import main as Main_Service
 import threading
 
@@ -23,7 +24,7 @@ floppy_icon = os.path.join(os.path.dirname(__file__), 'floppy_disk.png')
 
 #Global Variables for modify Json
 Notification=['']*6
-Ip=['']*5
+Device=['']*5
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -81,17 +82,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.Mail_Button.setChecked(False)
         Notification[5]=(self.Message_Button.isChecked())
         self.Message_Button.setChecked(False)
-    # Save Notification information
+    # Save Network information
     def Json_Network(self):
-        Ip[0] = (self.device_ip.displayText())
+        Device[0] = (self.device_ip.displayText())
         self.device_ip.clear()
-        Ip[1] = (self.Fetch_sec.value())
+        Device[1] = (self.Fetch_sec.value())
         self.Fetch_sec.clear()
-        Ip[2] = (self.netconf_password.text())
+        Device[2] = (self.netconf_password.text())
         self.netconf_password.clear()
-        Ip[3] = (int(self.netconf_port.value()))
+        Device[3] = (int(self.netconf_port.value()))
         self.netconf_port.clear()
-        Ip[4] = (self.netconf_admin.displayText())
+        Device[4] = (self.netconf_admin.displayText())
         self.netconf_admin.clear()
         self.modify_json_network()
     #Include Notification changes in config.jason file
@@ -130,11 +131,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 try:
                     with open(filename, 'w') as json_file:
                         new_device ={
-                            "device_ip": Ip[0],
-                            "netconf_fetch_rate_in_sec": Ip[1],
-                            "netconf_password": Ip[2],
-                            "netconf_port": Ip[3],
-                            "netconf_user": Ip[4]
+                            "device_ip": Device[0],
+                            "netconf_fetch_rate_in_sec": Device[1],
+                            "netconf_password": Device[2],
+                            "netconf_port": Device[3],
+                            "netconf_user": Device[4]
                         }
                         data['Network'].append(new_device)
 
@@ -168,25 +169,24 @@ class MainWindow(QtWidgets.QMainWindow):
     # Verify if information was included
     def Verification_changes(self):
         notif=all(elem == Notification[0] for elem in Notification)
-        ip=all(elem == Ip[0] for elem in Ip)
+        ip=all(elem == Device[0] for elem in Device)
         if notif or ip:
             self.json_changes_window(notif,ip)
         else:
             self.modify_json()
 
-    # Enable Graphs and Table
-
+    # Run Butoon is pressed
     def Run(self):
         # starting the Alarm Service
         t = threading.Thread(target=Main_Service)
         t.daemon = True
         t.start()
-
+        # Enable graphs and table
         self.formGroupBox.setEnabled(False)
-        self.button_credentials.setEnabled(False)
+        self.button_Notification.setEnabled(False)
         self.formGroupBox2.setEnabled(False)
-        self.button_Ip.setEnabled(False)
-        self.button_Json.setEnabled(False)
+        self.button_Device.setEnabled(False)
+        self.button_RUN.setEnabled(False)
         self.load_db.setEnabled(True)
         self.tab_2.setEnabled(True)
         self.tab_3.setEnabled(True)
@@ -195,7 +195,7 @@ class MainWindow(QtWidgets.QMainWindow):
     #Exit toolbar triggered
     def Exit(self):
         self.close()
-
+    #Close event Warning
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         msg = QMessageBox()
         msg.setWindowTitle("Warning                                                                                                        ")
@@ -209,7 +209,7 @@ class MainWindow(QtWidgets.QMainWindow):
             a0.accept()
         else:
             a0.ignore()
-
+    #window with information about the app
     def About(self):
         msg = QMessageBox()
         msg.setWindowTitle("About                                                                                                        ")
@@ -219,7 +219,7 @@ class MainWindow(QtWidgets.QMainWindow):
         version = config_manager.ConfigManager().get_version()
         msg.setInformativeText("Fabio Carminati\nEmanuele Gallone\nAndrés Rodríguez\n\n Version: " + version)
         msg.exec()
-
+    #Save graphs methods
     def saveAllClicked(self):
         msg = QMessageBox()
         msg.setWindowTitle("Select the directory path where you want to store all the graphs")
@@ -295,14 +295,14 @@ class MainWindow(QtWidgets.QMainWindow):
         if msg.clickedButton().text() == "Save":
             directory = self.textbox.text()
             self.plotWidget3.saveGraph3(directory)
-
+    #Main Window definition
     def setupUi(self, MainWindow):
         self.setObjectName("MainWindow")
         self.resize(1200, 650)
         self.setWindowIcon(QtGui.QIcon(alarm_icon))
         self.centralwidget = QtWidgets.QWidget()
         self.centralwidget.setObjectName("centralwidget")
-
+        #Toolbar Definitions
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setGeometry(QtCore.QRect(0, 0, 1200, 650))
         self.tabWidget.setObjectName("tabWidget")
@@ -325,7 +325,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tab_4.setObjectName("tab_4")
         self.tabWidget.addTab(self.tab_4, "")
         self.tab_4.setEnabled(False)
-
+        #Title and subtitle of the main window
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(410, 10, 400, 50))
         font = QtGui.QFont()
@@ -345,35 +345,35 @@ class MainWindow(QtWidgets.QMainWindow):
         font.setWeight(50)
         self.label_2.setFont(font)
         self.label_2.setObjectName("label_2")
-
+        #Defining and setting the table
         self.tableWidget = QtWidgets.QTableWidget(self.tab)
         self.tableWidget.setGeometry(QtCore.QRect(420, 100, 720, 350))
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(7)
         self.tableWidget.setRowCount(0)
-
+        #Defining the Load Button
         self.load_db = QtWidgets.QPushButton(self.tab)
         self.load_db.setGeometry(QtCore.QRect(740, 465, 75, 23))
         self.load_db.setObjectName("load_db")
         self.load_db.setEnabled(False)
-
-        self.button_credentials = QtWidgets.QPushButton(self.tab)
-        self.button_credentials.setGeometry(QtCore.QRect(120, 270, 180, 20))
-        self.button_credentials.setObjectName("button_credentials")
-
-        self.button_Ip = QtWidgets.QPushButton(self.tab)
-        self.button_Ip.setGeometry(QtCore.QRect(120, 465, 110, 20))
-        self.button_Ip.setObjectName("button_Ip")
-
-        self.button_Json = QtWidgets.QPushButton(self.tab)
-        self.button_Json.setGeometry(QtCore.QRect(550, 525, 110, 20))
-        self.button_Json.setObjectName("button_Json")
-
+        # Defining the Notification Button
+        self.button_Notification = QtWidgets.QPushButton(self.tab)
+        self.button_Notification.setGeometry(QtCore.QRect(120, 270, 180, 20))
+        self.button_Notification.setObjectName("button_Notification")
+        #Defining the new Device Button
+        self.button_Device = QtWidgets.QPushButton(self.tab)
+        self.button_Device.setGeometry(QtCore.QRect(120, 465, 110, 20))
+        self.button_Device.setObjectName("button_Device")
+        #Defining the Run Button
+        self.button_RUN = QtWidgets.QPushButton(self.tab)
+        self.button_RUN.setGeometry(QtCore.QRect(550, 525, 110, 20))
+        self.button_RUN.setObjectName("button_RUN")
+        # Defining the Refresh Button
         self.refreshButton = QtWidgets.QPushButton(self.tab)
         self.refreshButton.setGeometry(QtCore.QRect(870, 525, 110, 25))
         self.refreshButton.setObjectName("button_refreash")
         self.refreshButton.setEnabled(False)
-
+        #Defining the Notification Options Box
         self.Send_Mail = QLineEdit()
         self.Password = QLineEdit()
         self.Password.setEchoMode(2)
@@ -395,7 +395,7 @@ class MainWindow(QtWidgets.QMainWindow):
         layout.addRow(QLabel("Send E-mail:"), self.Mail_Button)
         layout.addRow(QLabel("Send Message:"), self.Message_Button)
         self.formGroupBox.setLayout(layout)
-
+        # Defining the Device Options Box
         self.device_ip = QLineEdit()
         self.Fetch_sec = QSpinBox()
         self.Fetch_sec.setMaximum(10)
@@ -414,16 +414,16 @@ class MainWindow(QtWidgets.QMainWindow):
         layout2.addRow(QLabel("Netconf Port:"), self.netconf_port)
         layout2.addRow(QLabel("Fetch Rate:"), self.Fetch_sec)
         self.formGroupBox2.setLayout(layout2)
-
+        #Triggered (Clicked) Buttons connections with respective methods
         self.tableWidget.verticalHeader().hide()
         self.tableWidget.horizontalHeader().hide()
         self.load_db.clicked.connect(self.loadDataB)
 
-        self.button_credentials.clicked.connect(self.Json_Notification)
-        self.button_Ip.clicked.connect(self.Json_Network)
-        self.button_Json.clicked.connect(self.Verification_changes)
+        self.button_Notification.clicked.connect(self.Json_Notification)
+        self.button_Device.clicked.connect(self.Json_Network)
+        self.button_RUN.clicked.connect(self.Verification_changes)
         self.refreshButton.clicked.connect(self.reFresh)
-
+        #Defining Graphs
         self.plotWidget1 = Graph1(self.tab_2, width=12, height=4.5, dpi=100)
         self.plotWidget1.move(0, 100)
         self.plotWidget2 = Graph2(self.tab_3, width=12, height=5, dpi=100)
@@ -432,7 +432,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.plotWidget3.move(20, 100)
 
         self.setCentralWidget(self.centralwidget)
-
+        #DEfining and setting the toolbar
         self.menubar = QtWidgets.QMenuBar()
         self.menubar.setGeometry(QtCore.QRect(0, 0, 918, 21))
         self.menubar.setObjectName("menubar")
@@ -469,7 +469,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionSave3 = QtWidgets.QAction()
         self.actionSave3.setObjectName("actionSave3")
         self.actionSave3.setIcon(QtGui.QIcon(floppy_icon))
-
+        #Toolbar buttons connections
         self.actionExit.triggered.connect(self.Exit)
         self.actionSaveAll.triggered.connect(self.saveAllClicked)
         self.actionSave1.triggered.connect(self.save1Clicked)
@@ -485,19 +485,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.menuAbout.addAction(self.actionAbout)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuAbout.menuAction())
+
         self.retranslateUi(self)
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(self)
-
+    #Visual names for the widgets
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "Alarm Management Tool"))
         self.label.setText(_translate("MainWindow", "Smart Networks and Service Orchestration"))
         self.label_2.setText(_translate("MainWindow", "Alarm Management"))
         self.load_db.setText(_translate("MainWindow", "Load Table"))
-        self.button_credentials.setText(_translate("MainWindow", "Edit notification parameters"))
-        self.button_Ip.setText(_translate("MainWindow", "Insert Device"))
-        self.button_Json.setText(_translate("MainWindow", "Run"))
+        self.button_Notification.setText(_translate("MainWindow", "Edit notification parameters"))
+        self.button_Device.setText(_translate("MainWindow", "Insert Device"))
+        self.button_RUN.setText(_translate("MainWindow", "Run"))
         self.refreshButton.setText(_translate("MainWindow", "Refresh ALL graphs"))
 
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Home"))
