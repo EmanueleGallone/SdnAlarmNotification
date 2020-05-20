@@ -38,6 +38,8 @@ def main():
     notifier = NotificationManager().start()
     threads.append(notifier)
 
+    # TODO decide whether to stop the service if the GUI is exited or not
+
     try:
 
         # the bot needs to be inside the main thread for signalling purposes
