@@ -4,7 +4,7 @@ from models.notification_manager import NotificationManager
 from models.database_manager import DBHandler
 from GUI import GUI_Main as GUI
 
-import logging, os, threading
+import logging, os
 
 logfile = os.path.join(os.path.dirname(__file__), 'log.log')
 logging.basicConfig(filename=logfile, level=logging.WARNING)
