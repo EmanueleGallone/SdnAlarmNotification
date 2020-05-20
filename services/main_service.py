@@ -2,7 +2,6 @@ import alarm_library
 
 from models.notification_manager import NotificationManager
 from models.database_manager import DBHandler
-from GUI import GUI_Main as GUI
 
 import logging, os
 
@@ -35,7 +34,6 @@ def main():
     threads.append(notifier)
 
     try:
-        print('DEBUG')
         # the bot needs to be inside the main thread for signalling purposes
         telegram_bot_service.main()
 
