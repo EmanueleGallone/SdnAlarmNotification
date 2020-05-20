@@ -9,7 +9,7 @@ Just clone or download the repository somewhere on your PC. <br>
 ### Prerequisites
 
 Python >= 3.8 required. We recommend Anaconda or [Miniconda](https://docs.conda.io/en/latest/miniconda.html).
- 
+
 If you don't want to install packages on your main environment, open an Anaconda prompt and create a new environment
 ```
 conda create --name yourenv python=3.8
@@ -103,3 +103,4 @@ solving all of our issues on gitlab. Vielen dank for your patience! :)
  code even tough I pressured them to learn to use new libraries and
  assigning them a lot of tasks. I hope you learned a lot while doing this project together!
  * Thanks to [Alexhuszagh](https://github.com/Alexhuszagh) for providing the [style sheets](https://github.com/Alexhuszagh/BreezeStyleSheets) to improve the *look & feel* of our GUI.
+ * The icons for the GUI has been found on https://www.iconfinder.com who owns the copyright of them (Iconblock license,Attribution-ShareAlike 3.0 Unported,)

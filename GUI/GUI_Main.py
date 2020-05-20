@@ -207,7 +207,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def saveAllClicked(self):
         msg = QMessageBox()
         msg.setWindowTitle("Select the directory path where you want to store all the graphs")
-        msg.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
+        msg.setWindowIcon(QtGui.QIcon('floppy_disk.png'))
         msg.setText("                                                                                                                               ")
         msg.setIcon(QMessageBox.Information)
         msg.setStandardButtons(QMessageBox.Save | QMessageBox.Cancel)
@@ -227,7 +227,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def save1Clicked(self):
         msg = QMessageBox()
         msg.setWindowTitle("Select the directory path where you want to store graph 1")
-        msg.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
+        msg.setWindowIcon(QtGui.QIcon('floppy_disk.png'))
         msg.setText("                                                                                                                               ")
         msg.setIcon(QMessageBox.Information)
         msg.setStandardButtons(QMessageBox.Save | QMessageBox.Cancel)
@@ -245,7 +245,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def save2Clicked(self):
         msg = QMessageBox()
         msg.setWindowTitle("Select the directory path where you want to store graph 2")
-        msg.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
+        msg.setWindowIcon(QtGui.QIcon('floppy_disk.png'))
         msg.setText(
             "                                                                                                                               ")
         msg.setIcon(QMessageBox.Information)
@@ -264,7 +264,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def save3Clicked(self):
         msg = QMessageBox()
         msg.setWindowTitle("Select the directory path where you want to store graph 3")
-        msg.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
+        msg.setWindowIcon(QtGui.QIcon('floppy_disk.png'))
         msg.setText(
             "                                                                                                                               ")
         msg.setIcon(QMessageBox.Information)
@@ -342,7 +342,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.load_db.setEnabled(False)
 
         self.button_credentials = QtWidgets.QPushButton(self.tab)
-        self.button_credentials.setGeometry(QtCore.QRect(120, 270, 110, 20))
+        self.button_credentials.setGeometry(QtCore.QRect(120, 270, 180, 20))
         self.button_credentials.setObjectName("button_credentials")
 
         self.button_Ip = QtWidgets.QPushButton(self.tab)
@@ -428,10 +428,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.statusbar = QtWidgets.QStatusBar()
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
+
         self.actionExit = QtWidgets.QAction()
         self.actionExit.setObjectName("actionExit")
-
-        self.actionExit.triggered.connect(self.Exit)
+        self.actionExit.setIcon(QtGui.QIcon("exit.png"))
 
         self.actionAbout = QtWidgets.QAction()
         self.actionAbout.setObjectName("actionAbout")
@@ -440,16 +440,21 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.actionSaveAll = QtWidgets.QAction()
         self.actionSaveAll.setObjectName("actionSaveAll")
+        self.actionSaveAll.setIcon(QtGui.QIcon('floppy_disk.png'))
 
         self.actionSave1 = QtWidgets.QAction()
         self.actionSave1.setObjectName("actionSave1")
+        self.actionSave1.setIcon(QtGui.QIcon('floppy_disk.png'))
 
         self.actionSave2 = QtWidgets.QAction()
         self.actionSave2.setObjectName("actionSave2")
+        self.actionSave2.setIcon(QtGui.QIcon('floppy_disk.png'))
 
         self.actionSave3 = QtWidgets.QAction()
         self.actionSave3.setObjectName("actionSave3")
+        self.actionSave3.setIcon(QtGui.QIcon('floppy_disk.png'))
 
+        self.actionExit.triggered.connect(self.Exit)
         self.actionSaveAll.triggered.connect(self.saveAllClicked)
         self.actionSave1.triggered.connect(self.save1Clicked)
         self.actionSave2.triggered.connect(self.save2Clicked)
@@ -474,7 +479,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.label.setText(_translate("MainWindow", "Smart Networks and Service Orchestration"))
         self.label_2.setText(_translate("MainWindow", "Alarm Management"))
         self.load_db.setText(_translate("MainWindow", "Load Table"))
-        self.button_credentials.setText(_translate("MainWindow", "Notification"))
+        self.button_credentials.setText(_translate("MainWindow", "Edit notification parameters"))
         self.button_Ip.setText(_translate("MainWindow", "Insert Device"))
         self.button_Json.setText(_translate("MainWindow", "Run"))
         self.refreshButton.setText(_translate("MainWindow", "Refresh ALL graphs"))
@@ -484,8 +489,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Graph 2"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "Graph 3"))
 
-        self.menuFile.setTitle(_translate("MainWindow", "File"))
-        self.menuAbout.setTitle(_translate("MainWindow", "?"))
+        self.menuFile.setTitle(_translate("MainWindow", "File      "))
+        self.menuAbout.setTitle(_translate("MainWindow", "?        "))
         self.actionExit.setText(_translate("MainWindow", "Exit"))
         self.actionAbout.setText(_translate("MainWindow", "About"))
         self.actionSaveAll.setText(_translate("MainWindow", "Save all Graphs"))
