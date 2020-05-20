@@ -7,7 +7,7 @@ from GUI.Graph2Class import Graph2
 from GUI.Graph3Class import Graph3
 from GUI.BreezeStyleSheets import breeze_resources
 
-from main_service import main as M
+from services.main_service import main as Main_Service
 import threading
 
 import json
@@ -157,7 +157,8 @@ class MainWindow(QtWidgets.QMainWindow):
         msg.exec()
         if msg.clickedButton().text() == "Ignore":
             self.Run()
-    #Verify if information was included
+
+    # Verify if information was included
     def Verification_changes(self):
         notif=all(elem == Notification[0] for elem in Notification)
         ip=all(elem == Ip[0] for elem in Ip)
@@ -165,11 +166,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.json_changes_window(notif,ip)
         else:
             self.modify_json()
-    #Enable Graphs and Table
+
+    # Enable Graphs and Table
+
     def Run(self):
-
-
-        t = threading.Thread(target=M)
+        # starting the Alarm Service
+        t = threading.Thread(target=Main_Service)
         t.daemon = True
         t.start()
 
