@@ -21,7 +21,7 @@ logfile = os.path.join(os.path.dirname(__file__), '../log.log')
 logging.basicConfig(filename=logfile, level=logging.WARNING)
 
 try:
-    from services import mysterious_service
+    from services import telegram_bot_service
 except ImportError as e:
     logging.log(logging.WARNING, 'Could not find the telegram bot' + str(e))
 
@@ -60,7 +60,7 @@ class NotificationManager(object, metaclass=Singleton):
 
         try:
             if send_message_flag:
-                mysterious_service.send_to_bot_group(msg)
+                telegram_bot_service.send_to_bot_group(msg)
 
         except Exception as e:
             logging.log(logging.ERROR, 'Failed to send a broadcast message' + str(e))
