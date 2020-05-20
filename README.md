@@ -40,15 +40,15 @@ Set the *DEBUG_MODE* to "false" to make the application use your parameters. <br
 * make sure to fill the right parameters under *Notification_config* otherwise the *mail sender service* will throw exceptions!
 * If you need to change the SMTP server, edit the config.json. The default value is set on Microsoft's Outlook (used by Polimi)
 
-Start main.py to start only the service to build the DB and starting sending notifications
+navigate to the *services* folder and run *main_services.py* to start only the service to build the DB and starting sending notifications
 
 ``` 
-python main.py
+python main_services.py
 ```
 
-<br>If you want to start the GUI (things will change. The gui will automatically start the service) just go inside the GUI folder and run
+<br>If you want to start the GUI (The gui will automatically start the service) just run the main.py file
 ``` 
-python GUI_main.py
+python main.py
 ```
 ## Under the hood
 The following image shows an overview of the underlying software architecture:
