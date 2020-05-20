@@ -12,7 +12,14 @@ import threading
 
 import json
 import logging
+import os
 from models import config_manager
+
+#ICONS
+alarm_icon = os.path.join(os.path.dirname(__file__), 'alarm_icon.png')
+exit_icon = os.path.join(os.path.dirname(__file__), 'exit.pgn')
+floppy_icon = os.path.join(os.path.dirname(__file__), 'floppy_disk.png')
+
 
 #Global Variables for modify Json
 Notification=['']*6
@@ -140,7 +147,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def json_changes_window(self,notif,ip):
         msg = QMessageBox()
         msg.setWindowTitle("Verify Configuration")
-        msg.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
+        msg.setWindowIcon(QtGui.QIcon(alarm_icon))
         msg.setText("Configurations where not selected:                                                                                 ")
         msg.setIcon(QMessageBox.Question)
         msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Retry | QMessageBox.Ignore )
@@ -192,7 +199,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         msg = QMessageBox()
         msg.setWindowTitle("Warning                                                                                                        ")
-        msg.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
+        msg.setWindowIcon(QtGui.QIcon(alarm_icon))
         msg.setIcon(QMessageBox.Warning)
         msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msg.setText("Are you sure you want to exit?")
@@ -206,7 +213,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def About(self):
         msg = QMessageBox()
         msg.setWindowTitle("About                                                                                                        ")
-        msg.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
+        msg.setWindowIcon(QtGui.QIcon(alarm_icon))
         msg.setIcon(QMessageBox.Information)
         msg.setText("Authors:")
         version = config_manager.ConfigManager().get_version()
@@ -216,7 +223,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def saveAllClicked(self):
         msg = QMessageBox()
         msg.setWindowTitle("Select the directory path where you want to store all the graphs")
-        msg.setWindowIcon(QtGui.QIcon('floppy_disk.png'))
+        msg.setWindowIcon(QtGui.QIcon(floppy_icon))
         msg.setText("                                                                                                                               ")
         msg.setIcon(QMessageBox.Information)
         msg.setStandardButtons(QMessageBox.Save | QMessageBox.Cancel)
@@ -236,7 +243,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def save1Clicked(self):
         msg = QMessageBox()
         msg.setWindowTitle("Select the directory path where you want to store graph 1")
-        msg.setWindowIcon(QtGui.QIcon('floppy_disk.png'))
+        msg.setWindowIcon(QtGui.QIcon(floppy_icon))
         msg.setText("                                                                                                                               ")
         msg.setIcon(QMessageBox.Information)
         msg.setStandardButtons(QMessageBox.Save | QMessageBox.Cancel)
@@ -254,7 +261,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def save2Clicked(self):
         msg = QMessageBox()
         msg.setWindowTitle("Select the directory path where you want to store graph 2")
-        msg.setWindowIcon(QtGui.QIcon('floppy_disk.png'))
+        msg.setWindowIcon(QtGui.QIcon(floppy_icon))
         msg.setText(
             "                                                                                                                               ")
         msg.setIcon(QMessageBox.Information)
@@ -273,7 +280,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def save3Clicked(self):
         msg = QMessageBox()
         msg.setWindowTitle("Select the directory path where you want to store graph 3")
-        msg.setWindowIcon(QtGui.QIcon('floppy_disk.png'))
+        msg.setWindowIcon(QtGui.QIcon(floppy_icon))
         msg.setText(
             "                                                                                                                               ")
         msg.setIcon(QMessageBox.Information)
@@ -292,7 +299,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def setupUi(self, MainWindow):
         self.setObjectName("MainWindow")
         self.resize(1200, 650)
-        self.setWindowIcon(QtGui.QIcon('alarm_icon.png'))
+        self.setWindowIcon(QtGui.QIcon(alarm_icon))
         self.centralwidget = QtWidgets.QWidget()
         self.centralwidget.setObjectName("centralwidget")
 
@@ -440,7 +447,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.actionExit = QtWidgets.QAction()
         self.actionExit.setObjectName("actionExit")
-        self.actionExit.setIcon(QtGui.QIcon("exit.png"))
+        self.actionExit.setIcon(QtGui.QIcon(exit_icon))
 
         self.actionAbout = QtWidgets.QAction()
         self.actionAbout.setObjectName("actionAbout")
@@ -449,19 +456,19 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.actionSaveAll = QtWidgets.QAction()
         self.actionSaveAll.setObjectName("actionSaveAll")
-        self.actionSaveAll.setIcon(QtGui.QIcon('floppy_disk.png'))
+        self.actionSaveAll.setIcon(QtGui.QIcon(floppy_icon))
 
         self.actionSave1 = QtWidgets.QAction()
         self.actionSave1.setObjectName("actionSave1")
-        self.actionSave1.setIcon(QtGui.QIcon('floppy_disk.png'))
+        self.actionSave1.setIcon(QtGui.QIcon(floppy_icon))
 
         self.actionSave2 = QtWidgets.QAction()
         self.actionSave2.setObjectName("actionSave2")
-        self.actionSave2.setIcon(QtGui.QIcon('floppy_disk.png'))
+        self.actionSave2.setIcon(QtGui.QIcon(floppy_icon))
 
         self.actionSave3 = QtWidgets.QAction()
         self.actionSave3.setObjectName("actionSave3")
-        self.actionSave3.setIcon(QtGui.QIcon('floppy_disk.png'))
+        self.actionSave3.setIcon(QtGui.QIcon(floppy_icon))
 
         self.actionExit.triggered.connect(self.Exit)
         self.actionSaveAll.triggered.connect(self.saveAllClicked)
