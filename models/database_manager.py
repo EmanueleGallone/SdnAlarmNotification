@@ -18,7 +18,8 @@ import logging
 import os
 from datetime import datetime
 
-lock = threading.Lock()  # creating a global lock mechanism
+MAX_NUM_OF_THREAD_PER_OPERATION = 1
+semaphore = threading.Semaphore(MAX_NUM_OF_THREAD_PER_OPERATION)  # creating a global lock mechanism
 
 dirname = os.path.dirname(__file__)
 default_url = os.path.join(dirname, '../local.db')
@@ -40,7 +41,7 @@ class DBHandler(object):
         return self
 
     def close_connection(self):
-        lock.acquire()
+        semaphore.acquire()
 
         if self._connection is not None:
             self._connection.commit()  # save all changes
@@ -48,10 +49,10 @@ class DBHandler(object):
 
         del self  # prevent memory leak
 
-        lock.release()
+        semaphore.release()
 
     def create_alarm_table(self):
-        lock.acquire()
+        semaphore.acquire()
         # from here on, thread-safe environment!
         try:
             self._cursor.execute('''CREATE TABLE IF NOT EXISTS alarm
@@ -62,10 +63,10 @@ class DBHandler(object):
             print("something wrong creating alarm table" + str(e))
 
         finally:
-            lock.release()  # avoiding deadlock
+            semaphore.release()  # avoiding deadlock
 
     def select_alarm_by_ID(self, ID='0'):
-        lock.acquire()
+        semaphore.acquire()
 
         result = ''
 
@@ -78,12 +79,12 @@ class DBHandler(object):
             logging.log(logging.ERROR, "something wrong selecting alarm by ID" + str(e))
 
         finally:
-            lock.release()
+            semaphore.release()
 
         return result
 
     def select_alarm_by_severity_unnotified(self, severity):
-        lock.acquire()
+        semaphore.acquire()
 
         if severity is None:
             severity = '0'
@@ -94,12 +95,12 @@ class DBHandler(object):
         self._cursor.execute('SELECT * FROM alarm WHERE (severity>=?) AND (notified=?) ORDER BY severity desc', t)
         result = self._cursor.fetchall()
 
-        lock.release()
+        semaphore.release()
 
         return result
 
     def select_count_by_device_ip(self, description, host):
-        lock.acquire()
+        semaphore.acquire()
 
         if description is None or host is None:
             description=''
@@ -110,36 +111,36 @@ class DBHandler(object):
         self._cursor.execute('SELECT COUNT() FROM alarm WHERE DESCRIPTION=? AND deviceIP=?', t)
         result = self._cursor.fetchall()
 
-        lock.release()
+        semaphore.release()
 
         return result
 
     def select_alarm_by_host_time_severity(self, host, timestamp, severity):
-        lock.acquire()
+        semaphore.acquire()
 
         t = (host, timestamp, severity)
 
         self._cursor.execute('SELECT * FROM alarm WHERE (deviceIP=?) AND (time =?) AND (severity=?)', t)
         result = self._cursor.fetchall()
 
-        lock.release()
+        semaphore.release()
 
         return result
 
     def select_alarm_by_device_ip(self, host):
-        lock.acquire()
+        semaphore.acquire()
 
         t = (host,)
 
         self._cursor.execute('SELECT * FROM alarm WHERE (deviceIP=?)', t)
         result = self._cursor.fetchall()
 
-        lock.release()
+        semaphore.release()
 
         return result
 
     def select_ceased_alarms(self):
-        lock.acquire()
+        semaphore.acquire()
 
         ceased = 1
         t = (ceased,)
@@ -147,23 +148,23 @@ class DBHandler(object):
         self._cursor.execute('SELECT * FROM alarm WHERE (ceased=?)', t)
         result = self._cursor.fetchall()
 
-        lock.release()
+        semaphore.release()
 
         return result
 
 
     def select_all(self):
-        lock.acquire()
+        semaphore.acquire()
 
         self._cursor.execute('SELECT * FROM alarm')
         result = self._cursor.fetchall()
 
-        lock.release()
+        semaphore.release()
 
         return result
 
     def insert_row_alarm(self, device_ip='0.0.0.0', severity='0', description='debug', _time=None, notified=0, ceased=0):
-        lock.acquire()
+        semaphore.acquire()
 
         if _time is None:
             _time = datetime.now()
@@ -173,42 +174,42 @@ class DBHandler(object):
         self._cursor.execute('''INSERT INTO alarm 
             (deviceIP, severity, description, time, notified, ceased) VALUES (?, ?, ?, ?, ?, ?)''', t)
 
-        lock.release()
+        semaphore.release()
 
     def count_alarms(self):
-        lock.acquire()
+        semaphore.acquire()
 
         self._cursor.execute('''SELECT count(ID), severity FROM alarm GROUP BY severity''')
         _result = self._cursor.fetchall()
 
-        lock.release()
+        semaphore.release()
 
         return _result
 
     def update_ceased_alarms(self, ID):
-        lock.acquire()
+        semaphore.acquire()
 
         ceased = 1
         t = (ID, ceased)
 
         self._cursor.execute('UPDATE alarm SET ceased = ? WHERE ID = ?', t)
 
-        lock.release()
+        semaphore.release()
 
     def update_notified_by_ID(self, ID):
-        lock.acquire()
+        semaphore.acquire()
 
         notified = 1
 
         if len(ID) == 0:
-            lock.release()
+            semaphore.release()
             return
 
         t = [(notified, _id) for _id in ID]
 
         self._cursor.executemany('UPDATE alarm SET notified = ? WHERE ID = ?;', t)
 
-        lock.release()
+        semaphore.release()
 
 
 if __name__ == '__main__':
