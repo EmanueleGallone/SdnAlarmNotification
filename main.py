@@ -2,8 +2,9 @@ import alarm_library
 
 from models.notification_manager import NotificationManager
 from models.database_manager import DBHandler
+from GUI import GUI_Main as GUI
 
-import logging, os
+import logging, os, threading
 
 logfile = os.path.join(os.path.dirname(__file__), 'log.log')
 logging.basicConfig(filename=logfile, level=logging.WARNING)
@@ -29,6 +30,10 @@ def main():
     # starting thread to fetch netconf data from devices
     threads = alarm_library.start_threads()
 
+    gui = GUI.gui_thread()  # getting the gui thread
+    threads.append(gui)  # saving the gui thread for future join
+    gui.start()  # starting the gui
+
     # starting the notifier thread
     notifier = NotificationManager().start()
     threads.append(notifier)
@@ -42,6 +47,7 @@ def main():
         logging.log(logging.INFO, 'Could not start the bot!' + str(e))
 
     finally:
+
         for t in threads:  # wait for all the threads to join
             t.join()
 

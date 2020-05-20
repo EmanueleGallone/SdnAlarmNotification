@@ -10,7 +10,6 @@ from GUI.BreezeStyleSheets import breeze_resources
 import json
 import logging
 from models import config_manager
-#from main import main
 
 #Global Variables for modify Json
 Notification=['']*6
@@ -165,7 +164,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.modify_json()
     #Enable Graphs and Table
     def Run(self):
-        # main.main()
         self.formGroupBox.setEnabled(False)
         self.button_credentials.setEnabled(False)
         self.formGroupBox2.setEnabled(False)
@@ -498,7 +496,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionSave2.setText(_translate("MainWindow", "Save Graph 2"))
         self.actionSave3.setText(_translate("MainWindow", "Save Graph 3"))
 
-if __name__ == "__main__":
+
+def __main():
     import sys
     app = QtWidgets.QApplication(sys.argv)
 
@@ -508,6 +507,17 @@ if __name__ == "__main__":
     stream = QTextStream(file)
     app.setStyleSheet(stream.readAll())
 
-    MainWindow = MainWindow()
-    MainWindow.show()
+    _MainWindow = MainWindow()
+    _MainWindow.show()
     sys.exit(app.exec_())
+
+
+def gui_thread():
+    import threading
+    t = threading.Thread(target=__main)
+    t.daemon = True
+    return t
+
+
+if __name__ == '__main__':
+    __main()
