@@ -1,6 +1,4 @@
-import alarm_library
 
-from models.notification_manager import NotificationManager
 from models.database_manager import DBHandler
 from GUI import GUI_Main as GUI
 
@@ -24,34 +22,12 @@ def _create_db():
 
 def main():
 
-    # create if does not exist the local.db
-    _create_db()
-
-    # starting thread to fetch netconf data from devices
-    threads = alarm_library.start_threads()
-
-    gui = GUI.gui_thread()  # getting the gui thread
-    threads.append(gui)  # saving the gui thread for future join
-    gui.start()  # starting the gui
-
-    # starting the notifier thread
-    notifier = NotificationManager().start()
-    threads.append(notifier)
+    gui = GUI.gui_thread()
+    gui.start()
 
     # TODO decide whether to stop the service if the GUI is exited or not
 
-    try:
-
-        # the bot needs to be inside the main thread for signalling purposes
-        telegram_bot_service.main()
-
-    except Exception as e:
-        logging.log(logging.INFO, 'Could not start the bot!' + str(e))
-
-    finally:
-
-        for t in threads:  # wait for all the threads to join
-            t.join()
+    gui.join()
 
 
 if __name__ == "__main__":

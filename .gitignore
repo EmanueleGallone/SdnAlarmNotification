@@ -144,6 +144,5 @@ cython_debug/
 config/personal_credentials.json
 /test
 local.db
-#services/t*
-services/my
+#services/tele*
 

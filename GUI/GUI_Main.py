@@ -7,6 +7,9 @@ from GUI.Graph2Class import Graph2
 from GUI.Graph3Class import Graph3
 from GUI.BreezeStyleSheets import breeze_resources
 
+from main_service import main as M
+import threading
+
 import json
 import logging
 from models import config_manager
@@ -164,6 +167,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.modify_json()
     #Enable Graphs and Table
     def Run(self):
+
+
+        t = threading.Thread(target=M)
+        t.daemon = True
+        t.start()
+
         self.formGroupBox.setEnabled(False)
         self.button_credentials.setEnabled(False)
         self.formGroupBox2.setEnabled(False)
