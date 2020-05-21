@@ -1,3 +1,14 @@
+"""
+Author  Fabio Carminati , 05-2020
+        Emanuele Gallone
+        Andrés Rodriguez
+
+The class MainWindow implements the GUI using PyQt5
+
+This is the script to be run in order to start the Alarm Management project
+
+Documentation of PyQt5 has been found on: https://doc.qt.io/qt-5/index.html
+"""
 #Import Pyqt5 Tools
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QFile, QTextStream
