@@ -100,8 +100,9 @@ def help(update, context):
                               ' or <i>\'seeHistory\'</i>\n '
                               'Commands Available:\n'
                               '<b>/status</b> -> It prints the status of the bot\n'
-                              '<b>/summary</b> -> It prints a summary of the overall alarms\n',
-                              '<b>/singleHostAlarms</b> -> It prints the severities for each host \n',parse_mode='HTML')
+                              '<b>/summary</b> -> It prints a summary of the overall alarms\n'
+                              '<b>/singleHostAlarms</b> -> It prints the severities for each host \n'
+                              , parse_mode='HTML')
 
 def status(update, context):
     """Echo the user the bot status."""
@@ -145,7 +146,7 @@ def singleHostAlarms(update, context):
         alarmsPerHost = getNewData.organizeAlarmsPerHost(results)
 
         for host in sorted(alarmsPerHost):
-            msg += f'<b>Ip Address</b>:{host}'
+            msg += f'<b>Ip Address</b>:{host}\n'
             for severity in sorted(alarmsPerHost[host]):
                 _config_manager = ConfigManager()
                 description = _config_manager.get_severity_mapping(int(severity))
