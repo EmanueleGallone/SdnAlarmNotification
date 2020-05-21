@@ -9,9 +9,9 @@ from models.config_manager import ConfigManager
 from collections import defaultdict
 import logging
 import os
-dirname = os.path.dirname(__file__)
 
-logging.basicConfig(filename="../../log.log", level=logging.ERROR)
+logfile = os.path.join(os.path.dirname(__file__), '../log.log')
+logging.basicConfig(filename=logfile, level=logging.ERROR)
 
 class CommonFunctions(object):
     def fetchDataFromDB(self):
