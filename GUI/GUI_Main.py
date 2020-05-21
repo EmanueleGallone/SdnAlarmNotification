@@ -190,7 +190,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def Run(self):
         # starting the Alarm Service
         t = threading.Thread(target=Main_Service)
-        t.daemon = True
         t.start()
         # Enable graphs and table
         self.formGroupBox.setEnabled(False)
