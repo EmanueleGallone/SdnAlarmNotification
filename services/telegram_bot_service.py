@@ -99,8 +99,8 @@ def help(update, context):
                               ' or <i>\'seeHistory\'</i>\n '
                               'Commands Available:\n'
                               '<b>/status</b> -> It prints the status of the bot\n'
-                              '<b>/summary</b> -> prints a summary of the overall alarms\n', parse_mode='HTML'
-                              '<b>/cumulativeAlarms</b> -> It prints the total occurencies of the severities \n')
+                              '<b>/summary</b> -> prints a summary of the overall alarms\n',
+                              '<b>/singleHostAlarms</b> -> It prints the severities for each IP host \n',parse_mode='HTML')
 
 def status(update, context):
     """Echo the user the bot status."""
@@ -108,29 +108,9 @@ def status(update, context):
     update.message.reply_text("I'm Up and Running! " + sunglasses_emoji)
 
 
+
 def summary(update, context):
-    """gives the user a summary of alarms"""
-    db = DBHandler().open_connection()
-    manager = ConfigManager()
-    msg = ''
-
-    result = db.count_alarms()
-
-    db.close_connection()
-
-    for res in result:
-        mapping = manager.get_severity_mapping(int(res[1]))
-        count = res[0]
-        msg += f'<b>Severity</b>: {mapping}, #: {count}\n'
-
-    if len(result) == 0:
-        msg += 'No Alarms in DB!'
-
-    update.message.reply_text('<b>Alarms\' Summary</b>:\n' + msg, parse_mode='HTML')
-
-def cumulativeAlarms(update, context):
     """gives the user the received severities with correspondent counters"""
-    db = DBHandler().open_connection()
     msg = ''
 
     getNewData = CommonFunctions()
@@ -140,12 +120,35 @@ def cumulativeAlarms(update, context):
             raise Exception("No msg sent to the subscribers")
         totalAlarmsPerSeverity = getNewData.organizeTotalAlarmsPerSeverity(results)
 
-        for severity in totalAlarmsPerSeverity:
+        for severity in sorted(totalAlarmsPerSeverity):
             _config_manager = ConfigManager()
             description=_config_manager.get_severity_mapping(int(severity))
-            msg += f'<b>Severity</b>:{severity} - {description}, counter: {(totalAlarmsPerSeverity[severity])}\n'
+            msg += f'<b>Severity</b>:{severity} - {description}:# {(totalAlarmsPerSeverity[severity])}\n'
 
         update.message.reply_text('<b>Alarms\' Summary</b>:\n' + msg, parse_mode='HTML')
+
+    except Exception as e:
+        logging.log(logging.ERROR, "Error loading data in the telegram bot: " + str(e))
+        msg += 'No Alarms in DB!'
+        update.message.reply_text(msg)
+
+def singleHostAlarms(update, context):
+    """gives the user the received severities with correspondent counters"""
+    msg = ''
+
+    getNewData = CommonFunctions()
+    results = getNewData.fetchDataFromDB()
+    try:
+        if (len(results) == 0):
+            raise Exception("No msg sent to the subscribers")
+        alarmsPerHost = getNewData.organizeAlarmsPerHost(results)
+
+        severityPerHost=[]
+        for host in sorted(alarmsPerHost):
+            for severity in sorted(alarmsPerHost[host]):
+                msg += f'<b>Ip Address</b>:{host} - {severity}:# {(alarmsPerHost[host][severity])}'
+            msg+='\n'
+        update.message.reply_text('<b>Alarms \' per Host </b>:\n' + msg, parse_mode='HTML')
 
     except Exception as e:
         logging.log(logging.ERROR, "Error loading data in the telegram bot: " + str(e))
@@ -172,7 +175,7 @@ def main():
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("status", status))
     dp.add_handler(CommandHandler("summary", summary))
-    dp.add_handler(CommandHandler("\cumulativeAlarms", cumulativeAlarms))
+    dp.add_handler(CommandHandler("singleHostAlarms", singleHostAlarms))
 
     # log all errors
     dp.add_error_handler(error)
