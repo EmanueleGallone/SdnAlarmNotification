@@ -7,6 +7,7 @@ such that we can show their relative percentages w.r.t. the total alarms receive
 The graph is updated every time the user clicks the RefreshButton on the GUI
 (i.e. we redo the plot with the new data retrieved from the local DB)
 
+Documentation of matplotlib has been found on: https://matplotlib.org/3.1.1/index.html
 """
 from collections import defaultdict
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas

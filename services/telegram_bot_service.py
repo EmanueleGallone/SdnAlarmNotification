@@ -13,6 +13,7 @@ import os
 
 from models.database_manager import DBHandler
 from models.config_manager import ConfigManager
+from GUI.commonPlotFunctions import CommonFunctions
 
 from telegram.ext import Updater, CommandHandler
 
@@ -98,8 +99,8 @@ def help(update, context):
                               ' or <i>\'seeHistory\'</i>\n '
                               'Commands Available:\n'
                               '<b>/status</b> -> It prints the status of the bot\n'
-                              '<b>/summary</b> -> prints a summary of the overall alarms\n', parse_mode='HTML')
-
+                              '<b>/summary</b> -> prints a summary of the overall alarms\n', parse_mode='HTML'
+                              '<b>/cumulativeAlarms</b> -> It prints the total occurencies of the severities \n')
 
 def status(update, context):
     """Echo the user the bot status."""
@@ -127,6 +128,30 @@ def summary(update, context):
 
     update.message.reply_text('<b>Alarms\' Summary</b>:\n' + msg, parse_mode='HTML')
 
+def cumulativeAlarms(update, context):
+    """gives the user the received severities with correspondent counters"""
+    db = DBHandler().open_connection()
+    msg = ''
+
+    getNewData = CommonFunctions()
+    results = getNewData.fetchDataFromDB()
+    try:
+        if (len(results) == 0):
+            raise Exception("No msg sent to the subscribers")
+        totalAlarmsPerSeverity = getNewData.organizeTotalAlarmsPerSeverity(results)
+
+        for severity in totalAlarmsPerSeverity:
+            _config_manager = ConfigManager()
+            description=_config_manager.get_severity_mapping(int(severity))
+            msg += f'<b>Severity</b>:{severity} - {description}, counter: {(totalAlarmsPerSeverity[severity])}\n'
+
+        update.message.reply_text('<b>Alarms\' Summary</b>:\n' + msg, parse_mode='HTML')
+
+    except Exception as e:
+        logging.log(logging.ERROR, "Error loading data in the telegram bot: " + str(e))
+        msg += 'No Alarms in DB!'
+        update.message.reply_text(msg)
+
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
@@ -147,6 +172,7 @@ def main():
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("status", status))
     dp.add_handler(CommandHandler("summary", summary))
+    dp.add_handler(CommandHandler("\cumulativeAlarms", cumulativeAlarms))
 
     # log all errors
     dp.add_error_handler(error)

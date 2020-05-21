@@ -7,6 +7,7 @@ while on the y-axis there are the correspondent number of alarms received from e
 The graph is updated every time the user clicks the RefreshButton on the GUI
 (i.e. we redo the plot with the new data retrieved from the local DB)
 
+Documentation of matplotlib has been found on: https://matplotlib.org/3.1.1/index.html
 """
 from GUI.commonPlotFunctions import CommonFunctions
 from collections import defaultdict
@@ -96,7 +97,7 @@ class Graph1(FigureCanvas):
             yAverageList.append(avg)
             xAverageList.append(int(key))
 
-        ax.plot(xAverageList, yAverageList, color='red', linestyle='--', label="Average number of alarms per severity")
+        ax.plot(xAverageList, yAverageList, color='red', linestyle='--',marker='o', label="Average number of alarms per severity")
         ax.legend(fancybox=True, framealpha=0.2)
         infoRefresh = "Last reFresh at time:" + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         ax.text(0, -0.12, infoRefresh, verticalalignment='center',
