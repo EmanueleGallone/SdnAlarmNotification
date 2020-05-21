@@ -99,8 +99,8 @@ def help(update, context):
                               ' or <i>\'seeHistory\'</i>\n '
                               'Commands Available:\n'
                               '<b>/status</b> -> It prints the status of the bot\n'
-                              '<b>/summary</b> -> prints a summary of the overall alarms\n', parse_mode='HTML'
-                              '<b>/cumulativeAlarms</b> -> It prints the total occurencies of the severities \n')
+                              '<b>/summary</b> -> prints a summary of the overall alarms\n'
+                              '<b>/cumulativeAlarms</b> -> It prints the total occurencies of the severities \n', parse_mode='HTML')
 
 def status(update, context):
     """Echo the user the bot status."""
@@ -172,7 +172,7 @@ def main():
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("status", status))
     dp.add_handler(CommandHandler("summary", summary))
-    dp.add_handler(CommandHandler("\cumulativeAlarms", cumulativeAlarms))
+    dp.add_handler(CommandHandler("cumulativeAlarms", cumulativeAlarms))
 
     # log all errors
     dp.add_error_handler(error)
