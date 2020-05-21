@@ -101,7 +101,7 @@ def help(update, context):
                               'Commands Available:\n'
                               '<b>/status</b> -> It prints the status of the bot\n'
                               '<b>/summary</b> -> It prints a summary of the overall alarms\n'
-                              '<b>/singleHostAlarms</b> -> It prints the severities for each host \n'
+                              '<b>/alarms</b> -> It prints the severities for each host \n'
                               , parse_mode='HTML')
 
 def status(update, context):
@@ -125,7 +125,7 @@ def summary(update, context):
         for severity in sorted(totalAlarmsPerSeverity):
             _config_manager = ConfigManager()
             description=_config_manager.get_severity_mapping(int(severity))
-            msg += f'<b>Severity</b>:{severity} - <i>{description}</i>:# {(totalAlarmsPerSeverity[severity])}\n'
+            msg += f'<i>{description}</i>: {(totalAlarmsPerSeverity[severity])}\n'
 
         update.message.reply_text('<b>Alarms\' Summary</b>:\n' + msg, parse_mode='HTML')
 
@@ -152,7 +152,7 @@ def singleHostAlarms(update, context):
                 description = _config_manager.get_severity_mapping(int(severity))
                 msg += f'{severity} - <i>{description}</i>:# {(alarmsPerHost[host][severity])}\n'
             msg+='\n'
-        update.message.reply_text('<b>Alarms \' per Host </b>:\n' + msg, parse_mode='HTML')
+        update.message.reply_text('<b>Alarms \' per Host </b>:\n\n' + msg, parse_mode='HTML')
 
     except Exception as e:
         logging.log(logging.ERROR, "Error loading data in the telegram bot: " + str(e))
@@ -179,7 +179,7 @@ def main():
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("status", status))
     dp.add_handler(CommandHandler("summary", summary))
-    dp.add_handler(CommandHandler("singleHostAlarms", singleHostAlarms))
+    dp.add_handler(CommandHandler("alarms", singleHostAlarms))
 
     # log all errors
     dp.add_error_handler(error)
