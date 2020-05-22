@@ -544,7 +544,7 @@ def __main():
 def gui_thread():
     import threading
     t = threading.Thread(target=__main)
-    t.daemon = True
+    # t.daemon = True
     return t
 
 
