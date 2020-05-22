@@ -107,7 +107,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.netconf_admin.clear()
         self.modify_json_network()
     #Include Notification changes in config.jason file
-    def modify_json(self):
+    def modify_json_notification(self):
         try:
             import os
             filename = os.path.join(os.path.dirname(__file__), '../config/config.json')
@@ -172,7 +172,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 msg.setDetailedText("Notification configurations were not selected")
         elif ip:
                 msg.setDetailedText("Network configurations were not selected")
-                self.modify_json()
+                self.modify_json_notification()
         msg.exec()
         if msg.clickedButton().text() == "Ignore":
             self.Run()
@@ -184,7 +184,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if notif or ip:
             self.json_changes_window(notif,ip)
         else:
-            self.modify_json()
+            self.modify_json_notification()
 
     # Run Butoon is pressed
     def Run(self):
