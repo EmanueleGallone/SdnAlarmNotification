@@ -103,6 +103,7 @@ def help(update, context):
                               '<b>/alarms</b> -> It prints the severities for each host \n'
                               , parse_mode='HTML')
 
+
 def status(update, context):
     """Echo the user the bot status."""
     sunglasses_emoji = '\U0001F60E'
