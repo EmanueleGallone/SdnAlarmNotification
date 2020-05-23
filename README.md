@@ -114,9 +114,9 @@ We use [SemVer](http://semver.org/) for versioning.
 
 ## Authors
 
-* **Emanuele Gallone [Github](https://github.com/EmanueleGallone/)** - *Development Team Leader* - *Initial work, architecture design, logic implementation*
-* **Fabio Carminati [Github](https://github.com/fabiocarminati)** - *GUI Developer, Matplotlib guy, Tester* - *GUI Implementation and testing*
-* **Andrés Felipe Rodriguez Vanegas [Github](https://github.com/andresrodriv)** - *GUI Developer and designer, Tester* - *GUI Implementation and testing*
+* **Emanuele Gallone [Github](https://github.com/EmanueleGallone/)** - *Development Team Leader* - *Initial work, architecture design, logic implementation* -  *emanuele.gallone@mail.polimi.it*
+* **Fabio Carminati [Github](https://github.com/fabiocarminati)** - *GUI Developer, Matplotlib guy, Tester* - *GUI Implementation and testing* - *fabio3.carminati@mail.polimi.it*
+* **Andrés Felipe Rodriguez Vanegas [Github](https://github.com/andresrodriv)** - *GUI Developer and designer, Tester* - *GUI Implementation and testing* - *andresfelipe.rodriguez@mail.polimi.it*
 
 ## License
 
@@ -131,3 +131,4 @@ solving all of our issues on gitlab. Vielen dank for your patience! :)
  assigning them a lot of tasks. I hope you learned a lot while doing this project together!
  * Thanks to [Alexhuszagh](https://github.com/Alexhuszagh) for providing the [style sheets](https://github.com/Alexhuszagh/BreezeStyleSheets) to improve the *look & feel* of our GUI.
  * The icons for the GUI has been found on https://www.iconfinder.com who owns the copyright of them (Iconblock license,Attribution-ShareAlike 3.0 Unported,)
+
