@@ -129,6 +129,7 @@ solving all of our issues on gitlab. Vielen dank for your patience! :)
 * Hat tip to my colleagues Fabio and Andrés that kept on writing
  code even tough I pressured them to learn to use new libraries and
  assigning them a lot of tasks. I hope you learned a lot while doing this project together!
+* Hat tip to my colleagues Emanuele and Andrés for the hard work done and the willingness to accept my proposals since this project has been assigned !
  * Thanks to [Alexhuszagh](https://github.com/Alexhuszagh) for providing the [style sheets](https://github.com/Alexhuszagh/BreezeStyleSheets) to improve the *look & feel* of our GUI.
  * The icons for the GUI has been found on https://www.iconfinder.com who owns the copyright of them (Iconblock license,Attribution-ShareAlike 3.0 Unported,)
 
