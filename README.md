@@ -38,6 +38,7 @@ Set the *DEBUG_MODE* to "false" to make the application use your parameters. <br
 <br>
 **NB**: 
 
+* for Polimi accounts the sender/receiver email parameter must be in the form of **CodicePersona@polimi.it** (PersonCode@Polimi.it) !
 * make sure to fill the right parameters under *Notification_config* otherwise the *mail sender service* will throw exceptions!
 * If you need to change the SMTP server, edit the config.json. The default value is set on Microsoft's Outlook (used by Polimi)
 
