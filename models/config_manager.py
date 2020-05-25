@@ -63,6 +63,9 @@ class ConfigManager(object):
     def get_version(self) -> str:
         return self.data['Version']
 
+    def getSeveritiesNumber(self) -> str:
+        return len(self.data['Severity_levels'])
+
     def get_severity_mapping(self, severity) -> str:
         """
         returns the dict mapping of severity levels (see in config.json)

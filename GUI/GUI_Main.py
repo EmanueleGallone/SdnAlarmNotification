@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import *
 from GUI.Graph1Class import Graph1
 from GUI.Graph2Class import Graph2
 from GUI.Graph3Class import Graph3
+from models.config_manager import ConfigManager
 from GUI.BreezeStyleSheets import breeze_resources
 #Connecting with the main code
 from services.main_service import main as Main_Service
@@ -389,7 +390,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.Password.setEchoMode(2)
         self.Reciver_Mail = QLineEdit()
         self.Severity = QSpinBox()
-        self.Severity.setMaximum(5)
+
+        conf_manager = ConfigManager()
+        totalSeverities=conf_manager.getSeveritiesNumber()
+        self.Severity.setMaximum(totalSeverities-1)
         self.Mail_Button= QCheckBox()
         self.Mail_Button.setAutoExclusive(False)
         self.Message_Button = QCheckBox()
