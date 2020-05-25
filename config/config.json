@@ -1,48 +1,46 @@
 {
-  "Debug_Mode": true,
-  "Do_not_save_existing_alarms" : true,
-  "Version": "0.5.0",
-
-  "Notification_config": {
-    "Sender_email": "",
-    "Sender_email_password": "",
-    "Receiver_Email": "",
-    "SMTP_SERVER": "smtp.office365.com",
-    "SMTP_PORT": "587",
-    "Send_email": true,
-    "Send_message": true,
-    "Severity_notification_threshold": 4
-
-  },
-
-  "Severity_levels": {
-    "critical": 5,
-    "major": 4,
-    "minor": 3,
-    "warning": 2,
-    "not-alarmed": 1,
-    "not-reported": 0
-  },
-
-  "Network": [{
-      "device_ip": "10.11.12.19",
-      "netconf_fetch_rate_in_sec": 5,
-      "netconf_port": 830,
-      "netconf_user": "admin",
-      "netconf_password": "CHGME.1a"
+    "Debug_Mode": true,
+    "Do_not_save_existing_alarms": true,
+    "Network": [
+        {
+            "device_ip": "10.11.12.19",
+            "netconf_fetch_rate_in_sec": 5,
+            "netconf_password": "CHGME.1a",
+            "netconf_port": 830,
+            "netconf_user": "admin"
+        },
+        {
+            "device_ip": "10.11.12.21",
+            "netconf_fetch_rate_in_sec": 5,
+            "netconf_password": "CHGME.1a",
+            "netconf_port": 830,
+            "netconf_user": "admin"
+        },
+        {
+            "device_ip": "10.11.12.23",
+            "netconf_fetch_rate_in_sec": 5,
+            "netconf_password": "CHGME.1a",
+            "netconf_port": 830,
+            "netconf_user": "admin"
+        }
+    ],
+    "Notification_config": {
+        "Receiver_Email": "",
+        "SMTP_PORT": "587",
+        "SMTP_SERVER": "smtp.office365.com",
+        "Send_email": false,
+        "Send_message": false,
+        "Sender_email": "",
+        "Sender_email_password": "",
+        "Severity_notification_threshold": 3
     },
-    {
-      "device_ip": "10.11.12.21",
-      "netconf_fetch_rate_in_sec": 5,
-      "netconf_port": 830,
-      "netconf_user": "admin",
-      "netconf_password": "CHGME.1a"
+    "Severity_levels": {
+        "critical": 5,
+        "major": 4,
+        "minor": 3,
+        "not-alarmed": 1,
+        "not-reported": 0,
+        "warning": 2
     },
-    {
-      "device_ip": "10.11.12.23",
-      "netconf_fetch_rate_in_sec": 5,
-      "netconf_port": 830,
-      "netconf_user": "admin",
-      "netconf_password": "CHGME.1a"
-    }]
+    "Version": "0.5.0"
 }
