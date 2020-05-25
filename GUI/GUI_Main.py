@@ -389,7 +389,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.Password.setEchoMode(2)
         self.Reciver_Mail = QLineEdit()
         self.Severity = QSpinBox()
-        self.Severity.setMaximum(3)
+        self.Severity.setMaximum(5)
         self.Mail_Button= QCheckBox()
         self.Mail_Button.setAutoExclusive(False)
         self.Message_Button = QCheckBox()
