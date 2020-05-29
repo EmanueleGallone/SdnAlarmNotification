@@ -84,13 +84,13 @@ Once the underlay architecture has been defined, we decide to provide an intuiti
 
 ![alt text](docu/img/home.png?raw=true)
 
-1. Here the user can edit the content of the *config.json* file either by modifying the notification part or by adding new devices
+1. Here the user can edit the content of the *config.json* file either by modifying the *notification* part or by adding new *devices*
 2. Here the user can move amid tabs and see the various graphs computed fetching the relevant information from the DB
 3. The user can see the actual content of the DB: until the **Run** *button* is clicked no information can be found on the DB that's why here we have an empty space 
 
 
 Once the **Run** *button* is clicked:
-4. We can see the actual content of the table by **Load Table** *button*:
+4. We can see the actual content of the table with the **Load Table** *button*:
 
 ![alt text](docu/img/table.png?raw=true)
 
