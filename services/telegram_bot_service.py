@@ -16,6 +16,9 @@ from models.database_manager import DBHandler
 from models.config_manager import ConfigManager
 from GUI.commonPlotFunctions import CommonFunctions
 
+# todo move the commonPlot functions outside of the gui. It's logically incorrect that a service
+# uses a method that is defined inside the gui
+
 from telegram.ext import Updater, CommandHandler
 
 # Enable logging
@@ -102,6 +105,8 @@ def help(update, context):
                               '<b>/summary</b> -> It prints a summary of the overall alarms\n'
                               '<b>/alarms</b> -> It prints the severities for each host \n'
                               , parse_mode='HTML')
+
+    #print(update.message.chat_id)
 
 
 def status(update, context):

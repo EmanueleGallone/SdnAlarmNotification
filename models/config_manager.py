@@ -9,7 +9,7 @@ from the rest of the program.
 import json
 import logging
 import os
-
+import time
 from typing import Dict, List
 
 dirname = os.path.dirname(__file__)
@@ -63,7 +63,7 @@ class ConfigManager(object):
     def get_version(self) -> str:
         return self.data['Version']
 
-    def getSeveritiesNumber(self) -> str:
+    def getSeveritiesNumber(self) -> int:
         return len(self.data['Severity_levels'])
 
     def get_severity_mapping(self, severity) -> str:
@@ -77,7 +77,7 @@ class ConfigManager(object):
             try:
                 result = [k for k, v in levels.items() if v == severity][0]
             except Exception as e:
-                logging.log(logging.ERROR, 'Cannot find Severity in mapping!' + str(e))
+                logging.log(logging.ERROR, 'Cannot find Severity in mapping!' + str(e) + 'severity : ' + str(severity))
             finally:
                 return result
 
@@ -94,5 +94,6 @@ if __name__ == '__main__':
           c.get_message_notification_flag(),
           )
 
+    time.sleep(10)
     print(c.get_severity_mapping(6))
     print(c.get_version())

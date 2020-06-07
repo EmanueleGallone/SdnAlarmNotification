@@ -1,5 +1,5 @@
 {
-    "Debug_Mode": true,
+    "Debug_Mode": false,
     "Do_not_save_existing_alarms": true,
     "Network": [
         {
@@ -28,8 +28,8 @@
         "Receiver_Email": "",
         "SMTP_PORT": "587",
         "SMTP_SERVER": "smtp.office365.com",
-        "Send_email": false,
-        "Send_message": false,
+        "Send_email": true,
+        "Send_message": true,
         "Sender_email": "",
         "Sender_email_password": "",
         "Severity_notification_threshold": 3
